@@ -1,0 +1,10 @@
+{
+  "name": "curriculum",
+  "version": "0.1.0",
+  "description": "Generate a structured, adaptive learning curriculum for any topic. Scaffolds modules with a 5-part spine, tracks progress, and appends assessments that adapt future modules to the learner's answers.",
+  "author": {
+    "name": "Matt Noxon"
+  },
+  "homepage": "https://github.com/mnoxon/mnox-ai/tree/main/curriculum",
+  "license": "MIT"
+}

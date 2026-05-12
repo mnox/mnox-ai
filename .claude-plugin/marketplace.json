@@ -1,0 +1,24 @@
+{
+  "name": "mnox-ai",
+  "owner": {
+    "name": "Matt Noxon"
+  },
+  "plugins": [
+    {
+      "name": "aio",
+      "source": "./aio",
+      "description": "Agentic Implementation Optimizer — audit, build, or extend agentic AI implementations.",
+      "version": "0.1.0",
+      "category": "agentic",
+      "tags": ["agents", "architecture", "audit", "reliability"]
+    },
+    {
+      "name": "curriculum",
+      "source": "./curriculum",
+      "description": "Generate a structured, adaptive learning curriculum for any topic — modules with a 5-part spine plus an append-only assessment loop that adapts future modules to the learner's answers.",
+      "version": "0.1.0",
+      "category": "learning",
+      "tags": ["learning", "curriculum", "education", "adaptive", "study-plan"]
+    }
+  ]
+}
