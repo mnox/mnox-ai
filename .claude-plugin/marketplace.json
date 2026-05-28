@@ -5,20 +5,12 @@
   },
   "plugins": [
     {
-      "name": "aio",
-      "source": "./aio",
-      "description": "Agentic Implementation Optimizer — audit, build, or extend agentic AI implementations.",
-      "version": "0.1.0",
+      "name": "mnox-ai",
+      "source": ".",
+      "description": "Matt Noxon's curated Claude Code skills — agentic implementation optimization (aio), adaptive learning curricula (curriculum), and clean-room legacy reimplementation (strangler-fig).",
+      "version": "0.2.0",
       "category": "agentic",
-      "tags": ["agents", "architecture", "audit", "reliability"]
-    },
-    {
-      "name": "curriculum",
-      "source": "./curriculum",
-      "description": "Generate a structured, adaptive learning curriculum for any topic — modules with a 5-part spine plus an append-only assessment loop that adapts future modules to the learner's answers.",
-      "version": "0.1.0",
-      "category": "learning",
-      "tags": ["learning", "curriculum", "education", "adaptive", "study-plan"]
+      "tags": ["agents", "architecture", "learning", "refactoring", "legacy", "clean-room"]
     }
   ]
 }
