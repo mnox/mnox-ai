@@ -41,7 +41,7 @@ Ask these questions (use AskUserQuestion; do not ask as plain text):
 2. **Long-term goal**: what is the user ultimately trying to be able to *do* with this knowledge? The goal reframes every module.
 3. **Emphasis areas**: which sub-topics need the deepest coverage? (multi-select or free text)
 4. **Starting level**: beginner / intermediate / advanced.
-5. **Output directory**: absolute path where the curriculum will be written (e.g., `~/dev/personal/<topic>-learning`). Default: propose `~/dev/personal/<kebab-topic>-learning`.
+5. **Output directory**: absolute path where the curriculum will be written (e.g., `./<topic>-learning` or any directory the user chooses). Default: propose `./<kebab-topic>-learning` in the current working directory.
 6. **Approximate module count**: 8–12 is the default range; allow override.
 
 If the user has already stated some of these in the prompt, skip those questions — do not re-ask.
