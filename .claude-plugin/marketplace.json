@@ -3,10 +3,11 @@
   "owner": {
     "name": "Matt Noxon"
   },
+  "description": "Matt Noxon's curated Claude Code skills — agentic implementation optimization, adaptive learning curricula, and clean-room legacy reimplementation.",
   "plugins": [
     {
       "name": "mnox-ai",
-      "source": ".",
+      "source": "./",
       "description": "Matt Noxon's curated Claude Code skills — agentic implementation optimization (aio), adaptive learning curricula (curriculum), and clean-room legacy reimplementation (strangler-fig).",
       "version": "0.2.0",
       "category": "agentic",
