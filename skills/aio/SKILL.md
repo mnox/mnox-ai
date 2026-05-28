@@ -1,11 +1,11 @@
 ---
 name: aio
-description: "Agentic Implementation Optimizer — audit existing agentic AI implementations for reliability/cost/architecture issues, walk through creating new agentic implementations from scratch, or extend existing implementations with new capabilities. Use when: '/aio', 'audit my agent', 'build an agent', 'agentic review', 'extend this agent', 'agent architecture', 'optimize my agent'. Covers architecture patterns, reliability engineering, guardrails, cost optimization, observability, and production readiness."
+description: "Agentic Implementation Optimizer — audit existing agentic AI implementations for reliability/cost/architecture issues, walk through creating new agentic implementations from scratch, or extend existing implementations with new capabilities. Use when: '/aio', 'audit my agent', 'build an agent', 'agentic review', 'extend this agent', 'agent architecture', 'optimize my agent'. Covers architecture patterns, reliability engineering, guardrails, cost optimization, observability, escape-hatch/abstention design, gap-signal capture, and production readiness."
 ---
 
 # Agentic Implementation Optimizer (AIO)
 
-Expert-level guidance for building, auditing, and extending agentic AI systems. Grounded in Anthropic's published research, peer-reviewed papers, and industry data compiled through April 2026.
+Expert-level guidance for building, auditing, and extending agentic AI systems. Grounded in Anthropic's published research, peer-reviewed papers, and industry data compiled through May 2026.
 
 ---
 
@@ -19,6 +19,48 @@ Determine the **mode** from the user's request:
 | "create", "build", "new agent", "start from scratch", "walk me through", `--create` | **Create** |
 | "extend", "add feature", "add capability", "improve", "optimize", `--extend` | **Extend** |
 | (ambiguous or no indicator) | **Ask the user** which mode they want |
+
+---
+
+## Cross-Cutting Principle: Resourcing, Escape Hatches & Gap Signals
+
+These three concerns are one loop, and they apply in **every** mode — Audit checks for them, Create builds them in, Extend must preserve them. Most "hallucination" in production is not a model defect; it is an agent forced to act without the resources to act correctly, with no sanctioned way to decline. Close this loop and hallucinations convert from silent failures into a labeled backlog of exactly what to build next.
+
+### 1. Progressive disclosure — give the agent the resources it needs, just-in-time
+
+An agent makes bad decisions when the context it needs is absent, buried, or dumped all at once. Provision context the way Anthropic's Agent Skills and "Effective Context Engineering for AI Agents" guidance prescribe — **progressive disclosure**: surface a thin, high-signal layer by default and let the agent pull deeper detail on demand, rather than front-loading everything into the prompt.
+
+- **Layered instructions**: a short always-loaded core; detailed references, examples, and edge-case playbooks fetched only when the task touches them (skill/sub-skill loading, retrieval, sub-agent hand-off).
+- **Just-in-time tools/resources**: prefer tools that *fetch* context (search, read, list) over statically stuffing the same context — the agent retrieves what the specific step needs, when it needs it.
+- **Why it matters**: "When Context Hurts" (arxiv 2605.04361) shows identical context can yield up to 20× gains *or* 46% degradation; "Context Length Alone Hurts" (arxiv 2510.05381) shows degradation even with perfect retrieval. More context is not more capability — disclose progressively and measure the sign.
+
+The goal: by the time the agent must decide, it either *has* what it needs or it can *go get it*. If neither is true, it must hit an escape hatch — never guess.
+
+### 2. Escape hatches — sanction the decision to NOT decide
+
+An escape hatch is a first-class, designed path the agent takes when it lacks the resources or confidence for a high-confidence decision. Stated to the agent plainly:
+
+> If you do not have the information/data you need to make a high-confidence decision, **do not make one.** Abstain, take the safe action, and log the gap.
+
+This is **abstention / selective prediction** as an architectural primitive, not an afterthought:
+
+- **Define the safe default per decision point** — escalate to a human, return a typed "insufficient-context" result, fall back to a deterministic path, or no-op. Silence-and-guess is never the default.
+- **Gate on calibrated confidence, not vibes** — trajectory-level confidence (HTC, arxiv 2601.15778) drives the abstain/HITL threshold, calibrated per domain (see HITL thresholds under Safety). Where the model can answer partially, hedge specificity rather than refuse outright (Calibrated Claim-Level Specificity, arxiv 2604.17487).
+- **Make the hatch cheap and reachable in the tool surface** — give the agent an explicit `flag_gap` / `escalate` / `report_insufficient_context` action. If the only available actions are "answer," the agent *will* answer — wrong. An escape hatch the agent can't reach isn't one.
+- **Recovery ≠ diagnosis** — PROBE (arxiv 2605.08717) shows a 65%/22% diagnosis-vs-recovery gap; the escape hatch is the *guaranteed* recovery path when in-loop recovery fails. It always exists, even when the agent can't fix the problem itself.
+
+### 3. Gap signals — every abstention and hallucination is a labeled data point
+
+The payoff: an escape hatch isn't just a safety valve, it's an **instrument**. Each trip emits a structured signal pointing directly at a missing resource, dataset, or capability.
+
+> Each hallucination/abstention flags an improvement: data that's missing, or a function your users need that you don't have. Frequent trips at one decision point = a critical gap, ranked for you by real traffic.
+
+- **Route every trip to a durable sink** — not a log line that scrolls away. A structured event (`{decision_point, missing_resource, confidence, inputs_hash, timestamp}`) to a queryable store (event log, warehouse table, issue tracker).
+- **Capture hallucinations as the same signal class** — when post-hoc evals or user feedback catch a confident-but-wrong answer, that's an escape hatch that *should have fired and didn't*. Feed it back as both a gap signal and a calibration-threshold correction.
+- **Close the loop into the roadmap** — aggregate by decision point, rank by frequency × cost. High-frequency gaps become the next tool, dataset, or integration. This is the agent telling you what to build, grounded in real traffic instead of guesses. (Complements the failure-attribution loop under Reliability — attribution says *why a run failed*; gap signals say *what's structurally missing*.)
+- **This is active learning for your product surface** — abstentions are the highest-information points in your traffic; they mark exactly where the system's competence boundary lies.
+
+**Mode hooks:** Audit verifies all three exist and that gap signals actually reach a queryable sink (a hatch with no sink is theater). Create builds the abstention primitive in Phase D and the signal pipeline in Phase F. Extend gives every new capability its own escape hatch and signal route before shipping.
 
 ---
 
@@ -104,10 +146,18 @@ Check error handling:
 - Are opaque errors transformed into actionable guidance?
 - Is there two-phase initialization (setup agent vs. execution agent)?
 - Are sub-agents writing to filesystem vs. through lead agent?
-- **Is there a failure-attribution loop?** Long-horizon agents need root-cause attribution feeding corrective signals back to the agent. AgentDebug (ICLR 2026) and the newer ErrorProbe (arxiv 2604.17658, April 2026) anchor this online; PALADIN-style failure-rich training is the offline complement. Empirical grounding from HORIZON (arxiv 2604.11978, April 2026): **agents collapse via compounding off-path tool calls, not single hard steps** — your attribution loop must recognize trajectory drift, not just terminal failures. Recommend the offline+online pair for any production agent that runs >10 steps.
+- **Is there a failure-attribution loop?** Long-horizon agents need root-cause attribution feeding corrective signals back to the agent. AgentDebug (ICLR 2026) and the newer ErrorProbe (arxiv 2604.17658, April 2026) anchor this online; PALADIN-style failure-rich training is the offline complement. Empirical grounding from HORIZON (arxiv 2604.11978, April 2026): **agents collapse via compounding off-path tool calls, not single hard steps** — your attribution loop must recognize trajectory drift, not just terminal failures. Attribution itself is now cheap and bounded — MASPrism (arxiv 2605.07509) attributes from prefill signals ~6.7× faster than replay, and Conformal Agent Error Attribution (arxiv 2605.06788) gives coverage-guaranteed localization sets. Recommend the offline+online pair for any production agent that runs >10 steps.
+- **Does the agent actually RECOVER, not just diagnose?** PROBE (arxiv 2605.08717, May 2026) surfaces the **diagnosis–recovery gap**: 65% diagnosis accuracy but only 22% recovery success on unresolved SWE cases. Correct attribution does NOT imply the agent can act on it. Audit recovery as a separate, harder metric — a team that "has a failure-attribution loop" may still have no working recovery. Flag any recovery story that's measured only by attribution accuracy.
 
 Check evaluation framing for long-horizon agents:
 - **Is reliability measured beyond pass@1?** For agents that run more than a handful of steps, single-shot success rate is the wrong metric. Look for reliability-decay metrics (RDC, VAF, GDS — arxiv 2603.29231) or equivalent: how does success rate degrade over horizon length? Are there checkpoint-and-restart policies for "meltdown" runs?
+
+Check escape hatches & gap-signal capture (see **Cross-Cutting Principle**):
+- **Can the agent abstain?** Is there an explicit sanctioned path — an `escalate` / `flag_gap` / `report_insufficient_context` tool or typed "insufficient-context" result — for when the agent lacks the resources/confidence to decide? If the only available actions are "answer," flag it: the agent is structurally forced to guess.
+- **Is abstention gated on calibrated confidence?** Trajectory-level confidence (arxiv 2601.15778) driving the threshold, not an uncalibrated self-report.
+- **Do escape-hatch trips and caught hallucinations reach a queryable sink?** A structured gap-signal store (event log / warehouse / issue tracker), not a scrolling log line. A hatch with no durable sink is theater — flag it.
+- **Is there a loop from gap signals to the roadmap?** Aggregation by decision point, ranked by frequency × cost. If nobody mines the signals, the instrument is dead.
+- **Is context provisioned via progressive disclosure?** Thin high-signal core + just-in-time fetch, not everything front-loaded (arxiv 2605.04361, 2510.05381). Over-stuffed context is itself a reliability defect.
 
 #### 2c. Safety & Guardrails Audit Agent
 Check the guardrail stack at input, flow, and output layers:
@@ -124,11 +174,14 @@ Check **concrete prompt injection defenses** (not just risk taxonomies):
 - Is request structure enforced via something like PCFI / Prompt Control-Flow Integrity (arxiv 2603.18433) — system/dev/user/retrieved segments treated as priority-tiered, not concatenated text?
 - For agents that receive any retrieved content (RAG, tool outputs, web), assume injection-by-default and architect for it.
 - **Don't expect a wrapper to save you**: The Defense Trilemma (arxiv 2604.06436, April 2026) is a Lean-4 impossibility proof that no continuous, utility-preserving wrapper defense can make all outputs safe. Recommend at least one of: training-time alignment, discontinuous filters at action boundaries, or architectural separation between deliberation and action.
-- **Treat tool-execution surfaces as untrusted RPC**: Microsoft Security disclosed CVE-2026-26030 and CVE-2026-25592 (May 7 2026) — prompt injection escalating to RCE via Semantic Kernel string interpolation + exposed file-write tools. Sandbox tools that touch the filesystem; assume any retrieved/generated string can become a shell.
+- **Treat tool-execution surfaces as untrusted RPC**: Microsoft Security disclosed CVE-2026-26030 and CVE-2026-25592 (May 7 2026) — prompt injection escalating to RCE via Semantic Kernel string interpolation + exposed file-write tools. Sandbox tools that touch the filesystem; assume any retrieved/generated string can become a shell. The May 2026 vm2 CVE cluster (13 CVEs, CVSS 9–10) shows language-level sandboxes are not hard boundaries — recommend process-level isolation (gVisor/Firecracker/microVMs) beneath any in-process interpreter sandbox.
+- **Two independent impossibility results now bound injection defense**: the Defense Trilemma (Lean-4) and "AI Agents May Always Fall for Prompt Injections" (Contextual Integrity, arxiv 2605.17634) jointly retire "we'll add an injection filter" as a complete answer. Audit for **impact containment** (least agency, action-boundary gating, provenance auditing) — not just a filter.
+- **Check agent identity & MCP auth** (often the real gap): post-RSAC-2026, identity tracing — not content filtering — is the dominant MCP weakness (~38% of MCP servers ship with no auth; confused-deputy via OAuth token pass-through). For any MCP-wired or multi-agent system, verify per-agent identity, scoped least-privilege credentials, and delegation provenance (arxiv 2604.23280 enumerates the five structural gaps). Flag token pass-through and over-broad scopes as HIGH.
 
 Check **EU AI Act readiness** (high-risk applicability date provisionally delayed to **December 2 2027** by the May 7 2026 Council–Parliament agreement; obligations and penalties unchanged):
 - ≥6-month log retention with override mechanisms and external-monitoring data flows (Articles 19/26)
 - Penalties up to €15M or 3% global turnover — flag as HIGH (was CRITICAL pre-delay) for any EU-deployed or EU-user-touching agent without retention/override infrastructure on the roadmap. Final adoption pending; teams already EU-deployed should keep infrastructure built for the Aug 2026 deadline running as a safety margin.
+- **The delay does NOT cover transparency.** EC Draft Guidelines on AI Transparency (May 2026) confirm **Article 50(1) agent-disclosure obligations still bind at August 2 2026** — a deployer must disclose whenever a human is likely interacting with an AI agent, plus multi-layered synthetic-content marking. Flag any EU-user-facing agent lacking interaction disclosure as HIGH on the *unchanged* Aug 2 2026 clock. Don't let the high-risk delay create false comfort about transparency duties.
 - The five compliance properties (traceability, explainability, authorization, immutability, reproducibility) listed under Production Readiness map directly to AI Act requirements
 - **US-side parallel**: NIST AI Agent Standards Initiative (nist.gov/caisi) — voluntary track covering agent identity/auth, JIT access, action-level approvals; AI Agent Interoperability Profile due Q4 2026. Pair with OWASP/MS Toolkit on technical side and EU AI Act on regulatory side as the emerging compliance triangle.
 
@@ -267,6 +320,8 @@ Guide the user through building it phase by phase. For each phase, explain what 
 - Output validation (Pydantic validators or equivalent)
 - Human-in-the-loop gates for high-risk operations
 - Confidence thresholds appropriate to domain
+- Escape hatches: an explicit abstention path per high-stakes decision (escalate / typed insufficient-context result / safe deterministic fallback) — never let "guess" be the only available action
+- Confidence-gated abstention using trajectory-level confidence, calibrated per domain
 
 **Phase E: Production Hardening**
 - Model routing/tiering for cost optimization
@@ -280,6 +335,8 @@ Guide the user through building it phase by phase. For each phase, explain what 
 - Eval suite with regression testing in CI/CD
 - Prompt versioning
 - Canary deployment strategy
+- Gap-signal capture: route every escape-hatch trip and caught hallucination to a structured, queryable sink (`{decision_point, missing_resource, confidence, timestamp}`)
+- Gap-to-roadmap loop: aggregate gap signals by decision point, rank by frequency × cost, feed the top gaps into the build backlog — the agent telling you what to build next
 
 At each phase, offer to write the code or just explain the approach — let the user drive.
 
@@ -289,13 +346,15 @@ Before declaring "done", walk through this checklist:
 
 - [ ] Architecture pattern justified (simplest that works)
 - [ ] Tools follow Anthropic's design guidance
-- [ ] Context engineering strategy in place
+- [ ] Context engineering strategy in place (progressive disclosure — just-in-time, not front-loaded)
 - [ ] Unit tests for tool routing/schema validation
 - [ ] Eval suite with threshold assertions
 - [ ] Integration tests for failure modes
 - [ ] Input guardrails (prompt injection prevention)
 - [ ] Output validation
 - [ ] Human-in-the-loop for high-risk operations
+- [ ] Escape hatches: sanctioned abstention path at every high-stakes decision (never guess-only)
+- [ ] Gap-signal capture wired to a queryable sink + a loop into the roadmap
 - [ ] Cost optimization (model routing, caching)
 - [ ] Observability (tracing, logging, metrics)
 - [ ] Error handling with actionable guidance
@@ -341,7 +400,7 @@ Produce a plan that covers:
 1. **Tool additions/modifications** following Anthropic's tool design guidance
 2. **Orchestration changes** (if pattern needs to evolve)
 3. **Context engineering updates** (new memory needs, compaction changes)
-4. **New guardrails** for new capabilities
+4. **New guardrails** for new capabilities — including an escape hatch (abstention/escalation path) and a gap-signal route for the new capability, so a feature that can't yet be served correctly fails safe and tells you what's missing instead of guessing
 5. **Testing additions**:
    - New unit tests for new tool routing/schema
    - New eval cases for new capabilities
@@ -413,6 +472,22 @@ This skill draws on the following research and guidance. Reference these when ma
 - Microsoft Security CVEs (May 7 2026) — Semantic Kernel RCE (CVE-2026-26030, CVE-2026-25592)
 - NIST AI Agent Standards Initiative (Q2 2026) — US-side governance counterpart to OWASP + EU AI Act
 - EU AI Act Council–Parliament Provisional Agreement (May 7 2026) — high-risk applicability delayed to Dec 2 2027
+- EC Draft Guidelines on AI Transparency (May 2026) — Article 50(1) agent-disclosure still binds Aug 2 2026 despite high-risk delay
+- arxiv 2605.17634 (May 2026) — AI Agents May Always Fall for Prompt Injections: Contextual-Integrity impossibility result (second formal proof after Defense Trilemma)
+- vm2 Sandbox-Escape CVE Wave (May 2026) — 13 CVEs CVSS 9–10; injection→sandbox-escape→host RCE; sandbox language layer ≠ trust boundary
+- arxiv 2604.23280 (Apr 2026) — AI Identity: five structural gaps; MCP auth/identity is the load-bearing security gap (RSAC 2026: ~38% MCP servers no auth)
+- arxiv 2605.08717 (May 2026) — PROBE: the diagnosis–recovery gap (65% diagnosis, 22% recovery); recovery is a separate, harder metric
+- arxiv 2605.09252 (May 2026) — tool-necessity linearly decodable from hidden states; Probe&Prefill cuts unnecessary tool calls ~48%
+- arxiv 2605.08477 (May 2026) — full-horizon planning + lazy replanning matches step-by-step at 2–3× fewer tokens
+- arxiv 2604.01212 (Apr 2026) — YC-Bench: contamination-immune 52-week sim; scratchpad persistence is the strongest long-horizon predictor
+- arxiv 2604.05336 (Apr 2026) — TRACE: capability-targeted training beats GEPA on scaling (+14.1 pts τ²-bench)
+- arxiv 2605.07164 (May 2026) — ExpWeaver: invoke experience selectively at high-uncertainty, not always
+- arxiv 2602.09902 (Feb 2026) — Routing/Cascades game theory: static threshold often beats cascading
+- OTel GenAI conventions v1.37–v1.41 — invoke_agent spans + MCP trace-context propagation (v1.39)
+- State of FinOps 2026 — AI spend 31%→98% of FinOps scope; agents run a triple cost meter
+- Gartner (May 26 2026) — 40% of enterprises to demote/decommission agents by 2027; proportional (not binary) governance across four autonomy levels
+- Gartner (Apr 28 2026) — agent sprawl: 18% have full inventory; 1,600+ agents/enterprise projected by end-2026
+- Databricks 2026 State of AI Agents — governance 12× / evals 6× production graduation (20k+ orgs)
 
 ### Agentic Memory / RAG
 
@@ -454,6 +529,7 @@ Memory demonstrably improves agent outcomes, but naive memory management is acti
 - Continuous improvement without fine-tuning is viable (Memento: top-1 GAIA via episodic case memory alone)
 - Agent memory helps AND hurts simultaneously — Reflexion/Mem0 show clear gains, but experience-following causes error propagation and context bloat degrades performance even with perfect retrieval
 - RAG hallucination is a retrieval-independent problem — parametric knowledge overrides retrieved context in the residual stream (ReDeEP), so retrieval accuracy alone is insufficient
+- Hallucination is often a resourcing failure, not a model defect — an agent forced to act without the context it needs and with no sanctioned way to decline; the fix is progressive disclosure + an escape hatch, and each trip becomes a labeled signal of a missing resource/dataset/function (see Cross-Cutting Principle)
 
 ### Frameworks Reference
 | Framework | Sweet Spot |
