@@ -1,0 +1,181 @@
+<!doctype html>
+<!--
+  DEBUT AUDIT — HTML template (public-readiness audit).
+  The orchestrator (Phase 4) fills every {{TOKEN}} and repeats every
+  <!-- REPEAT: ... --> block once per item. Only validated findings appear.
+  Severity classes: sev-critical | sev-high | sev-med | sev-low | sev-nit.
+  Verdict-pill classes: v-shipit | v-polish | v-notready.
+  Self-contained: inline CSS only, NO external dependencies.
+  Strip these comments and unused REPEAT stubs before writing the final file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debut Audit — {{REPO_NAME}}</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --line:#30363d;
+    --ink:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+    --crit:#f85149; --high:#ff7b39; --med:#e3b341; --low:#3fb950;
+    --nit:#8b949e; --ok:#3fb950;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:38px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:0 0 6px}
+  a{color:var(--accent)}
+  code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:13px}
+  .meta{color:var(--muted);font-size:13px;margin-bottom:24px}
+  .meta span{margin-right:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;margin:14px 0}
+  /* verdict banner */
+  .verdict{display:inline-block;font-size:18px;font-weight:700;padding:6px 16px;
+    border-radius:24px;letter-spacing:.02em}
+  .verdict.v-shipit{background:#1f6f3f;color:#d6ffe2}
+  .verdict.v-polish{background:#5a4a1f;color:#ffe9b0}
+  .verdict.v-notready{background:#6f1f23;color:#ffd6d9}
+  /* score */
+  .scorecard{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+  .gauge{--v:{{SCORE}};position:relative;width:150px;height:150px;border-radius:50%;
+    background:conic-gradient(var(--scorecolor) calc(var(--v)*1%),var(--line) 0);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .gauge::before{content:"";position:absolute;inset:14px;border-radius:50%;background:var(--panel)}
+  .gauge b{position:relative;font-size:42px}
+  .gauge small{position:relative;color:var(--muted);font-size:13px}
+  .breakdown{flex:1;min-width:300px}
+  .breakdown table{width:100%;border-collapse:collapse;font-size:13px}
+  .breakdown th{text-align:left;color:var(--muted);font-weight:600;padding:3px 6px;border-bottom:1px solid var(--line)}
+  .breakdown td{padding:3px 6px;border-bottom:1px solid var(--line)}
+  .breakdown td.num{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+  .breakdown tr.total td{font-weight:700;color:var(--ink);border-top:2px solid var(--line)}
+  .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;min-width:80px}
+  .bar > i{display:block;height:100%;background:var(--accent)}
+  /* severity-count chips */
+  .counts{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .chip{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--panel2)}
+  .chip.sev-critical{background:var(--crit);color:#fff}
+  .chip.sev-high{background:var(--high);color:#1a1100}
+  .chip.sev-med{background:var(--med);color:#1a1500}
+  .chip.sev-low{background:var(--low);color:#04210d}
+  .chip.sev-nit{background:var(--nit);color:#0d1117}
+  /* findings */
+  .finding{border-left:4px solid var(--line);padding:12px 16px;margin:10px 0;
+    background:var(--panel2);border-radius:0 8px 8px 0}
+  .sev-critical{border-color:var(--crit)} .sev-high{border-color:var(--high)}
+  .sev-med{border-color:var(--med)} .sev-low{border-color:var(--low)}
+  .sev-nit{border-color:var(--nit)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;padding:2px 8px;border-radius:20px;margin-right:6px}
+  .tag.sev-critical{background:var(--crit);color:#fff;border:0}
+  .tag.sev-high{background:var(--high);color:#1a1100;border:0}
+  .tag.sev-med{background:var(--med);color:#1a1500;border:0}
+  .tag.sev-low{background:var(--low);color:#04210d;border:0}
+  .tag.sev-nit{background:var(--nit);color:#0d1117;border:0}
+  .tag.dom{background:var(--panel);color:var(--accent);border:1px solid var(--line)}
+  .tag.blocker{background:#6f1f23;color:#ffd6d9;border:0}
+  .tag.destructive{background:#5a2e6f;color:#f0d6ff;border:0}
+  .finding p{margin:6px 0}
+  .finding .lbl{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  table.grid{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  table.grid th,table.grid td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.grid th{background:var(--panel2)}
+  .pill{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--panel)}
+  .note{font-size:13px;color:var(--muted)}
+  footer{margin-top:48px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🚀 Debut Audit — {{REPO_NAME}}</h1>
+  <div class="meta">
+    <span><b>Date:</b> {{DATE}}</span>
+    <span><b>Branch:</b> {{BRANCH}}</span>
+    <span><b>Mode:</b> {{MODE}}</span>
+    <span><b>Report:</b> <a href="{{REPORT_PATH}}">markdown report</a></span>
+  </div>
+
+  <h2>Verdict</h2>
+  <div class="panel">
+    <!-- VERDICT_CLASS = v-shipit (SHIP IT) | v-polish (NEEDS POLISH) | v-notready (NOT READY) -->
+    <p><span class="verdict {{VERDICT_CLASS}}">{{VERDICT}}</span></p>
+    <p class="note">{{VERDICT_NOTE}}</p>
+    <div class="counts">
+      <span class="chip sev-critical">{{COUNT_CRITICAL}} CRITICAL</span>
+      <span class="chip sev-high">{{COUNT_HIGH}} HIGH</span>
+      <span class="chip sev-med">{{COUNT_MEDIUM}} MEDIUM</span>
+      <span class="chip sev-low">{{COUNT_LOW}} LOW</span>
+      <span class="chip sev-nit">{{COUNT_NIT}} NIT</span>
+    </div>
+  </div>
+
+  <h2>Score</h2>
+  <div class="panel scorecard">
+    <!-- set --scorecolor: var(--ok) >=85, var(--med) 60-84, var(--high) 40-59, var(--crit) <40 -->
+    <div class="gauge" style="--scorecolor:{{SCORE_COLOR}}">
+      <div style="text-align:center"><b>{{SCORE}}</b><br><small>/ 100</small></div>
+    </div>
+    <div class="breakdown">
+      <table>
+        <tr><th>Domain</th><th>Weight</th><th>Sub-score</th><th></th></tr>
+        <!-- bar width = sub-score/weight*100 (%) -->
+        <tr><td>secrets-history</td><td class="num">30</td><td class="num">{{D1_SCORE}}</td><td><div class="bar"><i style="width:{{D1_PCT}}%"></i></div></td></tr>
+        <tr><td>community-health</td><td class="num">20</td><td class="num">{{D2_SCORE}}</td><td><div class="bar"><i style="width:{{D2_PCT}}%"></i></div></td></tr>
+        <tr><td>licensing</td><td class="num">15</td><td class="num">{{D3_SCORE}}</td><td><div class="bar"><i style="width:{{D3_PCT}}%"></i></div></td></tr>
+        <tr><td>code-quality</td><td class="num">15</td><td class="num">{{D4_SCORE}}</td><td><div class="bar"><i style="width:{{D4_PCT}}%"></i></div></td></tr>
+        <tr><td>tests-ci</td><td class="num">10</td><td class="num">{{D5_SCORE}}</td><td><div class="bar"><i style="width:{{D5_PCT}}%"></i></div></td></tr>
+        <tr><td>deps-release</td><td class="num">10</td><td class="num">{{D6_SCORE}}</td><td><div class="bar"><i style="width:{{D6_PCT}}%"></i></div></td></tr>
+        <tr class="total"><td>Total</td><td class="num">100</td><td class="num">{{SCORE}}</td><td></td></tr>
+      </table>
+      <p class="note">{{SCORE_NOTE}}</p>
+    </div>
+  </div>
+
+  <h2>Summary</h2>
+  <div class="panel">{{SUMMARY}}</div>
+
+  <h2>Findings</h2>
+  <p class="note">Sorted by severity. <code>BLOCKER</code> = gates the verdict. <code>DESTRUCTIVE</code> = fix rewrites git history; flag-only, never run — rotate/revoke any leaked credential FIRST.</p>
+  <!-- REPEAT per validated finding, sorted severity desc. Omit the blocker/destructive tags when not applicable. -->
+  <div class="finding sev-{{SEV}}">
+    <h3>
+      <span class="tag sev-{{SEV}}">{{SEV}}</span>
+      <span class="tag dom">{{F_DOMAIN}}</span>
+      <span class="tag blocker">BLOCKER</span>
+      <span class="tag destructive">DESTRUCTIVE</span>
+      {{F_ID}} — {{F_TITLE}}
+    </h3>
+    <p><span class="lbl">Location</span> <code>{{F_LOCATION}}</code> &nbsp;<span class="lbl">Confidence</span> <span class="pill">{{F_CONFIDENCE}}</span></p>
+    <p><span class="lbl">Evidence</span> {{F_EVIDENCE}}</p>
+    <p><span class="lbl">Why (public impact)</span> {{F_WHY}}</p>
+    <p><span class="lbl">Fix</span> {{F_FIX}}</p>
+  </div>
+  <!-- /REPEAT -->
+
+  <h2>Validation ledger</h2>
+  <p class="note">Every CRITICAL/HIGH finding re-verified in the main context. Demoted or dropped findings do NOT count toward the score.</p>
+  <table class="grid">
+    <tr><th>Finding</th><th>Disposition</th><th>Reason / evidence</th></tr>
+    <!-- REPEAT per validated/demoted/dropped finding -->
+    <tr><td>{{VL_ID}}</td><td>{{VL_DISPOSITION}}</td><td>{{VL_REASON}}</td></tr>
+    <!-- /REPEAT -->
+  </table>
+
+  <h2>Skipped / degraded</h2>
+  <p class="note">What could not be assessed, ran degraded, or was out of scope for {{MODE}} mode — and what would resolve it.</p>
+  <table class="grid">
+    <tr><th>Item</th><th>Reason</th><th>Resolution</th></tr>
+    <!-- REPEAT per skipped/degraded item -->
+    <tr><td>{{S_ITEM}}</td><td>{{S_REASON}}</td><td>{{S_RESOLUTION}}</td></tr>
+    <!-- /REPEAT -->
+  </table>
+
+  <footer>Generated by <code>/debut</code> · {{DATE}} · {{MODE}} mode · main-thread-validated · draft-only / flag-only — never commits, never auto-fixes, never rewrites history.</footer>
+</div>
+</body>
+</html>

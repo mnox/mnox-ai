@@ -1,7 +1,7 @@
 {
   "name": "mnox-ai",
-  "version": "0.2.0",
-  "description": "Matt Noxon's curated Claude Code skills — agentic implementation optimization, adaptive learning curricula, and clean-room legacy reimplementation.",
+  "version": "0.3.0",
+  "description": "Matt Noxon's curated Claude Code skills for building, auditing, and refactoring software and AI systems.",
   "author": {
     "name": "Matt Noxon"
   },
