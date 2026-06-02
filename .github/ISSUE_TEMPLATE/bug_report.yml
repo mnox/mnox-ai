@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a problem with a skill or one of its helper scripts.
+labels: ["bug"]
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Which skill?
+      placeholder: e.g. aio, debut, schema-review
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you run, what did you expect, and what actually happened?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact invocation and any input needed to reproduce it.
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: Claude Code version, OS, Python version

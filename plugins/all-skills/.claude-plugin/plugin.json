@@ -1,0 +1,18 @@
+{
+  "name": "all-skills",
+  "version": "0.4.0",
+  "description": "Meta-plugin that installs every mnox-ai skill at once via plugin dependencies.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT",
+  "dependencies": [
+    { "name": "aio" },
+    { "name": "compliance-review" },
+    { "name": "curriculum" },
+    { "name": "debut" },
+    { "name": "diagnose-queries" },
+    { "name": "schema-review" },
+    { "name": "strangler-fig" },
+    { "name": "util-review" }
+  ]
+}

@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Validate plugin manifests are well-formed JSON
+        run: |
+          python - <<'PY'
+          import glob, json
+          paths = [".claude-plugin/marketplace.json"]
+          paths += sorted(glob.glob("plugins/*/.claude-plugin/plugin.json"))
+          assert len(paths) > 1, "no per-plugin manifests found under plugins/*/.claude-plugin/"
+          for path in paths:
+              json.load(open(path))
+              print(f"{path} OK")
+          PY
+
+      - name: Compile all skill scripts
+        run: python -m compileall -q plugins
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -t .
+
+# Note: `claude plugin validate .` is the authoritative manifest check (see CONTRIBUTING.md),
+# but it requires the Claude Code CLI. CI does the lightweight JSON-structure check above; run
+# the full `claude plugin validate .` locally before opening a PR.

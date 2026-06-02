@@ -1,0 +1,6 @@
+# Pinned lint configuration for mnox-ai helper scripts and tests.
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]

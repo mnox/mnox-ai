@@ -45,8 +45,7 @@ def run(argv, cwd=None, timeout=DEFAULT_TIMEOUT):
         proc = subprocess.run(
             argv,
             cwd=str(cwd) if cwd else None,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             timeout=timeout,
             text=True,
         )
@@ -61,7 +60,7 @@ def run(argv, cwd=None, timeout=DEFAULT_TIMEOUT):
     except subprocess.TimeoutExpired:
         return {"ok": False, "code": None, "out": "", "err": "timeout"}
     except Exception as exc:  # noqa: BLE001 - never let a probe crash the collector
-        return {"ok": False, "code": None, "out": "", "err": "error: %s" % exc}
+        return {"ok": False, "code": None, "out": "", "err": f"error: {exc}"}
 
 
 def git(repo, args, timeout=DEFAULT_TIMEOUT):
@@ -180,7 +179,9 @@ PRESENCE_SPEC = {
     "readme": ["README.md", "README.rst", "README.txt", "README"],
     "license": ["LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING", "COPYING.md"],
     "contributing": ["CONTRIBUTING.md", ".github/CONTRIBUTING.md", "docs/CONTRIBUTING.md"],
-    "code_of_conduct": ["CODE_OF_CONDUCT.md", ".github/CODE_OF_CONDUCT.md", "docs/CODE_OF_CONDUCT.md"],
+    "code_of_conduct": [
+        "CODE_OF_CONDUCT.md", ".github/CODE_OF_CONDUCT.md", "docs/CODE_OF_CONDUCT.md",
+    ],
     "security": ["SECURITY.md", ".github/SECURITY.md", "docs/SECURITY.md"],
     "support": ["SUPPORT.md", ".github/SUPPORT.md"],
     "codeowners": ["CODEOWNERS", ".github/CODEOWNERS", "docs/CODEOWNERS"],
@@ -204,8 +205,8 @@ LINT_CONFIGS = ["eslint.config.js", "eslint.config.mjs", "eslint.config.cjs", "e
                 ".eslintrc.yaml", "biome.json", "biome.jsonc"]
 
 FORMAT_CONFIGS = [".prettierrc", ".prettierrc.json", ".prettierrc.js", ".prettierrc.cjs",
-                  ".prettierrc.yml", ".prettierrc.yaml", "prettier.config.js", "prettier.config.cjs",
-                  "biome.json", "biome.jsonc"]
+                  ".prettierrc.yml", ".prettierrc.yaml", "prettier.config.js",
+                  "prettier.config.cjs", "biome.json", "biome.jsonc"]
 
 
 def collect_presence(repo):
@@ -369,7 +370,7 @@ def collect_tsconfig(repo, tsconfig_path):
     try:
         raw = path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
-        return {"available": False, "reason": "read failed: %s" % exc}
+        return {"available": False, "reason": f"read failed: {exc}"}
     try:
         data = json.loads(_strip_jsonc(raw))
     except (ValueError, TypeError):
@@ -401,7 +402,7 @@ def collect_package_json(repo, present_path):
     try:
         raw = path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
-        return {"available": False, "reason": "read failed: %s" % exc}
+        return {"available": False, "reason": f"read failed: {exc}"}
     try:
         data = json.loads(raw)
     except (ValueError, TypeError):
@@ -525,7 +526,7 @@ def detect_mode_hint(git_info):
     if isinstance(unpushed, int) and unpushed > 0:
         return {
             "suggested": "pre-push",
-            "reason": "%d unpushed commit(s); pre-push diff mode is a candidate" % unpushed,
+            "reason": f"{unpushed} unpushed commit(s); pre-push diff mode is a candidate",
             "unpushed_commits": unpushed,
         }
     return {"suggested": "readiness", "reason": "no unpushed commits; full sweep"}
@@ -597,7 +598,7 @@ def main(argv=None):
                 "tool": "debut/collect_signals.py",
                 "generated_at": datetime.now(timezone.utc).isoformat(),
                 "repo": {"path": str(repo), "name": repo.name},
-                "error": "unexpected collector failure: %s" % exc,
+                "error": f"unexpected collector failure: {exc}",
             }
 
     text = json.dumps(payload, indent=2, sort_keys=False)
@@ -608,7 +609,7 @@ def main(argv=None):
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_text(text + "\n", encoding="utf-8")
         except OSError as exc:
-            sys.stderr.write("warn: could not write --out (%s): %s\n" % (out_path, exc))
+            sys.stderr.write(f"warn: could not write --out ({out_path}): {exc}\n")
 
     sys.stdout.write(text + "\n")
     return 0

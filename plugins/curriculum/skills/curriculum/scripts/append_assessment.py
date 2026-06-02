@@ -22,7 +22,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 REQUIRED_TOP_LEVEL_KEYS = {
     "timestamp",
     "module",

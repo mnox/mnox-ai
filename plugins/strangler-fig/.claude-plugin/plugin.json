@@ -1,0 +1,8 @@
+{
+  "name": "strangler-fig",
+  "version": "0.4.0",
+  "description": "Clean-room legacy reimplementation — distill to requirements, rebuild greenfield behind a context firewall, verify parity, optionally cut over.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "debut",
+  "version": "0.4.0",
+  "description": "Pre-public open-source readiness audit — secrets/PII, licensing, community-health files, tests/CI, deps — scored with fix commands.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

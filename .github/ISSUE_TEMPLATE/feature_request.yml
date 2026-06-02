@@ -1,0 +1,16 @@
+name: Feature request
+description: Suggest an improvement to an existing skill or propose a new one.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the pain point or gap, not just the proposed feature.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should the skill do? Which skill does it belong to (or is it new)?

@@ -25,8 +25,6 @@ import json
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
-
 
 PASS_THRESHOLD = 3.0
 
@@ -52,7 +50,7 @@ def load_rows(jsonl_path: Path) -> list[dict]:
     if not jsonl_path.exists():
         return rows
     with jsonl_path.open("r", encoding="utf-8") as f:
-        for lineno, line in enumerate(f, start=1):
+        for line in f:
             line = line.strip()
             if not line:
                 continue
@@ -121,7 +119,8 @@ def collect_gaps(rows: list[dict]) -> list[tuple[str, int]]:
         assessment = row.get("assessment") or {}
         adaptation = row.get("adaptation") or {}
 
-        if isinstance(assessment.get("understanding_level"), int) and assessment["understanding_level"] >= PASS_THRESHOLD:
+        level = assessment.get("understanding_level")
+        if isinstance(level, int) and level >= PASS_THRESHOLD:
             for g in assessment.get("strengths", []) or []:
                 if isinstance(g, str):
                     resolved.add(fingerprint(g))
@@ -144,7 +143,11 @@ def collect_strengths(rows: list[dict]) -> list[tuple[str, int]]:
     return [(s, n) for s, n in counter.most_common() if n >= 2]
 
 
-def render(module_rows: list[tuple[str, dict]], open_gaps: list[tuple[str, int]], strengths: list[tuple[str, int]]) -> str:
+def render(
+    module_rows: list[tuple[str, dict]],
+    open_gaps: list[tuple[str, int]],
+    strengths: list[tuple[str, int]],
+) -> str:
     lines: list[str] = [
         "# Progress Tracker",
         "",
@@ -223,7 +226,9 @@ def main() -> int:
             "row_count": len(rows),
             "module_count": len(module_rows),
             "passed_modules": [m for m, info in module_rows if info["status"] == "passed"],
-            "in_progress_modules": [m for m, info in module_rows if info["status"] == "in progress"],
+            "in_progress_modules": [
+                m for m, info in module_rows if info["status"] == "in progress"
+            ],
             "open_gap_count": len(open_gaps),
         }
     )

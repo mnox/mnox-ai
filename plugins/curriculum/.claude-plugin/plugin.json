@@ -1,0 +1,8 @@
+{
+  "name": "curriculum",
+  "version": "0.4.0",
+  "description": "Generate an adaptive learning curriculum for any topic, with an append-only assessment loop that tunes future modules to the learner.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}
