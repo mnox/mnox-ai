@@ -1,0 +1,14 @@
+{
+  "name": "session-tracker",
+  "version": "0.1.0",
+  "description": "Local MCP server that tracks your Claude Code / Cursor / Codex agent sessions — list, search, label, and inspect changes across every session. Lexical (FTS5) search by default; semantic search is opt-in.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT",
+  "mcpServers": {
+    "session-tracker": {
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/server.sh"]
+    }
+  }
+}

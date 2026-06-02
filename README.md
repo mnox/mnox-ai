@@ -16,7 +16,9 @@ standalone utility.
 | `compliance-review` | Compliance | Audit a repo, ADR/PRD, IaC posture, or live cloud state against SOC 2, HIPAA, or PCI-DSS — parallel control-domain agents produce findings with control IDs, severity, evidence, and remediation. |
 | `util-review` | Tooling | Review Claude Code skills, hooks, CLAUDE.md files, and other workflow configs for design flaws, unclosed loops, stale references, side effects, and security/portability risks. |
 | `debut` | Open Source | Audit a repo for public-readiness before open-sourcing — secrets/PII in history, licensing, community-health files, code quality, tests/CI, deps — scored SHIP IT / NEEDS POLISH / NOT READY with fix commands. |
+| `diagnose-queries` | Data | Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — five modes from known-query analysis to live-incident triage, ending in a root-caused, verified fix. |
 | `all-skills` | Bundle | Meta-plugin that installs every skill above at once. |
+| `session-tracker` | Utility | **MCP server** (not a skill). Indexes and searches your Claude Code / Cursor / Codex agent sessions — list, search, label, inspect file-change history, view token usage. Lexical search by default; semantic search opt-in. Requires [Bun](https://bun.sh). |
 
 ## Installation
 
@@ -41,6 +43,20 @@ Then install à la carte — just the skill you want:
 `all-skills` is a meta-plugin: installing it pulls in every skill as a
 dependency, and `claude plugin uninstall all-skills --prune` removes them again.
 
+### Utilities
+
+Utilities are a separate plugin class — they ship a runtime rather than a skill.
+`session-tracker` is an MCP server; install it the same way:
+
+```
+/plugin install session-tracker@mnox-ai
+```
+
+It requires [Bun](https://bun.sh) on your `PATH` (`brew install oven-sh/bun/bun`).
+Dependencies install automatically on first launch. See
+[`plugins/session-tracker/README.md`](plugins/session-tracker/README.md) for
+tools, configuration, and the opt-in semantic-search setup.
+
 ## Layout
 
 ```
@@ -57,8 +73,12 @@ mnox-ai/
     ├── compliance-review/         # skills/compliance-review/{SKILL.md, references/}
     ├── util-review/               # skills/util-review/{SKILL.md, references/}
     ├── debut/                     # skills/debut/{SKILL.md, scripts/, references/, templates/, agents/}
-    └── all-skills/
-        └── .claude-plugin/plugin.json   # dependencies: every skill above
+    ├── diagnose-queries/          # skills/diagnose-queries/{SKILL.md, references/}
+    ├── all-skills/
+    │   └── .claude-plugin/plugin.json   # dependencies: every skill above
+    └── session-tracker/           # utility: MCP server (src/, bin/, hooks/) — not a skill
+        ├── .claude-plugin/plugin.json
+        └── src/server.ts
 ```
 
 Each plugin under `plugins/<name>/` is self-describing via its own

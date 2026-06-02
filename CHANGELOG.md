@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`session-tracker` utility plugin** — a local MCP server (TypeScript + Bun)
+  that indexes and searches your Claude Code / Cursor / Codex agent sessions:
+  list, search, label, inspect file-change history, and view token usage. Search
+  is lexical (FTS5) by default — zero network calls, zero cost. Semantic search
+  is opt-in via the `session_config_set` tool (OpenAI key or a fully-local
+  embedder); the server prompts once to offer it and never re-asks. First
+  standalone utility-class plugin in the marketplace; requires [Bun](https://bun.sh).
+
 ## [0.4.0] - 2026-06-01
 
 ### Changed

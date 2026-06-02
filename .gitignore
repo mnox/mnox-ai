@@ -14,3 +14,13 @@ venv/
 # Logs / scratch
 *.log
 .tmp/
+
+# Node / Bun (session-tracker util)
+node_modules/
+.bun/
+*.tsbuildinfo
+
+# Local runtime data — never commit session databases
+*.db
+*.db-shm
+*.db-wal
