@@ -1,0 +1,16 @@
+{
+  "_doc": "Foundry repo-profile registry — TEMPLATE. Copy this file to `repos.json` (same directory) and edit, OR point the FOUNDRY_REPOS env var at your own copy. A Foundry run is scoped to ONE repo, selected at `init` via the FOUNDRY_REPO env var or `foundry_tick.sh init --repo <key>` (default key: 'example'). Keys beginning with '_' are ignored. Required keys per profile: repo_dir, findings_dir, worktrees_base, branch_prefix, base, setup_cmd, verifier_cmd. Optional: risk_tier (free-form label), unit_glob (filename pattern for work-unit files; default 'UNIT-*.md'). All paths support ~ expansion. `base` is a remote ref in 'remote/branch' form (e.g. origin/main) that the bucket branch is cut from and fetched. Each work-unit file must honor the work-unit contract (see unit-contract.md): required id/title/status frontmatter plus a non-empty `## Acceptance Criteria` section. SECURITY: setup_cmd and verifier_cmd are executed via the shell on YOUR machine — only add profiles you trust, and review the commands before running.",
+
+  "example": {
+    "_note": "Replace every value below with your own. This profile assumes a Node project whose lint/typecheck/test gate is exposed as `npm run verify`; adapt setup_cmd/verifier_cmd to your toolchain (e.g. `mix deps.get` / `mix test`, `uv sync` / `pytest`, `cargo build` / `cargo test`). verifier_cmd should be the exact command that proves a change is green — Workers must run it to a real pass.",
+    "repo_dir": "~/code/your-repo",
+    "findings_dir": "~/code/your-repo-foundry/units",
+    "worktrees_base": "~/code/foundry-worktrees/your-repo",
+    "branch_prefix": "foundry/your-repo",
+    "base": "origin/main",
+    "setup_cmd": "npm ci",
+    "verifier_cmd": "npm run verify",
+    "unit_glob": "UNIT-*.md",
+    "risk_tier": "sandbox"
+  }
+}

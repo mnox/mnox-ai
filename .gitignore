@@ -24,3 +24,8 @@ node_modules/
 *.db
 *.db-shm
 *.db-wal
+
+# Foundry — user-created live registry (may hold private repo paths) + run-state.
+# The committed template is repos.example.json; the live copy stays local.
+plugins/foundry/skills/foundry-run/scripts/repos.json
+.foundry/

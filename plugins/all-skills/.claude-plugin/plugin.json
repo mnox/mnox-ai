@@ -11,6 +11,7 @@
     { "name": "curriculum" },
     { "name": "debut" },
     { "name": "diagnose-queries" },
+    { "name": "foundry" },
     { "name": "schema-review" },
     { "name": "strangler-fig" },
     { "name": "util-review" }
