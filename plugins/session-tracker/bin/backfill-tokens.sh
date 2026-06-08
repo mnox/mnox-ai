@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage-only backfill for session-tracker-mcp.
-# Walks every ~/.claude/projects/*/*.jsonl transcript and populates message_tokens.
+# Walks configured Claude transcript JSONL files and populates message_tokens.
 # Idempotent (INSERT OR REPLACE on message_id) and pure-local: NO OpenAI key,
 # no embeddings, no summaries, no network.
 #

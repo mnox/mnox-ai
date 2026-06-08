@@ -1,7 +1,6 @@
 ---
 name: curriculum
 description: Use when the user wants to learn a topic deeply — asks for a curriculum, learning path, self-study plan, study guide, syllabus, or says teach me X. Generates a structured, adaptive curriculum directory of markdown modules (ELI5 → Core Concepts → Deep Dive → Supporting Material → Understanding Check) plus an append-only JSONL assessment log that adapts future modules to the learner's answers. Tailors depth and emphasis to the learner's long-term goal.
-disable-model-invocation: true
 ---
 
 # Curriculum
@@ -33,9 +32,10 @@ The skill has four workflows: **Create** a new curriculum, **Assess** the learne
 
 ## Workflow: Create a new curriculum
 
-### Step 1 — Gather inputs via AskUserQuestion
+### Step 1 — Gather Inputs
 
-Ask these questions (use AskUserQuestion; do not ask as plain text):
+Ask these questions using the host's structured clarification mechanism when
+available; otherwise ask concise plain-text questions:
 
 1. **Topic**: what is the subject? (free text)
 2. **Long-term goal**: what is the user ultimately trying to be able to *do* with this knowledge? The goal reframes every module.
@@ -65,7 +65,7 @@ Present the proposed outline as a numbered list: `NN — title — one-line summ
 Once the outline is approved, run:
 
 ```bash
-uv run ${CLAUDE_PLUGIN_ROOT}/skills/curriculum/scripts/scaffold.py --output-dir <absolute_output_dir>
+python3 <path-to-this-skill>/scripts/scaffold.py --output-dir <absolute_output_dir>
 ```
 
 This creates the directory structure and copies the topic-agnostic template files (`curriculum-meta.md`, `assessments/misconceptions.md`, empty `assessments/responses.jsonl`, initial `assessments/progress.md`). It does **not** write `README.md` or module files — those are topic-specific and the agent writes them next.
@@ -137,7 +137,7 @@ For each answer, follow the rules in `references/assessment-rubric.md` (and `cur
 For each question, build a JSON object matching the schema in `curriculum-meta.md` and pipe to:
 
 ```bash
-echo '<single-line-json>' | uv run ${CLAUDE_PLUGIN_ROOT}/skills/curriculum/scripts/append_assessment.py --curriculum-dir <output_dir>
+echo '<single-line-json>' | python3 <path-to-this-skill>/scripts/append_assessment.py --curriculum-dir <output_dir>
 ```
 
 The script validates the schema and appends one line to `assessments/responses.jsonl`. On validation failure, fix the JSON and retry; do not bypass validation.
@@ -147,7 +147,7 @@ The script validates the schema and appends one line to `assessments/responses.j
 Run:
 
 ```bash
-uv run ${CLAUDE_PLUGIN_ROOT}/skills/curriculum/scripts/compute_progress.py --curriculum-dir <output_dir>
+python3 <path-to-this-skill>/scripts/compute_progress.py --curriculum-dir <output_dir>
 ```
 
 This rewrites `assessments/progress.md` with per-module status and average understanding level.

@@ -1,18 +1,7 @@
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { homedir } from 'node:os';
 import { Database } from 'bun:sqlite';
 import type { AgentSession, SessionStatus } from '../types.js';
-
-const CURSOR_DB_PATH = join(
-  homedir(),
-  'Library',
-  'Application Support',
-  'Cursor',
-  'User',
-  'globalStorage',
-  'state.vscdb'
-);
+import { CURSOR_DB_PATH } from '../paths.js';
 
 interface ComposerData {
   composerId: string;

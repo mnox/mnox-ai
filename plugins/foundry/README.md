@@ -1,9 +1,10 @@
 # foundry
 
-An **autonomous-fix loop driver** for Claude Code. Foundry drains a *bucket* of
-work-unit files one at a time: for each unit it spawns an Opus **Worker** that
-implements the fix in an isolated git worktree and drives the repo's verifier to
-green, then an independent Opus **Integrator** that reviews the diff and votes
+An **autonomous-fix loop driver** for agent hosts with delegated-agent support.
+Foundry drains a *bucket* of work-unit files one at a time: for each unit it
+spawns a capable **Worker** that implements the fix in an isolated git worktree
+and drives the repo's verifier to green, then an independent capable
+**Integrator** that reviews the diff and votes
 PASS/FAIL. Passing units are merged into a local bucket branch; everything else is
 surfaced for you. You review the bucket branch and push by hand.
 
@@ -36,7 +37,7 @@ trust it.
 
 ## Install
 
-Add the marketplace and install the `foundry` plugin:
+Claude users can add the marketplace and install the `foundry` plugin:
 
 ```
 /plugin marketplace add mnox/mnox-ai
@@ -71,17 +72,17 @@ Add the marketplace and install the `foundry` plugin:
    /foundry-run run foundry on <key>  # selects a named profile
    ```
 
-   Foundry self-paces under [`/loop`](https://docs.claude.com/en/docs/claude-code)
-   (a built-in Claude Code command that re-runs a prompt on a cadence), advancing
-   one unit per tick until the bucket is drained, then prints a run summary.
+   Foundry self-paces under the host agent's run-loop or repeated skill
+   invocation, advancing one unit per tick until the bucket is drained, then
+   prints a run summary.
 
 ## How it works
 
 ```
-/loop tick ─▶ foundry_tick.sh next ─▶ ACTION=?
-                                       ├─ implement ─▶ claim ─▶ Worker (Opus, worktree) ─▶ agent-code-complete
-                                       ├─ integrate ─▶ Integrator (Opus, read-only) ─▶ PASS→merge / FAIL→reject
-                                       └─ drained   ─▶ print summary, STOP
+run tick ─▶ foundry_tick.sh next ─▶ ACTION=?
+                                      ├─ implement ─▶ claim ─▶ Worker (worktree) ─▶ agent-code-complete
+                                      ├─ integrate ─▶ Integrator (read-only) ─▶ PASS→merge / FAIL→reject
+                                      └─ drained   ─▶ print summary, STOP
 ```
 
 - **`foundry_tick.sh`** is the only component that does git surgery (branch, worktree,
@@ -90,7 +91,7 @@ Add the marketplace and install the `foundry` plugin:
 - **The skill (`SKILL.md`)** is the conductor prompt: it asks the engine what to do,
   spawns the right sub-agent, parses its output, and routes. It writes scratch
   run-state to `${FOUNDRY_STATE_DIR:-~/.foundry}/run-<repo>.json`.
-- **Worker / Integrator prompts** are the two Opus sub-agent roles.
+- **Worker / Integrator prompts** are the two delegated-agent roles.
 
 ## V0 scope
 

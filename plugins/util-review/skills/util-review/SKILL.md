@@ -1,11 +1,15 @@
 ---
 name: util-review
-description: "Review Claude Code skills, hooks, CLAUDE.md files, scripts, or workflow configurations for design flaws, unclosed loops, stale references, side effects, security risks, and portability issues. Use when: 'review this skill', 'audit this hook', '/util-review', 'check this config', or when evaluating any supplementary Claude Code artifact for quality and correctness."
+description: "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, side effects, security risks, and portability issues. Use when: 'review this skill', 'audit this hook', '/util-review', 'check this config', or when evaluating any supplementary agent artifact for quality and correctness."
 ---
 
 ## Overview
 
-Perform a deep, systematic review of Claude Code supplementary artifacts — skills, hooks, CLAUDE.md files, scripts, MCP configurations, or workflow definitions. Surfaces design flaws, unclosed loops, incorrect references, stale assumptions, side effects, security risks, portability issues, and unanswered design questions that structural validators miss.
+Perform a deep, systematic review of supplementary agent artifacts — Agent
+Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configurations, or
+workflow definitions. Surfaces design flaws, unclosed loops, incorrect
+references, stale assumptions, side effects, security risks, portability issues,
+and unanswered design questions that structural validators miss.
 
 ## Quick Reference
 
@@ -18,7 +22,7 @@ Perform a deep, systematic review of Claude Code supplementary artifacts — ski
 | Category | ID | Checks | Applies To |
 |----------|----|--------|------------|
 | Metadata & Registration | M | 7 | Skills |
-| Structure & Format | S | 6 | Skills, CLAUDE.md |
+| Structure & Format | S | 6 | Skills, AGENTS.md/CLAUDE.md |
 | Instruction Quality | C | 6 | All |
 | Dependencies & Assumptions | D | 6 | All |
 | Reliability & Staleness | R | 5 | All |
@@ -40,7 +44,7 @@ Determine what is being reviewed and read all files.
 3. Detect artifact type from file structure:
    - **Skill**: Directory containing `SKILL.md` — also read `references/`, `scripts/`, `agents/`, `orchestrators/`, `templates/`
    - **Hook**: Hook config block in `settings.json` — also read any scripts it references
-   - **CLAUDE.md**: Instruction file — check for `@import` references and read those too
+   - **AGENTS.md / CLAUDE.md**: instruction files — check for imports or linked references and read those too
    - **Script**: Standalone Python script — check PEP 723 metadata, dependencies
    - **MCP Config**: MCP server configuration — check tool references, permissions
    - **Composite**: Multiple types (e.g., a skill that also installs hooks)
@@ -48,13 +52,13 @@ Determine what is being reviewed and read all files.
 
 ### Phase 2: Audience & Invocation Analysis
 
-1. **Who is the audience?** Human users? Claude (auto-invocation)? Both? Sub-agents?
+1. **Who is the audience?** Human users? Host agent auto-invocation? Both? Delegated agents?
 2. **How is it invoked?** `/slash-command`? Auto-discovered by description? Event-triggered hook?
 3. **Is registration correct?** Frontmatter must match intended invocation:
-   - Both human and model → default (no flags)
-   - Human-only → `disable-model-invocation: true`
-   - Machine-only → `user-invocable: false`
-4. **Is discovery viable?** Will Claude's description-matching find this when relevant? Are trigger keywords present? Is the key use case in the first 250 characters (truncation point)?
+   - Both human and model → default host-discoverable metadata
+   - Human-only → use the host's supported human-invocation flag or adapter metadata
+   - Machine-only → use the host's supported model-invocation flag or adapter metadata
+4. **Is discovery viable?** Will a host agent's description-matching find this when relevant? Are trigger keywords present? Is the key use case early in the description?
 
 ### Phase 3: Systematic Review
 
@@ -98,7 +102,7 @@ Run through each applicable check category. Classify every finding by severity a
 
 | Check | What to verify |
 |-------|---------------|
-| D001 | All referenced file paths exist; use `${CLAUDE_SKILL_DIR}` for portability, not hardcoded absolute paths |
+| D001 | All referenced file paths exist; resolve portable resources relative to the active `SKILL.md`, not hardcoded absolute paths |
 | D002 | All referenced tools/MCP servers exist and are available; MCP names fully qualified (`Server:tool`) |
 | D003 | Scripts are Python (not bash), use PEP 723 inline metadata, dependencies declared or stdlib-only |
 | D004 | No implicit OS/shell/tool assumptions (`brew`, `apt`, `npm` globals, `osascript`) |
@@ -111,7 +115,7 @@ Run through each applicable check category. Classify every finding by severity a
 |-------|---------------|
 | R001 | No stale references — file paths, tool schemas, API endpoints all currently valid |
 | R002 | No time-sensitive content — hardcoded dates, version numbers, temporal conditional logic |
-| R003 | Instructions work across Claude models (Opus/Sonnet/Haiku) without model-specific assumptions |
+| R003 | Instructions work across model capability tiers without vendor/model-specific assumptions |
 | R004 | Critical content is front-loaded within first ~100 lines (compaction preserves first 5,000 tokens) |
 | R005 | Assumption chains identified — if an early assumption breaks, does downstream logic cascade-fail? |
 
@@ -143,7 +147,7 @@ Run through each applicable check category. Classify every finding by severity a
 | G001 | All required context is identified — what info does the artifact need to function? |
 | G002 | Acquisition strategy defined — user interaction? File reads? Tool calls? Env vars? |
 | G003 | Missing context handled gracefully — fails clearly rather than proceeding on assumptions |
-| G004 | User interaction quality — AskUserQuestion uses 1-4 questions, 2-4 options, ≤12-char headers |
+| G004 | User interaction quality — structured clarification asks few questions with clear options when the host supports it |
 | G005 | Feedback loop closed — the artifact can validate its own output or the user can verify results |
 
 #### Hooks-Specific (H001-H007)
@@ -231,7 +235,10 @@ The artifact works perfectly with perfect input. What about missing files, tool 
 ## Notes
 
 - This review complements `pdm-skill-create` validation. That validates **structure**; this validates **design quality, correctness, and reliability**.
-- For hook reviews, behavior can differ between Claude Code versions. The `if` field requires v2.1.85+.
-- Skills using `context: fork` must provide enough actionable context for the sub-agent to produce useful output — guidelines alone without a task prompt return nothing.
+- For hook reviews, behavior differs by host and version. Check the adapter docs
+  for the exact event schema.
+- Skills using isolated/delegated context must provide enough actionable context
+  for the delegated agent to produce useful output — guidelines alone without a
+  task prompt return nothing.
 - Findings must be specific and actionable. "Description could be better" is useless. "Description missing trigger keywords — add 'review this PR', 'code review' to match natural user phrasing" is useful.
 - When reviewing composites (e.g., a plugin with skills + hooks + scripts), review each component individually, then review their interactions as a system.

@@ -15,9 +15,8 @@ export interface EmbeddingResult {
   embedding: number[];
 }
 
-// Local shared embeddings provider (the "one-night-stand" service). It exposes
-// each OpenAI model as a `type` of the same name, so model strings pass through
-// unchanged. When it is not running, embed() transparently falls back to OpenAI.
+// Local shared embeddings provider. It exposes each configured model as a `type`
+// value, so model strings pass through unchanged.
 const LOCAL_EMBED_URL = process.env.ONS_EMBED_URL ?? 'http://127.0.0.1:9001/embed';
 
 async function embedViaLocalService(model: string, inputs: string[]): Promise<EmbeddingResult[] | null> {
@@ -180,7 +179,7 @@ export async function summarize(text: string): Promise<string | null> {
           {
             role: 'system',
             content:
-              'You summarize Claude Code transcripts to make them findable later. ' +
+              'You summarize AI coding-agent transcripts to make them findable later. ' +
               'In 2-4 sentences, capture: what the user was trying to do, the key technical concepts/files/systems involved, and the outcome if any. ' +
               'Use specific keywords (file names, function names, library names, error messages) over generic descriptions. No fluff, no headings.',
           },

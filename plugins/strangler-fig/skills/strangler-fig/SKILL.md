@@ -75,7 +75,7 @@ Strangle Progress:
 3. Gather intake facts: language/stack, how the scoped code is built and tested, whether it
    can be executed in isolation, business criticality, known pain points.
 4. Decide the **run mode** (`distill` / `artifact` / `cutover`) — confirm with the user via
-   AskUserQuestion if not specified.
+   the host's structured clarification mechanism when available if not specified.
 5. Decide the **harness tier**: probe whether the scoped code can be executed in isolation.
    If yes → `live`. If no → `spec`. Announce the tier explicitly.
 6. Create the workspace:

@@ -21,6 +21,9 @@ jobs:
       - name: Lint (ruff)
         run: ruff check .
 
+      - name: Validate portable skill export
+        run: python3 scripts/export_skills.py --list
+
       - name: Validate plugin manifests are well-formed JSON
         run: |
           python - <<'PY'
@@ -39,7 +42,7 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s tests -t .
 
-  # The session-tracker utility plugin is TypeScript + Bun; typecheck it on its own.
+  # The session-tracker utility package is TypeScript + Bun; typecheck it on its own.
   session-tracker:
     runs-on: ubuntu-latest
     defaults:
@@ -58,6 +61,7 @@ jobs:
       - name: Typecheck (tsc --noEmit)
         run: bun run typecheck
 
-# Note: `claude plugin validate .` is the authoritative manifest check (see CONTRIBUTING.md),
-# but it requires the Claude Code CLI. CI does the lightweight JSON-structure check above; run
-# the full `claude plugin validate .` locally before opening a PR.
+# Note: `claude plugin validate .` is the authoritative Claude-adapter manifest
+# check (see CONTRIBUTING.md), but it requires the Claude Code CLI. CI does the
+# lightweight JSON-structure check above; run the full validator locally when
+# touching Claude adapter manifests.

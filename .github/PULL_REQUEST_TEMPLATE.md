@@ -8,8 +8,9 @@
 
 ## Checklist
 
-- [ ] `claude plugin validate .` passes
+- [ ] `python3 scripts/export_skills.py --list` passes
+- [ ] `claude plugin validate .` passes, if Claude adapter manifests changed
 - [ ] `ruff check .` is clean
 - [ ] `python -m unittest discover -s tests -t .` passes
-- [ ] Bumped `version` in **both** the plugin's `plugins/<name>/.claude-plugin/plugin.json` and its matching entry in `.claude-plugin/marketplace.json` (if behavior changed)
+- [ ] Bumped `version` in **both** the plugin's `plugins/<name>/.claude-plugin/plugin.json` and its matching entry in `.claude-plugin/marketplace.json` if Claude-distributed behavior changed
 - [ ] Updated `CHANGELOG.md`

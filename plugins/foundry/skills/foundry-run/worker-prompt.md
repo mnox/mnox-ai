@@ -1,4 +1,4 @@
-> **agentType:** `general-purpose` · **model:** `opus`
+> **Dispatch as:** a capable worker agent.
 > Dispatch one instance per finding. The tick-script has ALREADY claimed the finding and prepared the worktree before this runs.
 
 ---

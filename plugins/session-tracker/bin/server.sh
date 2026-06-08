@@ -9,7 +9,7 @@ set -euo pipefail
 PKG_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)"
 
 if ! command -v bun >/dev/null 2>&1; then
-  echo "session-tracker: 'bun' was not found on PATH. Install Bun (https://bun.sh) and restart Claude Code." >&2
+  echo "session-tracker: 'bun' was not found on PATH. Install Bun (https://bun.sh) and restart your agent host." >&2
   exit 1
 fi
 

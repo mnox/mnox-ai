@@ -1,27 +1,28 @@
 ---
 name: foundry-run
 description: >
-  Self-paced `/loop` dispatcher that drives the Foundry V0 autonomous-fix
+  Self-paced run-loop dispatcher that drives the Foundry V0 autonomous-fix
   pipeline ONE unit per iteration against a selected repo (repo-agnostic via
   repos.json profiles). Each tick it calls the deterministic `foundry_tick.sh`
-  engine to decide the next action, then spawns a Worker (Opus) to implement a
-  unit or an independent Integrator (Opus) to review-and-route a finished one —
+  engine to decide the next action, then spawns a capable Worker to implement a
+  unit or an independent capable Integrator to review-and-route a finished one —
   integrate-before-implement, strictly serial (cap=1), no auto-retry, and NEVER
   pushing to a remote. Stops when the bucket is drained and prints an end-of-run
   summary for you to review and push by hand. Use when - "/foundry-run", "run
   the foundry loop", "drive the foundry pipeline", "start the fix loop",
   "kick off foundry V0", or whenever a Foundry bucket should be drained one unit
-  at a time under `/loop`.
+  at a time.
 ---
 
 # Foundry Run — the V0 loop driver
 
 You are the **CONDUCTOR** of the Foundry V0 autonomous-fix pipeline. You do not
-write code, you do not review code, and you do not do git surgery. Per `/loop`
+write code, you do not review code, and you do not do git surgery. Per run-loop
 tick you advance EXACTLY ONE unit of work by (a) asking the deterministic engine
-what to do, (b) spawning the right Opus sub-agent, (c) routing on the result, and
-(d) deciding whether to keep looping. Everything stateful and every git operation
-is the engine's job; everything judgmental is a sub-agent's job. You are glue.
+what to do, (b) spawning the right worker/reviewer agent when the host supports
+delegation, (c) routing on the result, and (d) deciding whether to keep looping.
+Everything stateful and every git operation is the engine's job; everything
+judgmental is a worker/reviewer agent's job. You are glue.
 
 ## ⛔ INVARIANT 0 — the driver NEVER touches a remote (NON-NEGOTIABLE)
 
@@ -41,9 +42,9 @@ ever feel the urge to run a raw `git` command, STOP — that is a bug.
 - **Determinism split.** The driver never does git surgery itself.
   `init` / `next` / `claim` / `merge` / `reject` are ALL `foundry_tick.sh`'s job.
   The driver only: calls the script, spawns agents, parses their output, routes.
-- **Distinct integrator.** The Integrator MUST be a different `Agent()` instance
-  than any Worker — independence is the whole point of the review gate. Every tick
-  that integrates makes a FRESH `Agent()` call.
+- **Distinct integrator.** The Integrator MUST be a different delegated agent
+  instance than any Worker when the host supports delegation — independence is the
+  whole point of the review gate. Every tick that integrates uses a fresh reviewer.
 - **No auto-retry (V0).** `review-rejected`, `blocked`, `failed`, and merge
   `conflict` are SURFACED to the user, never re-attempted. Record them and move on.
 - **Integrate before implement.** If a unit is sitting at `agent-code-complete`,
@@ -57,19 +58,17 @@ SKILL.md:
 
 ```
 foundry-run/
-├── SKILL.md              # this file (the /loop prompt you are reading)
-├── worker-prompt.md      # Worker (Opus) prompt — placeholders substituted below
-├── integrator-prompt.md  # Integrator (Opus) prompt — placeholders substituted below
+├── SKILL.md              # this file
+├── worker-prompt.md      # Worker prompt — placeholders substituted below
+├── integrator-prompt.md  # Integrator prompt — placeholders substituted below
 ├── unit-contract.md      # the work-unit file contract `validate` enforces
 └── scripts/
     ├── foundry_tick.sh   # the ONLY thing that does git surgery
     └── repos.example.json# repo-profile registry TEMPLATE
 ```
 
-**Resolve the engine path ONCE** and reuse it every tick. If this skill is
-installed as a plugin, it is at
-`${CLAUDE_PLUGIN_ROOT}/skills/foundry-run/scripts/foundry_tick.sh`; otherwise it
-is `scripts/foundry_tick.sh` relative to this SKILL.md. Store the absolute path as
+**Resolve the engine path ONCE** and reuse it every tick. It is
+`scripts/foundry_tick.sh` relative to this SKILL.md. Store the absolute path as
 `$TICK` and invoke `"$TICK" <subcommand>` throughout.
 
 **Repo registry:** the engine reads `repos.json` from its own directory by default,
@@ -138,7 +137,7 @@ means review happens on a *later* tick than implementation).
 
 ## The per-iteration algorithm
 
-On EACH `/loop` invocation, do EXACTLY ONE unit, then decide whether to reschedule.
+On EACH run-loop invocation, do EXACTLY ONE unit, then decide whether to reschedule.
 
 ### Step 0 — Init (first iteration only) + load run-state
 
@@ -187,8 +186,9 @@ a Worker on a prior tick left this unit at `agent-code-complete`; drain it now.
    - `{{BUCKET_BRANCH}}` ← pinned `bucket` from run-state
    - `{{WORKER_SUMMARY}}` ← `worker_summaries[<UNIT>]` from run-state, or the literal
      `n/a` if not captured (e.g. the worker ran in a prior, separate session)
-2. Spawn a **FRESH `Agent(agentType: "general-purpose", model: "opus")`** with the
-   substituted prompt. This MUST be a distinct instance from any Worker.
+2. Spawn a **fresh capable reviewer agent** with the substituted prompt. This MUST
+   be a distinct instance from any Worker. If the host cannot delegate to another
+   agent, stop and tell the user Foundry requires delegated-agent support.
 3. Capture the Integrator's final message. **Scan it for the verdict line** — match
    `^VERDICT=(PASS|FAIL)` anywhere in the output (the Integrator may emit reasoning
    before the verdict block; do NOT assume line 1). If more than one matches, take the
@@ -223,8 +223,9 @@ a Worker on a prior tick left this unit at `agent-code-complete`; drain it now.
    - `{{UNIT_BRANCH}}` ← `BRANCH` from `claim`
    - `{{VERIFIER_CMD}}` ← the `verifier:` frontmatter key `claim` just wrote to `<UNIT>.md`
    - `{{RISK_TIER}}` ← the repo's `risk_tier` (from the registry)
-3. Spawn an **`Agent(agentType: "general-purpose", model: "opus")`** with the
-   substituted prompt.
+3. Spawn a **capable worker agent** with the substituted prompt. If the host cannot
+   delegate to another agent, stop and tell the user Foundry requires
+   delegated-agent support.
 4. Capture the Worker's ≤150-word summary. **Stash it in run-state under
    `worker_summaries[<UNIT>]`** so the next tick's Integrator gets it as context.
 5. Determine the Worker's outcome by **re-reading the unit file's frontmatter
@@ -243,9 +244,10 @@ a Worker on a prior tick left this unit at `agent-code-complete`; drain it now.
 ### Step 5 — Reschedule decision
 
 If you reached here (i.e. not `drained`), there is more work. Continue the loop —
-the next `/loop` tick handles the next single unit. Self-paced: one unit per tick.
-(Whether `/loop` is interval-driven or self-paced, you advance exactly one unit and
-yield; you never batch multiple units in one tick.)
+the next run-loop tick handles the next single unit. Self-paced: one unit per
+tick. Whether the host supports automatic rescheduling or the user invokes the
+skill again, you advance exactly one unit and yield; you never batch multiple
+units in one tick.
 
 ---
 
@@ -288,8 +290,8 @@ Then STOP the loop.
 | Situation | Driver action |
 |-----------|---------------|
 | `next` → `drained` | print summary, STOP loop |
-| `next` → `integrate` | spawn FRESH Integrator (opus), grep VERDICT, merge/reject |
-| `next` → `implement` | `claim`, spawn Worker (opus), stash summary |
+| `next` → `integrate` | spawn fresh capable Integrator, grep VERDICT, merge/reject |
+| `next` → `implement` | `claim`, spawn capable Worker, stash summary |
 | Integrator `VERDICT=PASS` | `merge <UNIT>` → record merged |
 | Integrator `VERDICT=FAIL` | `reject <UNIT>` → record rejected + REASON |
 | Integrator output unparseable | `escalate <UNIT>` → record escalation, do NOT merge |

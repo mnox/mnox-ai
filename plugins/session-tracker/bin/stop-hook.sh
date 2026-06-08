@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fire-and-forget Stop hook for session-tracker-mcp.
-# Captures Claude Code's JSON payload from stdin, then detaches a Bun
+# Captures the host agent's JSON payload from stdin, then detaches a Bun
 # indexer process so the session thread is never blocked.
 
 set -u
@@ -11,11 +11,11 @@ PKG_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." &> /dev/null && pwd)"
 # not present yet (very first run), skip rather than race the installer.
 [ -d "$PKG_DIR/node_modules" ] || exit 0
 
-LOG_DIR="$HOME/.claude/sessions/logs"
+LOG_DIR="${SESSION_TRACKER_LOG_DIR:-${SESSION_TRACKER_HOME:-$HOME/.mnox-ai/session-tracker}/logs}"
 mkdir -p "$LOG_DIR"
 
 # `tty` reads stdin, which is the hook's JSON payload — not useful.
-# The parent (claude) inherits the real terminal's tty.
+# The parent agent inherits the real terminal's tty.
 RAW_TTY="$(ps -o tty= -p "$PPID" 2>/dev/null | tr -d ' ')"
 if [ -n "$RAW_TTY" ] && [ "$RAW_TTY" != "?" ] && [ "$RAW_TTY" != "??" ]; then
   CAPTURED_TTY="/dev/$RAW_TTY"

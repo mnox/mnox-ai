@@ -2,13 +2,14 @@
 
 ## Scope
 
-`mnox-ai` is a marketplace of Claude Code plugins. The **skills** are Markdown
-instructions plus a handful of helper Python scripts — they ship no network
-service, no runtime server, and no credential handling, so their realistic
-security surface is limited to the local helper scripts under
-`plugins/*/skills/*/scripts/`. **Utilities** are a separate plugin class that may
+`mnox-ai` is a provider-agnostic collection of Agent Skills and local AI-agent
+utilities, with Claude Code marketplace files maintained as one provider adapter.
+The **skills** are Markdown instructions plus a handful of helper Python scripts
+— they ship no network service, no runtime server, and no credential handling, so
+their realistic security surface is limited to the local helper scripts under
+`plugins/*/skills/*/scripts/`. **Utilities** are a separate package class that may
 ship their own runtime (e.g. an MCP server); each documents its own security
-considerations and dependencies in its plugin README.
+considerations and dependencies in its README.
 
 ## Reporting a vulnerability
 

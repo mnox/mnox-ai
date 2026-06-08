@@ -8,7 +8,8 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### M001: Frontmatter YAML Validity
 **Severity:** CRITICAL
-**Rationale:** Invalid YAML silently breaks skill loading. Claude Code won't error — it'll just ignore the frontmatter and treat the entire file as body content.
+**Rationale:** Invalid YAML silently breaks skill loading in many hosts; some ignore
+the frontmatter and treat the entire file as body content.
 **What to look for:** Unclosed quotes, tabs instead of spaces, missing `---` delimiters, colons in unquoted values, special YAML characters (`@`, `#`, `!`) in unquoted strings.
 
 ### M002: Name Format
@@ -18,7 +19,8 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### M003: Description Quality
 **Severity:** CRITICAL (if missing/vague) | WARNING (if merely suboptimal)
-**Rationale:** The description is the #1 failure point for auto-discovery. Claude uses it to decide relevance. Vague descriptions = never invoked.
+**Rationale:** The description is the #1 failure point for auto-discovery. Host
+agents use it to decide relevance. Vague descriptions = never invoked.
 **What to look for:**
 - Contains specific trigger conditions ("Use when...")
 - Includes keywords users would naturally say
@@ -45,7 +47,9 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 ### M007: Discovery Viability
 **Severity:** WARNING
 **Rationale:** A well-written skill that never gets invoked is wasted effort.
-**What to look for:** Run a mental simulation — if a user says the thing this skill is for, would Claude's description-matching select it? Are there competing skills with similar descriptions?
+**What to look for:** Run a mental simulation — if a user says the thing this
+skill is for, would a host agent's description-matching select it? Are there
+competing skills with similar descriptions?
 
 ---
 
@@ -53,7 +57,8 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### S001: Required Sections
 **Severity:** WARNING
-**Rationale:** Consistent structure helps both Claude and humans navigate skills predictably.
+**Rationale:** Consistent structure helps both agents and humans navigate skills
+predictably.
 **What to look for:** Overview, Quick Reference, main content section(s), Common Mistakes. Missing Common Mistakes is the most frequent omission.
 
 ### S002: Length & Progressive Disclosure
@@ -84,7 +89,8 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### S006: Code Block Formatting
 **Severity:** SUGGESTION
-**Rationale:** Wrong tool names in examples teach Claude to use the wrong tools.
+**Rationale:** Wrong tool names in examples teach the host agent to use the wrong
+tools.
 **What to look for:** `rg` not `grep`, `fd` not `find`, proper language tags on fenced blocks, correct syntax for tool invocations.
 
 ---
@@ -93,12 +99,14 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### C001: Clarity & Precision
 **Severity:** WARNING (unclear) | CRITICAL (uninterpretable)
-**Rationale:** If a human would struggle to follow it, Claude will too. Ambiguous instructions produce inconsistent results.
+**Rationale:** If a human would struggle to follow it, the agent will too.
+Ambiguous instructions produce inconsistent results.
 **What to look for:** Each instruction should have one clear interpretation. Watch for pronouns with ambiguous antecedents, implicit context, and instructions that require domain knowledge not provided.
 
 ### C002: Contradictory Directives
 **Severity:** CRITICAL
-**Rationale:** When instructions conflict, Claude picks one non-deterministically. This produces unpredictable behavior.
+**Rationale:** When instructions conflict, agents pick one non-deterministically.
+This produces unpredictable behavior.
 **What to look for:** Scan for tension between sections. "Be concise" in one place, verbose examples in another. "Never modify files" in one place, file-editing instructions elsewhere. Strictness in rules vs. permissiveness in examples.
 
 ### C003: Ambiguous Scope
@@ -128,7 +136,9 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 ### D001: File Path References
 **Severity:** CRITICAL (broken path) | WARNING (non-portable path)
 **Rationale:** Hardcoded absolute paths break on any other machine. Missing files break on every machine.
-**What to look for:** `${CLAUDE_SKILL_DIR}` for bundled files. Relative paths for project files. Verify every referenced path actually exists right now.
+**What to look for:** Host-neutral paths for bundled files, ideally resolved
+relative to the active `SKILL.md`. Relative paths for project files. Verify every
+referenced path actually exists right now.
 
 ### D002: Tool & MCP References
 **Severity:** CRITICAL (nonexistent tool) | WARNING (environment-specific)
@@ -171,8 +181,12 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### R003: Model Sensitivity
 **Severity:** SUGGESTION
-**Rationale:** Instructions that work for Opus may need more detail for Haiku. Model-specific assumptions break when the model field changes.
-**What to look for:** Reliance on capabilities that vary across models (complex reasoning, long context, tool use patterns). Consider whether the skill specifies a model or will be used across models.
+**Rationale:** Instructions that work for a high-capability model may need more
+detail for a smaller model. Model-specific assumptions break when the model field
+changes.
+**What to look for:** Reliance on capabilities that vary across models (complex
+reasoning, long context, tool use patterns). Consider whether the skill specifies
+a model or will be used across models.
 
 ### R004: Compaction Resilience
 **Severity:** WARNING
@@ -259,7 +273,9 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 ### G002: Acquisition Strategy
 **Severity:** WARNING
 **Rationale:** Different strategies have different reliability profiles. User interaction is reliable but slow. File reads are fast but may fail.
-**What to look for:** How does the artifact get each piece of required context? AskUserQuestion? File reads? Tool calls? Environment variables? Is each strategy appropriate for its data?
+**What to look for:** How does the artifact get each piece of required context?
+Structured user clarification? File reads? Tool calls? Environment variables? Is
+each strategy appropriate for its data?
 
 ### G003: Missing Context Handling
 **Severity:** CRITICAL (proceeds on wrong assumptions) | WARNING (fails silently)
@@ -269,7 +285,9 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 ### G004: User Interaction Design
 **Severity:** SUGGESTION
 **Rationale:** Poor interaction design wastes user time and produces worse input.
-**What to look for:** AskUserQuestion with 1-4 questions per interaction. 2-4 options per question. Headers ≤12 characters. Options are mutually exclusive and collectively exhaustive.
+**What to look for:** A small number of questions per interaction. When the host
+supports structured choices, options are mutually exclusive and collectively
+exhaustive.
 
 ### G005: Feedback Loop Closure
 **Severity:** WARNING
@@ -297,7 +315,7 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ### H004: Infinite Loop Risk
 **Severity:** CRITICAL
-**Rationale:** A Stop hook that always exits 2 creates an infinite loop — Claude can never finish responding.
+**Rationale:** A stop hook that always returns the host's continue/interrupt code creates an infinite loop — the agent can never finish responding.
 **What to look for:** Stop hooks must check `stop_hook_active` field and exit 0 when true. PreToolUse hooks must not trigger tool calls that re-trigger themselves.
 
 ### H005: Shell Profile Pollution

@@ -1,12 +1,12 @@
 import { spawnSync } from 'node:child_process';
 import { openSync, writeSync, closeSync, appendFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename } from 'node:path';
+import { TAB_DEBUG_LOG } from './paths.js';
 
 /**
  * Derive the server's OWN controlling tty device path (e.g. "/dev/ttys001").
  *
- * Because the MCP server is a per-session child of its `claude` parent, the
+ * Because the MCP server is usually a per-session child of its host agent, the
  * server shares the parent's tty. We read it from `ps` against our OWN pid;
  * this is unambiguous and needs no session-id or cwd lookup.
  *
@@ -93,8 +93,6 @@ export function writeTabTitle(ttyDevice: string | null, title: string): TabTitle
   }
 }
 
-const TAB_DEBUG_LOG = join(homedir(), '.claude', 'sessions', 'logs', 'stop-indexer.log');
-
 /**
  * Skip/error reason for a tab-title decision. Superset of {@link TabTitleResult}'s
  * reasons — callers may also report `no-label` (re-assert with nothing persisted)
@@ -111,7 +109,7 @@ export type TabLogResult =
  * whole point: a session that never sets a label should produce an informative
  * `skip:no-label` line, not silence that's indistinguishable from "logging broken."
  *
- * Routes to the shared hook log (`~/.claude/sessions/logs/stop-indexer.log`) so
+ * Routes to the shared hook log so
  * both the MCP-tool path and the stop-hook re-assert path land in one place to
  * `tail`/`grep`. Never throws — logging must not disrupt the agent loop.
  */

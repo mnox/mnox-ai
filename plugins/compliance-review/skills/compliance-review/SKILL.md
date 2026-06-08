@@ -36,8 +36,9 @@ only be satisfied by human attestation.
 
 ### 1. Resolve scope
 
-Determine three things before fanning out. Ask the user with **AskUserQuestion**
-only if they cannot be inferred:
+Determine three things before fanning out. Ask the user with the host's
+structured clarification mechanism when available, and only if they cannot be
+inferred:
 
 - **Target** — the path, diff, branch, document, or "live" indicator.
 - **Frameworks** — one or more of `soc2`, `hipaa`, `pci-dss`. If the user did not

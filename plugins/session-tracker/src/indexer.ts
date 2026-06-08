@@ -1,6 +1,5 @@
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
 import { getDb, getIndexedFile, upsertIndexedFile, packF32, recordMessageTokens } from './db.js';
 import { parseJsonl, type ParsedMessage } from './jsonl-parser.js';
 import { chunkMessages } from './chunker.js';
@@ -8,8 +7,8 @@ import { embed, summarize, summarizeRationales, EMBED_MODEL_CHUNKS, EMBED_MODEL_
 import { embeddingsActive } from './config.js';
 import { resolveSessionContext, recordToolEvents, listChangeSetsNeedingRationale, backfillRationale } from './change-tracker.js';
 import { deriveCwdFromPath } from './extractors/claude.js';
+import { CLAUDE_PROJECTS_DIR } from './paths.js';
 
-const PROJECTS_DIR = join(homedir(), '.claude', 'projects');
 const SUMMARY_DEBOUNCE_MS = 10 * 60 * 1000;
 const SUMMARY_DEBOUNCE_MESSAGES = 5;
 const MAX_SUMMARY_INPUT_CHARS = 24000;
@@ -48,11 +47,11 @@ function walkJsonl(dir: string): string[] {
 
 export async function indexAll(): Promise<IndexResult> {
   const result = emptyResult();
-  if (!existsSync(PROJECTS_DIR)) return result;
+  if (!existsSync(CLAUDE_PROJECTS_DIR)) return result;
 
-  const projectDirs = readdirSync(PROJECTS_DIR, { withFileTypes: true })
+  const projectDirs = readdirSync(CLAUDE_PROJECTS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
-    .map((d) => join(PROJECTS_DIR, d.name));
+    .map((d) => join(CLAUDE_PROJECTS_DIR, d.name));
 
   for (const projectDir of projectDirs) {
     for (const path of walkJsonl(projectDir)) {
@@ -78,10 +77,10 @@ export async function indexAll(): Promise<IndexResult> {
 
 export async function indexSession(sessionId: string): Promise<IndexResult> {
   const result = emptyResult();
-  if (!existsSync(PROJECTS_DIR)) return result;
-  const projectDirs = readdirSync(PROJECTS_DIR, { withFileTypes: true })
+  if (!existsSync(CLAUDE_PROJECTS_DIR)) return result;
+  const projectDirs = readdirSync(CLAUDE_PROJECTS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
-    .map((d) => join(PROJECTS_DIR, d.name));
+    .map((d) => join(CLAUDE_PROJECTS_DIR, d.name));
   const sidechain = sessionId.match(/^([0-9a-f-]+):agent-([0-9a-f]+)$/i);
   for (const projectDir of projectDirs) {
     const path = sidechain
@@ -229,11 +228,11 @@ function insertMessagesAndChunks(
  */
 export function backfillTokens(): { files: number; rows: number; sessions: number } {
   const db = getDb();
-  if (!existsSync(PROJECTS_DIR)) return { files: 0, rows: 0, sessions: 0 };
+  if (!existsSync(CLAUDE_PROJECTS_DIR)) return { files: 0, rows: 0, sessions: 0 };
 
-  const projectDirs = readdirSync(PROJECTS_DIR, { withFileTypes: true })
+  const projectDirs = readdirSync(CLAUDE_PROJECTS_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
-    .map((d) => join(PROJECTS_DIR, d.name));
+    .map((d) => join(CLAUDE_PROJECTS_DIR, d.name));
 
   let files = 0;
   let rows = 0;

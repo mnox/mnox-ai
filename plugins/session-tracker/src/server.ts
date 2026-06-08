@@ -396,7 +396,7 @@ server.registerTool(
   'session_search',
   {
     title: 'Search Sessions',
-    description: `Full-text + semantic search across past Claude Code sessions.
+    description: `Full-text + semantic search across past AI coding-agent sessions.
 
 Args:
   - query: Words/phrases you remember from the session

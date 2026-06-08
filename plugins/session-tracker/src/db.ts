@@ -1,13 +1,8 @@
 import { Database } from 'bun:sqlite';
 import { existsSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { homedir } from 'node:os';
+import { dirname } from 'node:path';
 import type { ParsedUsage } from './jsonl-parser.js';
-
-export const SESSIONS_DIR = join(homedir(), '.claude', 'sessions');
-// SESSION_TRACKER_DB_PATH overrides the default location — used to point at a
-// throwaway copy when dry-running a backfill so the live index is never touched.
-export const INDEX_DB_PATH = process.env['SESSION_TRACKER_DB_PATH'] || join(SESSIONS_DIR, 'index.db');
+import { INDEX_DB_PATH } from './paths.js';
 
 let _db: Database | null = null;
 
@@ -92,7 +87,7 @@ function initSchema(db: Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_session_ttys_status ON session_ttys(status);
 
-    -- Tab titles are keyed by tty, NOT session_id. A single claude process keeps
+    -- Tab titles are keyed by tty, NOT session_id. A single host session keeps
     -- its tty across resume/compaction even as its session_id churns, so the tty
     -- is the only key the label-writer (set_session_label tool) and the label-
     -- reader (stop-hook re-assert) can both observe and agree on across a churn.

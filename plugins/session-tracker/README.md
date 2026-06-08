@@ -1,7 +1,8 @@
 # session-tracker
 
 A local **MCP server** that indexes and searches your AI coding-agent sessions —
-Claude Code, Cursor, and Codex — so you can ask "what was I working on yesterday?",
+including Claude Code, Cursor, and Codex sources today — so you can ask "what was I
+working on yesterday?",
 search across past sessions, label the current one, and inspect the file-change
 trail of any session.
 
@@ -13,14 +14,15 @@ the server asks you once before enabling it.
 
 - [**Bun**](https://bun.sh) on your `PATH` (`brew install oven-sh/bun/bun`). The
   server is TypeScript run directly by Bun and uses Bun's built-in SQLite.
-- Claude Code (the hooks and MCP wiring are installed by the plugin).
+- An MCP-capable agent host. Claude Code gets automatic hook wiring from the
+  Claude plugin adapter; other hosts can launch the MCP server directly.
 
 Dependencies are installed automatically on first launch (`bun install`), so no
 manual build step is needed.
 
 ## Install
 
-From the `mnox-ai` marketplace:
+Claude users can install from the `mnox-ai` marketplace:
 
 ```
 /plugin marketplace add mnox/mnox-ai
@@ -30,12 +32,27 @@ From the `mnox-ai` marketplace:
 That registers the MCP server and three session-lifecycle hooks
 (`SessionStart`, `SessionEnd`, `Stop`).
 
+Other MCP-capable hosts can launch the stdio server directly:
+
+```json
+{
+  "mcpServers": {
+    "session-tracker": {
+      "command": "bash",
+      "args": ["plugins/session-tracker/bin/server.sh"]
+    }
+  }
+}
+```
+
 ## How it works
 
-- **Hooks** record session presence and, on each `Stop`, index the session's
-  transcript into a local SQLite database.
-- **Storage** lives at `~/.claude/sessions/index.db` (override with
-  `SESSION_TRACKER_DB_PATH`). Logs go to `~/.claude/sessions/logs/`.
+- **Hooks** record session presence and, on each stop event, index the session's
+  transcript into a local SQLite database when the host exposes compatible
+  lifecycle hooks.
+- **Storage** lives at `~/.mnox-ai/session-tracker/index.db` by default. Override
+  with `SESSION_TRACKER_HOME` or `SESSION_TRACKER_DB_PATH`. Logs go to
+  `~/.mnox-ai/session-tracker/logs/` by default.
 - **Search** is full-text by default. If you opt into semantic search, the indexer
   additionally computes embeddings (and optional summaries) and `session_search`
   fuses lexical + vector results.
@@ -76,7 +93,16 @@ search **degrades gracefully to lexical** rather than failing.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `SESSION_TRACKER_DB_PATH` | `~/.claude/sessions/index.db` | SQLite database location. |
+| `SESSION_TRACKER_HOME` | `~/.mnox-ai/session-tracker` | Base directory for local state, config, DB, and logs. |
+| `SESSION_TRACKER_DB_PATH` | `$SESSION_TRACKER_HOME/index.db` | SQLite database location. |
+| `SESSION_TRACKER_CONFIG_PATH` | `$SESSION_TRACKER_HOME/config.json` | Semantic-search config location. |
+| `SESSION_TRACKER_STATE_PATH` | `$SESSION_TRACKER_HOME/state.json` | Local overlay state location. |
+| `SESSION_TRACKER_LOG_DIR` | `$SESSION_TRACKER_HOME/logs` | Hook and debug log directory. |
+| `SESSION_TRACKER_CLAUDE_PROJECTS_DIR` | `~/.claude/projects` | Claude transcript source directory. |
+| `SESSION_TRACKER_CURSOR_DB_PATH` | macOS Cursor global `state.vscdb` path | Cursor session source database. |
+| `SESSION_TRACKER_CODEX_HOME` | `~/.codex` | Codex local state directory. |
+| `SESSION_TRACKER_CODEX_SESSIONS_DIR` | `$SESSION_TRACKER_CODEX_HOME/sessions` | Codex JSONL session source directory. |
+| `SESSION_TRACKER_CODEX_SESSION_INDEX_PATH` | `$SESSION_TRACKER_CODEX_HOME/session_index.jsonl` | Codex session title/activity index. |
 | `OPENAI_API_KEY` | _(unset)_ | Only used when semantic `mode` is `openai`. Never read otherwise. |
 | `ONS_EMBED_URL` | `http://127.0.0.1:9001/embed` | Local embedder endpoint when `mode` is `local`. |
 

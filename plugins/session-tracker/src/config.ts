@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { homedir } from 'node:os';
+import { dirname } from 'node:path';
+import { CONFIG_FILE } from './paths.js';
 
 export type EmbeddingsMode = 'off' | 'openai' | 'local';
 
@@ -13,8 +13,6 @@ export interface EmbeddingsConfig {
 export interface SessionTrackerConfig {
   embeddings: EmbeddingsConfig;
 }
-
-const CONFIG_FILE = join(homedir(), '.claude', 'sessions', 'config.json');
 
 function defaults(): SessionTrackerConfig {
   return { embeddings: { enabled: false, mode: 'off', prompted: false } };

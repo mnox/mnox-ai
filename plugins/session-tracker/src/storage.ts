@@ -1,10 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { homedir } from 'node:os';
+import { dirname } from 'node:path';
 import type { OverlayState, SessionOverlay, SessionSource } from './types.js';
-
-const SESSIONS_DIR = join(homedir(), '.claude', 'sessions');
-const STATE_FILE = join(SESSIONS_DIR, 'state.json');
+import { STATE_FILE } from './paths.js';
 
 export function loadOverlays(): OverlayState {
   try {

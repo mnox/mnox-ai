@@ -25,4 +25,4 @@ body:
     id: env
     attributes:
       label: Environment
-      placeholder: Claude Code version, OS, Python version
+      placeholder: Agent host/version, OS, Python version
