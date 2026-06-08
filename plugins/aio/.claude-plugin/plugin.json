@@ -1,6 +1,6 @@
 {
   "name": "aio",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Agentic Implementation Optimizer — audit, build, or extend agentic AI implementations for reliability, cost, and architecture.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",

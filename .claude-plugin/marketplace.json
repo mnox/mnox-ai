@@ -9,7 +9,7 @@
       "name": "aio",
       "source": "./plugins/aio",
       "description": "Agentic Implementation Optimizer — audit, build, or extend agentic AI implementations for reliability, cost, and architecture.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["agents", "architecture", "audit", "reliability"]
     },
