@@ -1,0 +1,8 @@
+{
+  "name": "ontology-review",
+  "version": "0.1.0",
+  "description": "Audit a knowledge graph or ontology for structural health across seven axes — orthogonality, granularity, taxonomic hygiene, identity & rigidity, relationship semantics, competency questions, and inference safety — and flag defects before they corrupt inference.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

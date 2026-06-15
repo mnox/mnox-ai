@@ -70,6 +70,14 @@
       "tags": ["database", "performance", "postgres", "query", "diagnostics", "explain"]
     },
     {
+      "name": "ontology-review",
+      "source": "./plugins/ontology-review",
+      "description": "Audit a knowledge graph or ontology for structural health across seven axes — orthogonality, granularity, taxonomic hygiene, identity & rigidity, relationship semantics, competency questions, and inference safety — and flag defects before they corrupt inference.",
+      "version": "0.1.0",
+      "category": "agentic",
+      "tags": ["ontology", "knowledge-graph", "semantics", "review", "audit"]
+    },
+    {
       "name": "foundry",
       "source": "./plugins/foundry",
       "description": "Autonomous-fix loop driver — drains a bucket of work-unit files one at a time, spawning an Opus Worker to implement each in an isolated git worktree and an independent Opus Integrator to review it, strictly serial and never pushing to a remote.",

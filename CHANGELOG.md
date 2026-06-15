@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`ontology-review` plugin** — audits a knowledge graph or ontology for
+  structural health across seven axes (orthogonality, granularity, taxonomic
+  hygiene, identity & rigidity, relationship semantics, competency questions,
+  inference safety) and produces a severity-ranked findings list led by
+  inference-corrupting issues. Grounded in OntoClean meta-properties, the OOPS!
+  pitfall catalogue, Grüninger & Fox competency questions, and Gómez-Pérez
+  consistency/completeness/conciseness dimensions. Added to the `all-skills`
+  meta-plugin.
 - **`session-tracker` utility plugin** — a local MCP server (TypeScript + Bun)
   that indexes and searches your Claude Code / Cursor / Codex agent sessions:
   list, search, label, inspect file-change history, and view token usage. Search
