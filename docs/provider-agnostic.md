@@ -17,9 +17,9 @@ They should mirror the portable core, not define it.
 Use the exporter to copy the canonical skills into any host's skills directory:
 
 ```bash
-python3 scripts/export_skills.py --output-dir ./.codex/skills
+python3 scripts/export_skills.py --output-dir ./.agents/skills
 python3 scripts/export_skills.py --output-dir ./.cursor/skills
-python3 scripts/export_skills.py --output-dir ~/.codex/skills --overwrite
+python3 scripts/export_skills.py --output-dir ~/.agents/skills --overwrite
 ```
 
 The exporter writes a `skills-manifest.json` in the output directory so downstream
@@ -29,7 +29,7 @@ Use `--mode symlink` when the destination supports symlinks and you want live
 edits in this repo to be visible to the host:
 
 ```bash
-python3 scripts/export_skills.py --output-dir ./.codex/skills --mode symlink --overwrite
+python3 scripts/export_skills.py --output-dir ./.agents/skills --mode symlink --overwrite
 ```
 
 ## Provider Adapters

@@ -27,15 +27,15 @@ a provider adapter.
 Export the portable skills into the skills directory for your agent host:
 
 ```
-python3 scripts/export_skills.py --output-dir ./.codex/skills
+python3 scripts/export_skills.py --output-dir ./.agents/skills
 python3 scripts/export_skills.py --output-dir ./.cursor/skills
-python3 scripts/export_skills.py --output-dir ~/.codex/skills --overwrite
+python3 scripts/export_skills.py --output-dir ~/.agents/skills --overwrite
 ```
 
 You can export a subset with repeated `--skill` flags:
 
 ```
-python3 scripts/export_skills.py --output-dir ./.codex/skills --skill schema-review --skill debut
+python3 scripts/export_skills.py --output-dir ./.agents/skills --skill schema-review --skill debut
 ```
 
 See [`docs/provider-agnostic.md`](docs/provider-agnostic.md) for the portability
