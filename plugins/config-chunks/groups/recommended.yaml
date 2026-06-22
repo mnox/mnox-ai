@@ -1,0 +1,15 @@
+name: recommended
+description: >
+  The shipped universal engineering-discipline chunks — a one-shot opt-in to the
+  full starter bundle of provider-agnostic agent guidance. Includes
+  problem-framing + engineering-mindset, which walk a non-engineer from a vague
+  "I want X" up to staff-level systems, algorithmic, and process thinking.
+chunks:
+  - context-hygiene
+  - problem-framing
+  - engineering-mindset
+  - consultative-partnership
+  - discovery-pipeline
+  - code-skepticism
+  - communication-style
+  - coding-style

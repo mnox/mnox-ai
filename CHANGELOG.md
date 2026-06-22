@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`config-chunks` utility plugin** — a package manager for agent-instruction
+  guidance. Contributing plugins publish versioned, scored guidance **chunks**;
+  a reconciler dedups them by name (highest version wins), sorts by `order`,
+  prunes stale ones, and assembles a single `~/.claude/chunks/bundle.md`. The
+  bundle is wired into one or more host instruction files: `claude` (an `@import`
+  line in `CLAUDE.md`) and/or `agents` (the bundle body **inlined** in
+  `AGENTS.md`, which has no import mechanism). Targets are selected in
+  `~/.claude/config/chunks.yaml` and default to auto-detect. Ships an `ai-setup`
+  guided-onboarding wizard, a `permission-setup` skill (recommends conservative
+  per-provider permissions and delegates the write — never mutates security
+  config), an `ideation` problem-framing skill, a `chunks` management skill, a
+  `chunk-review` scoring rubric, and a starter library of universal guidance
+  chunks. The chunk format and bundle are provider-agnostic (Claude Code via
+  `@import`; Codex/Cursor/etc. via the universal `AGENTS.md` substrate, with
+  `set-agents-path` to pin the host's file); auto-refresh is Claude-native via a
+  SessionStart hook, with a documented manual reconcile on other hosts.
 - **`ontology-review` plugin** — audits a knowledge graph or ontology for
   structural health across seven axes (orthogonality, granularity, taxonomic
   hygiene, identity & rigidity, relationship semantics, competency questions,

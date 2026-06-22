@@ -1,0 +1,21 @@
+{
+  "description": "Publishes this plugin's first-party chunks and reconciles the agent-instruction bundle on session start.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/publish-chunks.sh\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/reconcile.sh\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

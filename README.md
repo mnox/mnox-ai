@@ -17,6 +17,7 @@ a provider adapter.
 | `util-review` | Tooling | Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, MCP configs, and workflow configs for design flaws, unclosed loops, stale references, side effects, and portability risks. |
 | `debut` | Open Source | Audit a repo for public-readiness before open-sourcing — secrets/PII in history, licensing, community-health files, code quality, tests/CI, deps — scored SHIP IT / NEEDS POLISH / NOT READY with fix commands. |
 | `diagnose-queries` | Data | Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — five modes from known-query analysis to live-incident triage, ending in a root-caused, verified fix. |
+| `config-chunks` | Tooling | Package manager for agent-instruction guidance — named, versioned "chunks" reconciled into your `CLAUDE.md` / `AGENTS.md` bundle, with guided onboarding (`/ai-setup`) and safe permission setup (`/permission-setup`). |
 | `all-skills` | Bundle | Meta-plugin that installs every skill above at once. |
 | `session-tracker` | Utility | **MCP server** (not a skill). Indexes and searches AI coding-agent sessions — list, search, label, inspect file-change history, view token usage. Lexical search by default; semantic search opt-in. Requires [Bun](https://bun.sh). |
 

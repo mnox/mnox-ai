@@ -100,6 +100,14 @@
       "version": "0.1.0",
       "category": "utility",
       "tags": ["mcp", "sessions", "observability", "search", "bun", "utility"]
+    },
+    {
+      "name": "config-chunks",
+      "source": "./plugins/config-chunks",
+      "description": "A package manager for agent-instruction guidance — publishes versioned, scored 'chunks', reconciles them into one bundle, and wires it into CLAUDE.md (@import) and/or AGENTS.md (inlined). Ships /ai-setup onboarding and a chunk-review scoring rubric.",
+      "version": "0.1.0",
+      "category": "utility",
+      "tags": ["guidance", "claude-md", "agents-md", "context", "package-manager", "utility"]
     }
   ]
 }

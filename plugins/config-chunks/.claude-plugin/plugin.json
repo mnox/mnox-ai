@@ -1,0 +1,8 @@
+{
+  "name": "config-chunks",
+  "version": "0.1.0",
+  "description": "A package manager for agent-instruction guidance — publishes versioned, scored guidance 'chunks', reconciles them into a single bundle, and wires it into CLAUDE.md (@import) and/or AGENTS.md (inlined). Includes /ai-setup onboarding and a chunk-review scoring rubric.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

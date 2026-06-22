@@ -1,0 +1,26 @@
+# config-chunks/templates/group.template.yaml
+#
+# Copy to groups/<your-group-name>.yaml and fill in the fields.
+# File stem (sans .yaml) IS the group name — keep them in sync.
+#
+# Schema rules:
+#   name        — MUST match the filename stem; kebab-case
+#   description — one-line summary; shown by tooling, not bundled
+#   chunks      — block-list of chunk `name` slugs (NOT owner.name)
+#                 slugs must match a first-party chunk in chunks/*.md
+#                 unknown slugs produce a stderr warning and are skipped
+#
+# IMPORTANT: use block-list form for all list fields. Inline form
+# (e.g. chunks: [slug-one, slug-two]) is NOT supported — the reconciler
+# uses BSD-awk-compatible parsing that requires block form only.
+#
+# Nested groups are NOT supported. If you want a chunk from multiple groups,
+# list the slug directly in the user's ~/.claude/config/chunks.yaml `chunks:`
+# field, or author a new group that covers the superset.
+
+name: your-group-name
+description: >
+  One-line description of who this group targets and what guidance it injects.
+chunks:
+  - example-chunk-slug-one
+  - example-chunk-slug-two
