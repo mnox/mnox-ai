@@ -52,6 +52,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   embedder); the server prompts once to offer it and never re-asks. First
   standalone utility-class plugin in the marketplace; requires [Bun](https://bun.sh).
 
+### Changed
+- **`strangler-fig` 0.4.0 → 0.5.0** — adds a **leakage audit** (taint / provenance
+  audit) to the clean-room rewrite. The skill now captures the legacy's structural
+  fingerprints up front and, at each firewall crossing, verifies nothing structural
+  leaked into the spec, harness, or final port — so no legacy implementation detail
+  (algorithm shape, magic constant, naming idiom) becomes load-bearing in the
+  "clean" design. New `leakage-auditor` sub-agent (a distiller-peer that sees the
+  inventory and legacy path, never the builder's work) plus Phase 2.5 (screen
+  spec + harness pre-crossing) and Phase 4.5 (screen greenfield for reconstructed
+  legacy structure).
+
 ## [0.4.0] - 2026-06-01
 
 ### Changed

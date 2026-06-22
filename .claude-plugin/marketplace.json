@@ -24,8 +24,8 @@
     {
       "name": "strangler-fig",
       "source": "./plugins/strangler-fig",
-      "description": "Clean-room legacy reimplementation — distill to requirements, rebuild greenfield behind a context firewall, verify parity, optionally cut over.",
-      "version": "0.4.0",
+      "description": "Clean-room legacy reimplementation — distill to requirements, rebuild greenfield behind a context firewall, audit each crossing for leaked legacy structure (taint/provenance), verify parity, optionally cut over.",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["refactoring", "legacy", "rewrite"]
     },

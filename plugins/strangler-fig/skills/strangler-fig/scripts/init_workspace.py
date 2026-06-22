@@ -90,6 +90,10 @@ def main(
                 "Greenfield dir contains NO legacy code. Do not copy legacy source into it. "
                 "Spawn the builder agent with this as its working directory."
             )
+            result["leakage_audit_note"] = (
+                "legacy-surface-inventory.md and the taint-audit-*.md reports in the run dir are "
+                "AUDITOR-ONLY — they hold legacy structural detail and must never reach the builder."
+            )
         except OSError as e:
             print(json.dumps({"success": False, "error": f"Greenfield dir failed: {e}"}))
             return
