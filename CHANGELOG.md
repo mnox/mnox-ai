@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`retrieval-review` plugin** — audits a retrieval / vector-index / RAG
+  pipeline for quality across seven load-bearing axes (eval foundation, corpus &
+  chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank
+  fusion, reranking) and produces a severity-ranked findings list led by the
+  defects that make a relevant document structurally unretrievable. Numeric, not
+  config-only: it computes recall@k, anisotropy, effective rank, and fusion-window
+  coverage where the embeddings and a labeled query set are available. Grounded in
+  BEIR/MTEB evaluation methodology, the anisotropy & alignment/uniformity geometry
+  literature, ANN-index recall theory, and the rank-fusion (RRF) and cross-encoder
+  reranking research. The audit twin of a future `/retrieval-draft`, mirroring the
+  `/ontology-review` ↔ `/ontology-draft` pairing. Added to the `all-skills`
+  meta-plugin.
 - **`config-chunks` utility plugin** — a package manager for agent-instruction
   guidance. Contributing plugins publish versioned, scored guidance **chunks**;
   a reconciler dedups them by name (highest version wins), sorts by `order`,

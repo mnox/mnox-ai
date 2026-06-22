@@ -78,6 +78,14 @@
       "tags": ["ontology", "knowledge-graph", "semantics", "review", "audit"]
     },
     {
+      "name": "retrieval-review",
+      "source": "./plugins/retrieval-review",
+      "description": "Audit a retrieval / vector-index / RAG pipeline for quality across seven layered axes — eval foundation, corpus & chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank fusion, and reranking — and flag the defects that silently return wrong or missing context.",
+      "version": "0.1.0",
+      "category": "agentic",
+      "tags": ["retrieval", "rag", "vector-search", "embeddings", "rerank", "review", "audit"]
+    },
+    {
       "name": "foundry",
       "source": "./plugins/foundry",
       "description": "Autonomous-fix loop driver — drains a bucket of work-unit files one at a time, spawning an Opus Worker to implement each in an isolated git worktree and an independent Opus Integrator to review it, strictly serial and never pushing to a remote.",

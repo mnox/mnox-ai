@@ -13,6 +13,7 @@
     { "name": "diagnose-queries" },
     { "name": "foundry" },
     { "name": "ontology-review" },
+    { "name": "retrieval-review" },
     { "name": "schema-review" },
     { "name": "strangler-fig" },
     { "name": "util-review" }

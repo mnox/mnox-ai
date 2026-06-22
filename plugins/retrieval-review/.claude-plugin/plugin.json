@@ -1,0 +1,8 @@
+{
+  "name": "retrieval-review",
+  "version": "0.1.0",
+  "description": "Audit a retrieval / vector-index pipeline for structural health across seven layered axes — eval foundation, corpus & chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank fusion, and reranking — and flag the defects that silently return wrong or missing context before they reach the generator.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}
