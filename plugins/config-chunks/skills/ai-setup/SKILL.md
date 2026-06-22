@@ -27,14 +27,33 @@ Distinction from the companion skill:
 - **`/ai-setup`** (this skill) — the guided interview that produces a *whole
   recommended set at once* for someone starting fresh.
 
-## The engine it drives
+## Resolving paths (do this first)
 
-The engine lives at `../../scripts/chunks-config.sh` relative to this skill
-directory (the script sits at the plugin root under `scripts/`; hosts resolve
-bundled files relative to the skill dir). Run it via Bash:
+Everything this skill reads or runs lives under the **plugin root** — this skill
+file is at `<plugin-root>/skills/ai-setup/SKILL.md`, so the root is two
+directories up. **Resolve an absolute path to the plugin root before doing
+anything else**, and use it for every `scripts/…`, `chunks/…`, `groups/…`, and
+`references/…` reference below. A bare `../../` path only resolves when the
+shell's working directory is this skill directory (Claude Code sets that; other
+hosts may not):
 
 ```bash
-bash ../../scripts/chunks-config.sh <command> [args]
+# Claude Code exports CLAUDE_PLUGIN_ROOT. On any other host, substitute the
+# absolute plugin-root path you read this skill from (two levels above this file).
+ROOT="${CLAUDE_PLUGIN_ROOT:-<plugin-root>}"
+ENGINE="$ROOT/scripts/chunks-config.sh"
+```
+
+Throughout this skill, read `../../chunks/`, `../../groups/`, and
+`../../references/` as `$ROOT/chunks/`, `$ROOT/groups/`, and `$ROOT/references/` —
+absolute paths, not CWD-relative ones.
+
+## The engine it drives
+
+Run the engine via Bash, always through the absolute `$ENGINE` path:
+
+```bash
+bash "$ENGINE" <command> [args]
 ```
 
 Subcommands this skill uses:
@@ -115,11 +134,11 @@ go straight to Step 4 with the `recommended` group.
 Run, and read, before interviewing:
 
 ```bash
-bash ../../scripts/chunks-config.sh list
+bash "$ENGINE" list
 ```
 
-Also read `../../references/chunk-scores.md` (for scores), the `summary:` line of
-each `../../chunks/*.md` (for one-liners), and `../../groups/recommended.yaml`
+Also read `$ROOT/references/chunk-scores.md` (for scores), the `summary:` line of
+each `$ROOT/chunks/*.md` (for one-liners), and `$ROOT/groups/recommended.yaml`
 (for the group's membership). If the user is already subscribed to things,
 acknowledge it and frame this run as a revisit.
 
@@ -187,18 +206,18 @@ On confirmation, run the engine. Set targets first, then subscribe:
 
 ```bash
 # 1) targets — replace the set with exactly the chosen hosts
-bash ../../scripts/chunks-config.sh set-targets <claude and/or agents>
+bash "$ENGINE" set-targets <claude and/or agents>
 
 # 1b) if `agents` is targeted on a NON-Claude host, pin that host's AGENTS.md
 #     (skip for Claude-only — its default is correct). Use the path from Step 2.
-bash ../../scripts/chunks-config.sh set-agents-path <~/.codex/AGENTS.md | project AGENTS.md>
+bash "$ENGINE" set-agents-path <~/.codex/AGENTS.md | project AGENTS.md>
 
 # 2a) fast path / full defaults — one group covers it
-bash ../../scripts/chunks-config.sh add-group recommended
+bash "$ENGINE" add-group recommended
 
 # 2b) customized — opt into each chosen chunk individually
-bash ../../scripts/chunks-config.sh add-chunk consultative-partnership
-bash ../../scripts/chunks-config.sh add-chunk communication-style
+bash "$ENGINE" add-chunk consultative-partnership
+bash "$ENGINE" add-chunk communication-style
 # ...one add-chunk per affirmative answer
 ```
 
@@ -220,8 +239,7 @@ Confirm in a few sentences:
 - that the bundle **reconciled** into their CLAUDE.md (`@import`) and/or AGENTS.md
   (inlined body) — no restart needed.
 
-Optionally run `bash ../../scripts/chunks-config.sh list` and quote the resolved
-slug set as proof.
+Optionally run `bash "$ENGINE" list` and quote the resolved slug set as proof.
 
 ### Step 7 — Offer permission setup
 

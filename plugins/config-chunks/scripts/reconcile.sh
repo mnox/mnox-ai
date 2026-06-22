@@ -367,7 +367,7 @@ strip_frontmatter() {
 
     echo "<!-- chunk: $name v$ver  ·  order=$ord  ·  disclosure=$disclosure  ·  $(basename "$file") -->"
 
-    body_file="$tmp/body.$$"
+    body_file=$(mktemp "$tmp/body.XXXXXX")
     strip_frontmatter "$file" > "$body_file"
     body_bytes=$(wc -c < "$body_file" | tr -d ' ')
 

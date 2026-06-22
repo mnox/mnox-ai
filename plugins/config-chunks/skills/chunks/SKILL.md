@@ -40,13 +40,21 @@ to empty and the user's bundle goes wrong without an error.
 
 ## How to invoke
 
-The engine lives at `../../scripts/chunks-config.sh` relative to this skill
-directory (the script sits at the plugin root under `scripts/`; hosts resolve
-bundled files relative to the skill). Run it via Bash:
+The engine is `scripts/chunks-config.sh` at the **plugin root** — this skill
+lives at `<plugin-root>/skills/chunks/SKILL.md`, so the engine is two directories
+up. Build an **absolute** path to it first; do not rely on a bare `../../` path,
+which only resolves when the shell's working directory happens to be this skill
+directory (Claude Code sets that, but other hosts may run from elsewhere):
 
 ```bash
-bash ../../scripts/chunks-config.sh <command> [args]
+# Claude Code exports CLAUDE_PLUGIN_ROOT. On any other host, substitute the
+# absolute plugin-root path you read this skill from (two levels above this file).
+ENGINE="${CLAUDE_PLUGIN_ROOT:-<plugin-root>}/scripts/chunks-config.sh"
+bash "$ENGINE" <command> [args]
 ```
+
+You already know `<plugin-root>`'s absolute path — it's the directory two levels
+above this skill file. Reuse `$ENGINE` for every command below.
 
 ### Commands
 

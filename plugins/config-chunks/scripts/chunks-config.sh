@@ -35,6 +35,14 @@ PUBLISH="$PLUGIN_ROOT/scripts/publish-chunks.sh"
 
 OWNER="config-chunks"
 
+# One process-scoped scratch dir; every helper's temp file lives under it so a
+# single EXIT trap reaps them all on any exit path (success, error, or `exit N`).
+# Matches reconcile.sh / smoke.sh — avoids per-function cleanup, which a RETURN
+# trap can't do safely here (bash's RETURN trap is global and dynamically scoped,
+# so it leaks into callers and trips `set -u`).
+WORKDIR=$(mktemp -d)
+trap 'rm -rf "$WORKDIR"' EXIT
+
 # Skeleton kept byte-identical to reconcile.sh's auto-create so the two paths
 # never produce drifting templates.
 write_skeleton() {
@@ -183,7 +191,7 @@ ensure_key() {
 normalize_empty_inline_for_key() {
   local key="$1"
   local tmp
-  tmp=$(mktemp)
+  tmp=$(mktemp "$WORKDIR/XXXXXX")
   awk -v key="$key" '
     {
       # Tolerate a trailing comment (e.g. `groups: []  # none yet`) so users
@@ -241,7 +249,7 @@ add_item() {
     return 1   # already present — caller treats as no-op
   fi
   local tmp
-  tmp=$(mktemp)
+  tmp=$(mktemp "$WORKDIR/XXXXXX")
   awk -v key="$key" -v item="$item" '
     BEGIN { in_key=0; emitted=0; last_dash_line=0 }
     {
@@ -271,7 +279,7 @@ remove_item() {
     return 1   # not present — caller treats as no-op
   fi
   local tmp
-  tmp=$(mktemp)
+  tmp=$(mktemp "$WORKDIR/XXXXXX")
   awk -v key="$key" -v item="$item" '
     BEGIN { in_key=0 }
     {
@@ -334,8 +342,8 @@ set_targets_block() {
   ensure_config
   guard_and_normalize_key "targets" || return $?
   ensure_key "targets"
-  local tmp sentinel="__CONFIG_CHUNKS_TARGETS_SENTINEL__"
-  tmp=$(mktemp)
+  local tmp out sentinel="__CONFIG_CHUNKS_TARGETS_SENTINEL__"
+  tmp=$(mktemp "$WORKDIR/XXXXXX")
   awk -v key="targets" -v sentinel="$sentinel" '
     BEGIN { in_key=0 }
     {
@@ -357,8 +365,7 @@ set_targets_block() {
     }
   ' "$CONFIG_YAML" > "$tmp"
 
-  local out
-  out=$(mktemp)
+  out=$(mktemp "$WORKDIR/XXXXXX")
   while IFS= read -r line; do
     if [ "$line" = "$sentinel" ]; then
       local t
@@ -367,7 +374,6 @@ set_targets_block() {
       printf '%s\n' "$line"
     fi
   done < "$tmp" > "$out"
-  rm -f "$tmp"
   mv "$out" "$CONFIG_YAML"
   return 0
 }
@@ -424,7 +430,7 @@ cmd_set_agents_path() {
   fi
   ensure_config
   local tmp
-  tmp=$(mktemp)
+  tmp=$(mktemp "$WORKDIR/XXXXXX")
   # Drop any existing uncommented agents_path line; keep everything else.
   awk '!/^agents_path:[[:space:]]*/' "$CONFIG_YAML" > "$tmp"
   printf 'agents_path: %s\n' "$path" >> "$tmp"
