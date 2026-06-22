@@ -29,3 +29,7 @@ node_modules/
 # The committed template is repos.example.json; the live copy stays local.
 plugins/foundry/skills/foundry-run/scripts/repos.json
 .foundry/
+
+# Scratch outputs — not repo content. Canonical homes live elsewhere (e.g. dawks
+# spaces). Agentic-OS / Sven strategy artifacts land here as drafts; never ship.
+artifacts/
