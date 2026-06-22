@@ -295,6 +295,41 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+echo "smoke: CONFIG_CHUNKS_HOME override + install.sh bootstrap"
+# ---------------------------------------------------------------------------
+INSTALL="$PLUGIN_ROOT/install.sh"
+
+# CONFIG_CHUNKS_HOME must resolve the engine home even with CLAUDE_PLUGIN_ROOT
+# unset and an unrelated CWD (the non-Claude resolution path).
+mkdir -p "$TMP/cchome"
+cch_out=$(cd / && env -u CLAUDE_PLUGIN_ROOT -u CONFIG_CHUNKS_AGENTS_MD \
+  HOME="$TMP/cchome" CONFIG_CHUNKS_HOME="$PLUGIN_ROOT" bash "$ENGINE" list 2>&1)
+[[ "$cch_out" == *"recommended"* ]] && ok "CONFIG_CHUNKS_HOME resolves engine assets" \
+  || nope "CONFIG_CHUNKS_HOME resolves engine assets"
+
+# install.sh --agents-path bootstraps a non-Claude host end-to-end. Run with the
+# Claude env vars stripped so we exercise the genuine non-Claude path.
+INSTALL_HOME="$TMP/install-host"; mkdir -p "$INSTALL_HOME/project"
+IAG="$INSTALL_HOME/project/AGENTS.md"
+env -u CLAUDE_PLUGIN_ROOT -u CONFIG_CHUNKS_AGENTS_MD HOME="$INSTALL_HOME" \
+  bash "$INSTALL" --agents-path "$IAG" >/dev/null 2>&1
+assert_grep "<!-- config-chunks:start -->" "$IAG" "install.sh writes managed block to AGENTS.md"
+if [ -f "$IAG" ] && [ "$(wc -c < "$IAG" | tr -d ' ')" -gt 2000 ]; then
+  ok "install.sh reconciles a populated bundle"
+else
+  nope "install.sh reconciles a populated bundle"
+fi
+assert_grep "agents_path: $IAG" "$INSTALL_HOME/.claude/config/chunks.yaml" "install.sh records agents_path"
+
+# install.sh must refuse when given no target and Claude is absent (never guess).
+if env -u CLAUDE_PLUGIN_ROOT -u CONFIG_CHUNKS_AGENTS_MD HOME="$TMP/empty-host" \
+   bash "$INSTALL" >/dev/null 2>&1; then
+  nope "install.sh errors with no target + no Claude"
+else
+  ok "install.sh errors with no target + no Claude"
+fi
+
+# ---------------------------------------------------------------------------
 echo
 echo "smoke: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

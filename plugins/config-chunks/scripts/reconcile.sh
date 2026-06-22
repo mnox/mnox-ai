@@ -53,10 +53,12 @@ MARK_START="<!-- ${OWNER}:start -->"
 MARK_END="<!-- ${OWNER}:end -->"
 IMPORT_LINE="@~/.claude/chunks/bundle.md"
 
-# One plugin root, computed with the same fallback publish-chunks.sh uses, so
-# the script is safe under `set -u` when CLAUDE_PLUGIN_ROOT is unset (manual or
-# hook runs that don't export it).
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+# One plugin root, resolved highest-precedence first so the script is safe under
+# `set -u` and works on any host:
+#   CONFIG_CHUNKS_HOME  — explicit override (install.sh / export on non-Claude).
+#   CLAUDE_PLUGIN_ROOT  — exported by Claude Code for installed plugins.
+#   dirname fallback    — manual/hook runs from a clone that export neither.
+PLUGIN_ROOT="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}}"
 GROUPS_DIR="$PLUGIN_ROOT/groups"
 
 mkdir -p "$REG_DIR"

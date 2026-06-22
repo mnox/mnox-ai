@@ -13,6 +13,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PLUGINS_DIR = REPO_ROOT / "plugins"
 MANIFEST_NAME = "skills-manifest.json"
+ENGINE_MANIFEST = "engine.json"
+ENGINES_SUBDIR = ".engines"
 
 
 @dataclass(frozen=True)
@@ -20,6 +22,7 @@ class Skill:
     name: str
     path: Path
     plugin: str
+    plugin_path: Path
 
 
 def discover_skills() -> list[Skill]:
@@ -30,7 +33,14 @@ def discover_skills() -> list[Skill]:
             continue
         for skill_dir in sorted(skills_dir.iterdir()):
             if (skill_dir / "SKILL.md").is_file():
-                skills.append(Skill(name=skill_dir.name, path=skill_dir, plugin=plugin_dir.name))
+                skills.append(
+                    Skill(
+                        name=skill_dir.name,
+                        path=skill_dir,
+                        plugin=plugin_dir.name,
+                        plugin_path=plugin_dir,
+                    )
+                )
     return skills
 
 
@@ -66,7 +76,55 @@ def symlink_skill(skill: Skill, target: Path, overwrite: bool) -> None:
     target.symlink_to(skill.path)
 
 
-def write_manifest(output_dir: Path, skills: list[Skill], mode: str) -> None:
+def bundle_engines(output_dir: Path, skills: list[Skill], overwrite: bool) -> list[dict]:
+    """Co-locate each contributing plugin's engine assets next to the exported
+    skills so they are self-contained on hosts that don't export CLAUDE_PLUGIN_ROOT.
+
+    A plugin opts in by shipping an `engine.json` declaring the env var that names
+    its home and the relative paths to copy. We copy those paths into
+    `<output>/.engines/<plugin>/` and return one record per bundled engine.
+    """
+    engines: list[dict] = []
+    seen: set[str] = set()
+    for skill in skills:
+        if skill.plugin in seen:
+            continue
+        manifest_path = skill.plugin_path / ENGINE_MANIFEST
+        if not manifest_path.is_file():
+            continue
+        seen.add(skill.plugin)
+        spec = json.loads(manifest_path.read_text(encoding="utf-8"))
+        home_env = spec.get("home_env")
+        rel_paths = spec.get("paths", [])
+        if not home_env or not rel_paths:
+            raise SystemExit(f"{manifest_path}: engine.json needs both 'home_env' and 'paths'")
+
+        engine_home = output_dir / ENGINES_SUBDIR / skill.plugin
+        if engine_home.exists():
+            if not overwrite:
+                raise SystemExit(f"Refusing to overwrite existing engine dir: {engine_home}")
+            shutil.rmtree(engine_home)
+        engine_home.mkdir(parents=True)
+        for rel in rel_paths:
+            src = skill.plugin_path / rel
+            if not src.exists():
+                continue
+            dest = engine_home / rel
+            if src.is_dir():
+                shutil.copytree(src, dest)
+            else:
+                shutil.copy2(src, dest)
+        engines.append(
+            {
+                "plugin": skill.plugin,
+                "home_env": home_env,
+                "home": f"{ENGINES_SUBDIR}/{skill.plugin}",
+            }
+        )
+    return engines
+
+
+def write_manifest(output_dir: Path, skills: list[Skill], mode: str, engines: list[dict]) -> None:
     manifest = {
         "schema": "mnox-ai.skills-export.v1",
         "mode": mode,
@@ -80,6 +138,7 @@ def write_manifest(output_dir: Path, skills: list[Skill], mode: str) -> None:
             }
             for skill in skills
         ],
+        "engines": engines,
     }
     (output_dir / MANIFEST_NAME).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
@@ -95,6 +154,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--mode", choices=("copy", "symlink"), default="copy")
     parser.add_argument("--overwrite", action="store_true", help="Replace existing exported skill directories.")
+    parser.add_argument(
+        "--with-engine",
+        action="store_true",
+        help="Co-locate each contributing plugin's engine assets under "
+        "<output>/.engines/<plugin>/ so engine-backed skills (e.g. config-chunks) "
+        "are self-contained on non-Claude hosts.",
+    )
     parser.add_argument("--list", action="store_true", help="List discovered skills as JSON and exit.")
     return parser
 
@@ -133,8 +199,20 @@ def main(argv: list[str] | None = None) -> int:
         else:
             symlink_skill(skill, target, args.overwrite)
 
-    write_manifest(output_dir, skills, args.mode)
-    print(json.dumps({"success": True, "output_dir": str(output_dir), "skills": [s.name for s in skills]}, indent=2))
+    engines = bundle_engines(output_dir, skills, args.overwrite) if args.with_engine else []
+    write_manifest(output_dir, skills, args.mode, engines)
+    result = {
+        "success": True,
+        "output_dir": str(output_dir),
+        "skills": [s.name for s in skills],
+        "engines": engines,
+    }
+    print(json.dumps(result, indent=2))
+    # Engine-backed skills need their home env var set on non-Claude hosts.
+    for engine in engines:
+        abs_home = output_dir / engine["home"]
+        print(f"\n# {engine['plugin']} engine bundled — point the skills at it:", file=sys.stderr)
+        print(f"export {engine['home_env']}={abs_home}", file=sys.stderr)
     return 0
 
 

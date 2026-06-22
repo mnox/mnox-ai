@@ -1,0 +1,5 @@
+{
+  "home_env": "CONFIG_CHUNKS_HOME",
+  "paths": ["scripts", "chunks", "groups", "references", "templates"],
+  "description": "Engine assets the config-chunks skills drive. `export_skills.py --with-engine` co-locates these under <output>/.engines/config-chunks/ so the exported skills are self-contained on non-Claude hosts; set CONFIG_CHUNKS_HOME to that dir."
+}

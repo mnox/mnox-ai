@@ -38,9 +38,13 @@ shell's working directory is this skill directory (Claude Code sets that; other
 hosts may not):
 
 ```bash
-# Claude Code exports CLAUDE_PLUGIN_ROOT. On any other host, substitute the
-# absolute plugin-root path you read this skill from (two levels above this file).
-ROOT="${CLAUDE_PLUGIN_ROOT:-<plugin-root>}"
+# Home resolution, highest precedence first — matches the engine itself:
+#   CONFIG_CHUNKS_HOME  set by install.sh / `export_skills.py --with-engine` on
+#                       non-Claude hosts (Cursor, Codex, …).
+#   CLAUDE_PLUGIN_ROOT  exported by Claude Code.
+#   <plugin-root>       the absolute path you read this skill from, if neither
+#                       env var is set (two levels above this file).
+ROOT="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-<plugin-root>}}"
 ENGINE="$ROOT/scripts/chunks-config.sh"
 ```
 

@@ -39,6 +39,24 @@ You can export a subset with repeated `--skill` flags:
 python3 scripts/export_skills.py --output-dir ./.agents/skills --skill schema-review --skill debut
 ```
 
+Skills backed by an on-disk engine (currently `config-chunks`) need that engine
+co-located to work off Claude Code. Add `--with-engine` to bundle it under
+`<output>/.engines/<plugin>/` and print the env var that points the skills at it:
+
+```
+python3 scripts/export_skills.py --output-dir ./.cursor/skills \
+  --skill ai-setup --skill chunks --with-engine
+```
+
+For `config-chunks` specifically, the fastest non-Claude path is its own
+bootstrap, which wires a host's `AGENTS.md` and applies a default chunk set out
+of the box — see
+[`plugins/config-chunks/README.md`](plugins/config-chunks/README.md#non-claude-one-liner):
+
+```
+plugins/config-chunks/install.sh --agents-path ~/myproject/AGENTS.md
+```
+
 See [`docs/provider-agnostic.md`](docs/provider-agnostic.md) for the portability
 model, MCP setup notes, and provider-adapter guidance.
 

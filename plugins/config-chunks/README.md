@@ -116,8 +116,42 @@ and **path** (where the bundle is written).
 
 | Host | Bundle wired via | Auto-refresh | Setup |
 |---|---|---|---|
-| **Claude Code** (CLI/Desktop/IDE) | `@import` in `~/.claude/CLAUDE.md` | ✅ `SessionStart` hook | Install the plugin — nothing else. |
-| **Codex / Cursor / Gemini / Copilot / any AGENTS.md host** | bundle body inlined in `AGENTS.md` | ⚠️ manual trigger | Set `agents_path` to your host's `AGENTS.md`, then run the reconcile (below). |
+| **Claude Code** (CLI/Desktop/IDE) | `@import` in `~/.claude/CLAUDE.md` | ✅ `SessionStart` hook | `claude plugin install config-chunks@mnox-ai` — nothing else. |
+| **Codex / Cursor / Gemini / Copilot / any AGENTS.md host** | bundle body inlined in `AGENTS.md` | ⚠️ manual trigger | One-line bootstrap (below), then re-run the reconcile to pick up updates. |
+
+### Non-Claude one-liner
+
+Clone the repo, then run the bootstrap pointed at your host's `AGENTS.md`. It
+wires the target, applies the `recommended` set, and reconciles the bundle into
+that file out of the box:
+
+```bash
+git clone https://github.com/mnox/mnox-ai ~/.mnox-ai
+~/.mnox-ai/plugins/config-chunks/install.sh --agents-path ~/myproject/AGENTS.md
+# Codex: --codex is shorthand for --agents-path ~/.codex/AGENTS.md
+```
+
+`install.sh` drives the same engine the skills drive — it never hand-edits
+`chunks.yaml`, and it's idempotent. On finish it prints a `config-chunks-refresh`
+alias and the exact reconcile command for your checkout.
+
+The engine resolves its home via **`CONFIG_CHUNKS_HOME`** → `CLAUDE_PLUGIN_ROOT`
+(Claude sets this) → a dirname fallback. `install.sh` exports it for you; to drive
+the engine by hand on a non-Claude host:
+
+```bash
+export CONFIG_CHUNKS_HOME=~/.mnox-ai/plugins/config-chunks
+bash "$CONFIG_CHUNKS_HOME/scripts/chunks-config.sh" list
+```
+
+Want the **management skills** (`/chunks`, `/ai-setup`) on a non-Claude host too?
+Export them self-contained — the engine rides along under `.engines/config-chunks/`
+and the printed `CONFIG_CHUNKS_HOME` points the skills at it:
+
+```bash
+python3 scripts/export_skills.py --output-dir ~/.cursor/skills \
+  --skill ai-setup --skill chunks --with-engine
+```
 
 **Auto-refresh is Claude-only** because `SessionStart` is a Claude Code hook event;
 no cross-host equivalent exists. Everywhere else the *same* engine produces the
@@ -130,10 +164,8 @@ no cross-host equivalent exists. Everywhere else the *same* engine produces the
 - To refresh on demand (alias it, or wire it into a shell/`git` hook):
 
   ```bash
-  # PLUGIN_DIR = wherever the plugin is installed (Claude sets $CLAUDE_PLUGIN_ROOT;
-  # on other hosts, point it at the plugin dir yourself).
-  bash "$PLUGIN_DIR/scripts/publish-chunks.sh" && \
-  bash "$PLUGIN_DIR/scripts/reconcile.sh"
+  export CONFIG_CHUNKS_HOME=~/.mnox-ai/plugins/config-chunks   # your checkout
+  bash "$CONFIG_CHUNKS_HOME/scripts/reconcile.sh"
   ```
 
 config-chunks keeps its own state (config, registry, `bundle.md`) under

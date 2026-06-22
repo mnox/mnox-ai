@@ -12,7 +12,9 @@
 # stale → the reconciler prunes them. That is how "uninstall = unsubscribe".
 set -euo pipefail
 
-SRC="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/chunks"
+# Engine home: CONFIG_CHUNKS_HOME (explicit override) > CLAUDE_PLUGIN_ROOT
+# (Claude Code) > dirname fallback (run in place from a clone).
+SRC="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}}/chunks"
 DEST="$HOME/.claude/chunks/registered"
 
 [ -d "$SRC" ] || exit 0

@@ -24,7 +24,12 @@
 # adding what's already there is a no-op, removing what's absent is a no-op.
 set -euo pipefail
 
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+# Engine home resolution, highest precedence first:
+#   CONFIG_CHUNKS_HOME  — explicit, host-agnostic override (set by install.sh /
+#                         export --with-engine on non-Claude hosts).
+#   CLAUDE_PLUGIN_ROOT  — exported by Claude Code for installed plugins.
+#   dirname fallback    — running the script in place from a clone/checkout.
+PLUGIN_ROOT="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}}"
 CONFIG_DIR="$HOME/.claude/config"
 CONFIG_YAML="$CONFIG_DIR/chunks.yaml"
 GROUPS_DIR="$PLUGIN_ROOT/groups"
