@@ -1,6 +1,6 @@
 {
   "name": "schema-review",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Review database schemas and in-code data structures for correctness, integrity, performance, scalability, and design quality.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",

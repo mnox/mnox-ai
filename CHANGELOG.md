@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-22
+
 ### Added
 - **`retrieval-review` plugin** — audits a retrieval / vector-index / RAG
   pipeline for quality across seven load-bearing axes (eval foundation, corpus &
@@ -51,8 +53,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is opt-in via the `session_config_set` tool (OpenAI key or a fully-local
   embedder); the server prompts once to offer it and never re-asks. First
   standalone utility-class plugin in the marketplace; requires [Bun](https://bun.sh).
+- **`foundry` plugin** — an autonomous-fix loop driver: drains a bucket of
+  work-unit files one at a time, spawning an Opus Worker to implement each in an
+  isolated git worktree and an independent Opus Integrator to review it — strictly
+  serial, never pushing to a remote.
 
 ### Changed
+- **Version alignment** — the established plugin suite (`aio`, `curriculum`,
+  `strangler-fig`, `schema-review`, `compliance-review`, `util-review`, `debut`,
+  `diagnose-queries`, `all-skills`) is brought to **0.5.0** to track the release
+  line; the five plugins debuting this release (`config-chunks`, `ontology-review`,
+  `retrieval-review`, `foundry`, `session-tracker`) ship at `0.1.0`.
 - **`strangler-fig` 0.4.0 → 0.5.0** — adds a **leakage audit** (taint / provenance
   audit) to the clean-room rewrite. The skill now captures the legacy's structural
   fingerprints up front and, at each firewall crossing, verifies nothing structural
@@ -107,6 +118,7 @@ First tagged public release.
 ### Added
 - Initial scaffolding: the `mnox-ai` plugin marketplace with the `aio` and `curriculum` skills.
 
-[Unreleased]: https://github.com/mnox/mnox-ai/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/mnox/mnox-ai/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/mnox/mnox-ai/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/mnox/mnox-ai/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/mnox/mnox-ai/releases/tag/v0.3.0

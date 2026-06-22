@@ -1,6 +1,6 @@
 {
   "name": "diagnose-queries",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — routes to five modes (known query, locate offender, live incident, proactive audit, regression) and produces a root-caused, verified fix.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",

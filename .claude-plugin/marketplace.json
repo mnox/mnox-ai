@@ -17,7 +17,7 @@
       "name": "curriculum",
       "source": "./plugins/curriculum",
       "description": "Generate an adaptive learning curriculum for any topic, with an append-only assessment loop that tunes future modules to the learner.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["learning", "curriculum", "education"]
     },
@@ -33,7 +33,7 @@
       "name": "schema-review",
       "source": "./plugins/schema-review",
       "description": "Review database schemas and in-code data structures for correctness, integrity, performance, scalability, and design quality.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["schema", "data", "review", "database"]
     },
@@ -41,7 +41,7 @@
       "name": "compliance-review",
       "source": "./plugins/compliance-review",
       "description": "Audit a repo, ADR/PRD, IaC, or live cloud state against SOC 2, HIPAA, or PCI-DSS with structured, evidence-backed findings.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["compliance", "security", "audit", "soc2", "hipaa", "pci"]
     },
@@ -49,7 +49,7 @@
       "name": "util-review",
       "source": "./plugins/util-review",
       "description": "Review Claude Code skills, hooks, CLAUDE.md, and workflow configs for design flaws, unclosed loops, stale references, and risks.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["review", "tooling", "skills", "hooks"]
     },
@@ -57,7 +57,7 @@
       "name": "debut",
       "source": "./plugins/debut",
       "description": "Pre-public open-source readiness audit — secrets/PII, licensing, community-health files, tests/CI, deps — scored with fix commands.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["open-source", "audit", "readiness", "security"]
     },
@@ -65,7 +65,7 @@
       "name": "diagnose-queries",
       "source": "./plugins/diagnose-queries",
       "description": "Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — five modes from known-query analysis to live-incident triage, ending in a root-caused, verified fix.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["database", "performance", "postgres", "query", "diagnostics", "explain"]
     },
@@ -97,7 +97,7 @@
       "name": "all-skills",
       "source": "./plugins/all-skills",
       "description": "Meta-plugin that installs every mnox-ai skill at once.",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "category": "agentic",
       "tags": ["bundle", "all-skills"]
     },

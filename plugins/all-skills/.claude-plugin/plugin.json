@@ -1,6 +1,6 @@
 {
   "name": "all-skills",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Meta-plugin that installs every mnox-ai skill at once via plugin dependencies.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",
