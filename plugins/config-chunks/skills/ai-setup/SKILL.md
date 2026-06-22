@@ -29,24 +29,49 @@ Distinction from the companion skill:
 
 ## Resolving paths (do this first)
 
-Everything this skill reads or runs lives under the **plugin root** — this skill
-file is at `<plugin-root>/skills/ai-setup/SKILL.md`, so the root is two
-directories up. **Resolve an absolute path to the plugin root before doing
-anything else**, and use it for every `scripts/…`, `chunks/…`, `groups/…`, and
-`references/…` reference below. A bare `../../` path only resolves when the
-shell's working directory is this skill directory (Claude Code sets that; other
-hosts may not):
+Everything this skill reads or runs lives under the **engine home** — the
+directory holding `scripts/`, `chunks/`, `groups/`, and `references/`. This skill
+must **self-discover that home before doing anything else**; do not assume an env
+var is set and do not rely on a bare `../../` path (it only resolves when the
+shell's working directory is this skill directory — Claude Code sets that, but
+Cursor/Codex and other hosts run from the project root).
+
+You know the **absolute path of this skill's own directory** — it's where you're
+reading this `SKILL.md` from. Substitute it for `<skill-dir>` below and run the
+probe. It checks candidate homes in precedence order and binds `ENGINE` to the
+first one that actually exists:
 
 ```bash
-# Home resolution, highest precedence first — matches the engine itself:
-#   CONFIG_CHUNKS_HOME  set by install.sh / `export_skills.py --with-engine` on
-#                       non-Claude hosts (Cursor, Codex, …).
-#   CLAUDE_PLUGIN_ROOT  exported by Claude Code.
-#   <plugin-root>       the absolute path you read this skill from, if neither
-#                       env var is set (two levels above this file).
-ROOT="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-<plugin-root>}}"
-ENGINE="$ROOT/scripts/chunks-config.sh"
+# Substitute <skill-dir> with the ABSOLUTE path of THIS skill directory,
+# e.g. /Users/you/.cursor/skills/ai-setup  (or .../.claude/plugins/.../skills/ai-setup).
+SKILL_DIR="<skill-dir>"
+
+ENGINE=""
+for cand in \
+  "${CONFIG_CHUNKS_HOME:+$CONFIG_CHUNKS_HOME/scripts/chunks-config.sh}" \
+  "${CLAUDE_PLUGIN_ROOT:+$CLAUDE_PLUGIN_ROOT/scripts/chunks-config.sh}" \
+  "$SKILL_DIR/../.engines/config-chunks/scripts/chunks-config.sh" \
+  "$SKILL_DIR/../../scripts/chunks-config.sh"; do
+  [ -n "$cand" ] && [ -f "$cand" ] && { ENGINE="$cand"; break; }
+done
+
+if [ -z "$ENGINE" ]; then
+  echo "config-chunks engine not found near this skill." >&2
+  echo "Fix: re-export with 'python3 scripts/export_skills.py --with-engine', or" >&2
+  echo "     set CONFIG_CHUNKS_HOME to the engine home (the dir holding scripts/)." >&2
+else
+  ROOT="$(cd "$(dirname "$ENGINE")/.." && pwd)"   # engine home, absolute
+  echo "engine: $ENGINE"
+fi
 ```
+
+The four candidates, in order: an explicit `CONFIG_CHUNKS_HOME` (set by
+`install.sh` / `export_skills.py --with-engine`), Claude Code's
+`CLAUDE_PLUGIN_ROOT`, the **`--with-engine` exported layout** (the engine is a
+deterministic sibling at `<skill-dir>/../.engines/config-chunks/`), and finally
+the **in-repo / Claude-plugin layout** (`<skill-dir>/../../`). The exported-sibling
+probe is what lets the interactive flow work on Cursor/Codex with **zero env
+vars** — neither host injects one, but the engine ships right next to the skill.
 
 Throughout this skill, read `../../chunks/`, `../../groups/`, and
 `../../references/` as `$ROOT/chunks/`, `$ROOT/groups/`, and `$ROOT/references/` —
@@ -133,18 +158,24 @@ clean code. Most people should just take it. Want me to apply the recommended se
 tailor it?"* Only run the interview (Step 2) if they choose to tailor; otherwise
 go straight to Step 4 with the `recommended` group.
 
-### Step 1 — Read the live state
+### Step 1 — Preflight, then read the live state
 
-Run, and read, before interviewing:
+**Preflight first — the guardrail around discovery.** Before interviewing,
+confirm the engine resolved and the config is healthy. If the probe left
+`$ENGINE` empty, **stop and surface the remediation it printed** (re-export
+`--with-engine`, or set `CONFIG_CHUNKS_HOME`) — do not continue, there's nothing
+to drive. Otherwise validate config health and read current state:
 
 ```bash
-bash "$ENGINE" list
+[ -n "$ENGINE" ] || { echo "engine unresolved — see Resolving paths remediation"; exit 1; }
+bash "$ENGINE" doctor   # config/bundle health; surface any ✗ line verbatim
+bash "$ENGINE" list     # current subscriptions, targets, resolved slugs
 ```
 
-Also read `$ROOT/references/chunk-scores.md` (for scores), the `summary:` line of
-each `$ROOT/chunks/*.md` (for one-liners), and `$ROOT/groups/recommended.yaml`
-(for the group's membership). If the user is already subscribed to things,
-acknowledge it and frame this run as a revisit.
+Read both before interviewing. Also read `$ROOT/references/chunk-scores.md` (for
+scores), the `summary:` line of each `$ROOT/chunks/*.md` (for one-liners), and
+`$ROOT/groups/recommended.yaml` (for the group's membership). If the user is
+already subscribed to things, acknowledge it and frame this run as a revisit.
 
 ### Step 2 — Tailor it (only if they declined the fast path)
 
@@ -234,9 +265,26 @@ Capture stdout/stderr from every call. Each mutation auto-publishes and
 reconciles. If any call prints a `warning` or non-zero result, surface it
 verbatim and recommend `doctor`.
 
-### Step 6 — Report what landed
+### Step 6 — Verify it landed, then report
 
-Confirm in a few sentences:
+**Close the guardrail loop: confirm the bundle actually reached the target files.**
+A clean engine exit is necessary but not sufficient — verify the marker is present
+in each host file you targeted:
+
+```bash
+# claude target → marker-wrapped @import in ~/.claude/CLAUDE.md
+grep -q 'config-chunks:start' ~/.claude/CLAUDE.md && echo "claude: landed"
+
+# agents target → inlined body marker in the AGENTS.md path you set in Step 5
+grep -q 'config-chunks:start' <agents-path> && echo "agents: landed"
+```
+
+If a marker is missing, the write didn't reach that file — run `bash "$ENGINE"
+doctor`, surface its output, and check the AGENTS.md path (the most common cause
+on non-Claude hosts is the bundle landing in the default `~/.claude/AGENTS.md`
+instead of the host's real path; re-run `set-agents-path`).
+
+On success, confirm in a few sentences:
 
 - the **subscriptions** that now apply (groups and/or standalone chunks),
 - the active **targets**,

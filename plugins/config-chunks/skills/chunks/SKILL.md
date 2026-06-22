@@ -40,25 +40,43 @@ to empty and the user's bundle goes wrong without an error.
 
 ## How to invoke
 
-The engine is `scripts/chunks-config.sh` at the **plugin root** — this skill
-lives at `<plugin-root>/skills/chunks/SKILL.md`, so the engine is two directories
-up. Build an **absolute** path to it first; do not rely on a bare `../../` path,
-which only resolves when the shell's working directory happens to be this skill
-directory (Claude Code sets that, but other hosts may run from elsewhere):
+The engine is `scripts/chunks-config.sh`, but **self-discover its location** — do
+not assume an env var is set, and do not rely on a bare `../../` path (it only
+resolves when the shell's working directory is this skill directory; Claude Code
+sets that, but Cursor/Codex and other hosts run from the project root). You know
+the **absolute path of this skill's own directory** — it's where you're reading
+this `SKILL.md` from. Substitute it for `<skill-dir>` and run the probe; it binds
+`ENGINE` to the first candidate home that exists:
 
 ```bash
-# Home resolution, highest precedence first — matches the engine itself:
-#   CONFIG_CHUNKS_HOME  set by install.sh / `export_skills.py --with-engine` on
-#                       non-Claude hosts (Cursor, Codex, …).
-#   CLAUDE_PLUGIN_ROOT  exported by Claude Code.
-#   <plugin-root>       the absolute path you read this skill from, if neither
-#                       env var is set (two levels above this file).
-ENGINE="${CONFIG_CHUNKS_HOME:-${CLAUDE_PLUGIN_ROOT:-<plugin-root>}}/scripts/chunks-config.sh"
+# Substitute <skill-dir> with the ABSOLUTE path of THIS skill directory,
+# e.g. /Users/you/.cursor/skills/chunks  (or .../.claude/plugins/.../skills/chunks).
+SKILL_DIR="<skill-dir>"
+
+ENGINE=""
+for cand in \
+  "${CONFIG_CHUNKS_HOME:+$CONFIG_CHUNKS_HOME/scripts/chunks-config.sh}" \
+  "${CLAUDE_PLUGIN_ROOT:+$CLAUDE_PLUGIN_ROOT/scripts/chunks-config.sh}" \
+  "$SKILL_DIR/../.engines/config-chunks/scripts/chunks-config.sh" \
+  "$SKILL_DIR/../../scripts/chunks-config.sh"; do
+  [ -n "$cand" ] && [ -f "$cand" ] && { ENGINE="$cand"; break; }
+done
+
+if [ -z "$ENGINE" ]; then
+  echo "config-chunks engine not found near this skill." >&2
+  echo "Fix: re-export with 'python3 scripts/export_skills.py --with-engine', or" >&2
+  echo "     set CONFIG_CHUNKS_HOME to the engine home (the dir holding scripts/)." >&2
+fi
+
 bash "$ENGINE" <command> [args]
 ```
 
-You already know `<plugin-root>`'s absolute path — it's the directory two levels
-above this skill file. Reuse `$ENGINE` for every command below.
+The candidates, in order: an explicit `CONFIG_CHUNKS_HOME` (set by `install.sh` /
+`export_skills.py --with-engine`), Claude Code's `CLAUDE_PLUGIN_ROOT`, the
+`--with-engine` exported layout (engine is a deterministic sibling at
+`<skill-dir>/../.engines/config-chunks/`), then the in-repo / Claude-plugin layout
+(`<skill-dir>/../../`). The exported-sibling probe is what lets this skill run on
+Cursor/Codex with **zero env vars**. Reuse `$ENGINE` for every command below.
 
 ### Commands
 

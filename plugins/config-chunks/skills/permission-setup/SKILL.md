@@ -29,10 +29,34 @@ a teardown of what they chose on purpose.
 
 ## The payload it reads
 
-The verified, cited permission profiles live at
-`../../references/permission-profiles.md` (plugin root). **Read that file at run
-time** and render the posture for the user's detected (provider, surface) — do
-**not** hardcode provider config here. Provider permission models drift; the
+The verified, cited permission profiles live under the **engine home** at
+`references/permission-profiles.md`. **Self-discover that path** — do not rely on
+a bare `../../` path (it only resolves when the shell's working directory is this
+skill directory; Cursor/Codex run from the project root). You know the absolute
+path of this skill's own directory — substitute it for `<skill-dir>` and probe
+for the first reference file that exists:
+
+```bash
+# Substitute <skill-dir> with the ABSOLUTE path of THIS skill directory.
+SKILL_DIR="<skill-dir>"
+
+PROFILES=""
+for cand in \
+  "${CONFIG_CHUNKS_HOME:+$CONFIG_CHUNKS_HOME/references/permission-profiles.md}" \
+  "${CLAUDE_PLUGIN_ROOT:+$CLAUDE_PLUGIN_ROOT/references/permission-profiles.md}" \
+  "$SKILL_DIR/../.engines/config-chunks/references/permission-profiles.md" \
+  "$SKILL_DIR/../../references/permission-profiles.md"; do
+  [ -n "$cand" ] && [ -f "$cand" ] && { PROFILES="$cand"; break; }
+done
+[ -n "$PROFILES" ] && echo "profiles: $PROFILES" || echo "permission-profiles.md not found — re-export with --with-engine, or set CONFIG_CHUNKS_HOME" >&2
+```
+
+The candidate order mirrors the other config-chunks skills (`CONFIG_CHUNKS_HOME` →
+`CLAUDE_PLUGIN_ROOT` → `--with-engine` exported sibling at
+`<skill-dir>/../.engines/config-chunks/` → in-repo `<skill-dir>/../../`); the
+exported-sibling probe is what lets this skill run on Cursor/Codex with zero env
+vars. **Read `$PROFILES` at run time** and render the posture for the user's
+detected (provider, surface) — do **not** hardcode provider config here. Provider permission models drift; the
 reference carries the canonical 3-dial model, per-provider/per-surface "Cautious"
 posture, the named footgun for each tool, and source URLs. If the file is missing,
 say so and stop — do not invent permission config from memory.
@@ -132,9 +156,10 @@ ceremony.
 - **config-chunks NEVER writes security config.** No `settings.json`,
   `config.toml`, or `permissions.json` writes from this skill — recommend, show,
   delegate. This is the hard architectural rule.
-- **Read the profile live.** Always pull provider config from
-  `../../references/permission-profiles.md` at run time; never assert permission
-  facts from memory (they drift post-cutoff). File missing → say so and stop.
+- **Read the profile live.** Always pull provider config from the discovered
+  `$PROFILES` (`references/permission-profiles.md` under the engine home) at run
+  time; never assert permission facts from memory (they drift post-cutoff). File
+  missing → say so and stop.
 - **Least privilege, always.** Recommend the Cautious posture; never default a
   user up the ladder or near the bypass footgun.
 - **Plain language.** Translate every dial into what it lets the agent do. If you
