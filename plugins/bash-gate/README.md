@@ -123,7 +123,7 @@ Only paths under a `dev_root` are eligible for path-based auto-allow. With
 ```yaml
 arbiter:
   enabled: true
-  model: "claude-haiku-4-5-20251001"
+  model: "claude-haiku-4-5"
 ```
 
 …and export `ANTHROPIC_API_KEY` in the hook's environment. Now Tier-B gated verbs
@@ -191,7 +191,7 @@ python3 plugins/bash-gate/test/run_tests.py
 ```
 
 The suite is hermetic (a temp `$HOME` sandbox; reads none of your real machine
-state) and covers 280 command fixtures plus unit tests for the parser, redirect
+state) and covers 148 command fixtures plus unit tests for the parser, redirect
 stripping, pattern matching, and the arbiter seams.
 
 ## Safety summary

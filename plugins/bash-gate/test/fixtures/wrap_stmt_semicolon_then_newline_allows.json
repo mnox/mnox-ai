@@ -1,1 +1,1 @@
-{"tool_name": "Bash", "tool_input": {"command": "echo start; cat /tmp/foo.log\necho end"}, "session_id": "test-sess", "cwd": "/Users/matt.noxon/dev/work"}
+{"tool_name": "Bash", "tool_input": {"command": "echo start; cat /tmp/foo.log\necho end"}, "session_id": "test-sess", "cwd": "/home/testuser/dev/work"}

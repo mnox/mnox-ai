@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "cp --target-directory=/etc/cron.d /var/tmp/__bash_gate_sec__/payload"}, "session_id": "test-sess", "cwd": "/tmp", "_test_dev_roots": "/var/tmp/__bash_gate_sec__", "_test_setup_files": ["/var/tmp/__bash_gate_sec__/payload"]}

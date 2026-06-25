@@ -139,7 +139,24 @@ _TRAILING_CONTROL_OPERATORS = ("&&", "||", "|", "&")
 # source_dotenv_safe class instead, so they are NOT in this set.
 EVAL_FIRST_WORDS = {"eval"}
 # Tokens that split a compound command into independent segments.
-SEGMENT_SEPARATORS = {"&&", "||", ";"}
+# `&` (async) IS a command separator: `a & b` backgrounds `a` and runs `b`, so
+# BOTH sides execute and each must be independently safe. Omitting it let a
+# dangerous verb hide after `&` (`echo x & sudo rm -rf /`) — invisible to the
+# deny/always-ask/gated checks, which only inspect a segment's leading verb. A
+# trailing `&` (`foo &`) leaves an empty final statement -> malformed-compound
+# -> defer. `&&`/`&>`/`2>&1` are tokenized as distinct multi-char tokens before
+# the single-`&` fallback, so a lone `&` token only ever means async.
+SEGMENT_SEPARATORS = {"&&", "||", ";", "&"}
+# Verbs that run their ARGUMENT as a fresh command. The classifier only inspects
+# a segment's leading verb, so a dangerous inner verb hidden behind one of these
+# (`env sudo rm -rf /`, `timeout 5 chmod 777 …`) would slip the always-ask/gated
+# check and fall through to INERT in a compound. We DEFER any segment that leads
+# with a wrapper rather than try to unwrap it (fail toward asking). sudo/doas are
+# intentionally absent — they are Tier-A always-ask and caught when they lead.
+EXEC_WRAPPER_VERBS = {
+    "env", "command", "exec", "nice", "ionice", "nohup", "setsid",
+    "stdbuf", "time", "timeout", "xargs", "watch", "proxychains", "proxychains4",
+}
 # Pipe / async / non-redirect tokens we will not reason about -> defer.
 # Note: redirect tokens are handled separately by strip_safe_redirects.
 NON_REDIRECT_PIPE_TOKENS = {"|", "<", "<<", "<<<"}
@@ -213,7 +230,7 @@ SEG_CWD_MUTATION = "CWD_MUTATION"
 # Phase 2f: settings.json path (read-only).
 SETTINGS_PATH = Path(os.path.expanduser("~/.claude/settings.json"))
 
-def _compile_bash_patterns(pattern_list: list[str]) -> list[tuple[str, "re.Pattern[str]"]]:
+def _compile_bash_patterns(pattern_list: list[str]) -> list[tuple[str, re.Pattern[str]]]:
     """Compile a list of `Bash(...)` permission patterns into anchored regexes.
 
     Used for both the hook-owned gated-pattern list (YAML) and the settings.json
@@ -224,7 +241,7 @@ def _compile_bash_patterns(pattern_list: list[str]) -> list[tuple[str, "re.Patte
     and a tail group `(\\s.*)?$` (allowing additional args after the literal
     pattern body). Non-Bash patterns and malformed entries are skipped.
     """
-    compiled: list[tuple[str, "re.Pattern[str]"]] = []
+    compiled: list[tuple[str, re.Pattern[str]]] = []
     for raw in pattern_list or []:
         if not isinstance(raw, str):
             continue
@@ -258,7 +275,7 @@ def _compile_bash_patterns(pattern_list: list[str]) -> list[tuple[str, "re.Patte
     return compiled
 
 
-def _get_gated_patterns(config: dict) -> list[tuple[str, "re.Pattern[str]"]]:
+def _get_gated_patterns(config: dict) -> list[tuple[str, re.Pattern[str]]]:
     """Compile the hook-owned `gated_patterns` list (from bash_gate.yaml).
 
     Post-inversion the hook OWNS the danger list: these are the `Bash(...)`
@@ -278,7 +295,7 @@ def _get_gated_patterns(config: dict) -> list[tuple[str, "re.Pattern[str]"]]:
     return _compile_bash_patterns(raw)
 
 
-def _get_always_ask_patterns() -> list[tuple[str, "re.Pattern[str]"]]:
+def _get_always_ask_patterns() -> list[tuple[str, re.Pattern[str]]]:
     """Compile the Tier A "always-ask" list = settings.json `permissions.ask`.
 
     These are the verbs the hook must ALWAYS gate to a prompt and NEVER
@@ -309,11 +326,11 @@ def _get_always_ask_patterns() -> list[tuple[str, "re.Pattern[str]"]]:
 # Module-level cache for compiled deny patterns (settings.json permissions.deny).
 # Used ONLY by the Phase 2g arbiter eligibility gate to ensure the arbiter never
 # auto-allows a command a deny rule targets. None if load failed.
-_DENY_PATTERN_CACHE: list[tuple[str, "re.Pattern[str]"]] | None = None
+_DENY_PATTERN_CACHE: list[tuple[str, re.Pattern[str]]] | None = None
 _DENY_PATTERN_LOADED: bool = False
 
 
-def _load_deny_patterns() -> list[tuple[str, "re.Pattern[str]"]] | None:
+def _load_deny_patterns() -> list[tuple[str, re.Pattern[str]]] | None:
     """Load and compile deny patterns from settings.json. Returns None on failure.
 
     Honors BASH_GATE_DENY_PATTERNS_OVERRIDE (newline-separated `Bash(...)`
@@ -335,7 +352,7 @@ def _load_deny_patterns() -> list[tuple[str, "re.Pattern[str]"]] | None:
     return _compile_bash_patterns(deny)
 
 
-def _get_deny_patterns() -> list[tuple[str, "re.Pattern[str]"]] | None:
+def _get_deny_patterns() -> list[tuple[str, re.Pattern[str]]] | None:
     """Cached accessor for compiled deny patterns. None if load failed/absent."""
     global _DENY_PATTERN_CACHE, _DENY_PATTERN_LOADED
     if _DENY_PATTERN_LOADED:
@@ -347,7 +364,7 @@ def _get_deny_patterns() -> list[tuple[str, "re.Pattern[str]"]] | None:
 
 def _matches_any_deny_pattern(
     tokens: list[str],
-    patterns: list[tuple[str, "re.Pattern[str]"]],
+    patterns: list[tuple[str, re.Pattern[str]]],
 ) -> tuple[bool, str]:
     """Test a token list's command string against compiled deny patterns.
 
@@ -376,7 +393,7 @@ def _segment_command_string(tokens: list[str]) -> str:
 
 def _matches_any_pattern(
     tokens: list[str],
-    patterns: list[tuple[str, "re.Pattern[str]"]],
+    patterns: list[tuple[str, re.Pattern[str]]],
 ) -> tuple[bool, str]:
     """Test the segment's command string against compiled ask patterns."""
     cmd_str = _segment_command_string(tokens)
@@ -607,7 +624,6 @@ def _is_safe_redirect_path(path: str, dev_roots: list[str]) -> bool:
     if not path.startswith("/"):
         return False
     normalized = os.path.normpath(path)
-    candidate = normalized + "/" if not normalized.endswith("/") else normalized
     # Compare with trailing-slash boundary semantics.
     test = normalized + "/"
     for prefix in SAFE_REDIRECT_PATH_PREFIXES:
@@ -700,6 +716,16 @@ def _classify_dev_tree_safe_writes(
     positional: list[str] = []
     for w in tokens[1:]:
         if w.startswith("-"):
+            # cp/mv/ln -t/--target-directory carries a DESTINATION path. Only
+            # positionals are containment-checked below, so a smuggled target
+            # (`cp --target-directory=/etc/cron.d ~/dev/work/x`) would escape the
+            # dev-root check. Reject the flag rather than silently skip it.
+            if (
+                w in ("-t", "--target-directory")
+                or w.startswith("--target-directory=")
+                or (w.startswith("-t") and len(w) > 2)
+            ):
+                return ("defer", f"target-directory-flag({w})")
             continue
         positional.append(w)
 
@@ -956,6 +982,11 @@ def _classify_chmod_safe_mode(
             resolved_relative = True
         if not _path_under_dev_root(abs_path, dev_roots):
             return ("defer", f"path-outside-dev-roots(word={w})")
+        # chmod follows symlinks, so a dev-root symlink pointing outside the root
+        # would have its TARGET's mode changed under an auto-allow. Reject links
+        # (mirrors the rm handlers' islink guard).
+        if os.path.islink(abs_path):
+            return ("defer", f"symlink-rejected(word={w})")
         if not os.path.exists(abs_path):
             return ("defer", f"path-does-not-exist(word={w})")
 
@@ -1030,7 +1061,7 @@ def _classify_source_dotenv_safe(
         return ("defer", f"path-outside-dev-roots(word={arg})")
 
     try:
-        with open(resolved, "r", encoding="utf-8", errors="strict") as fh:
+        with open(resolved, encoding="utf-8", errors="strict") as fh:
             for line in fh:
                 stripped = line.rstrip("\n")
                 if not stripped.strip():
@@ -1098,15 +1129,25 @@ def _dispatch_single(
         if handler == "rm_prefix":
             decision, reason = _classify_rm(effective_tokens, rule, effective_cwd)
         elif handler == "dev_tree_safe_writes":
-            decision, reason = _classify_dev_tree_safe_writes(effective_tokens, rule, config, effective_cwd)
+            decision, reason = _classify_dev_tree_safe_writes(
+                effective_tokens, rule, config, effective_cwd
+            )
         elif handler == "rm_git_tracked_clean":
-            decision, reason = _classify_rm_git_tracked_clean(effective_tokens, rule, config, effective_cwd)
+            decision, reason = _classify_rm_git_tracked_clean(
+                effective_tokens, rule, config, effective_cwd
+            )
         elif handler == "rm_gitignored_build_artifact":
-            decision, reason = _classify_rm_gitignored_build_artifact(effective_tokens, rule, config, effective_cwd)
+            decision, reason = _classify_rm_gitignored_build_artifact(
+                effective_tokens, rule, config, effective_cwd
+            )
         elif handler == "chmod_safe_mode":
-            decision, reason = _classify_chmod_safe_mode(effective_tokens, rule, config, effective_cwd)
+            decision, reason = _classify_chmod_safe_mode(
+                effective_tokens, rule, config, effective_cwd
+            )
         elif handler == "source_dotenv_safe":
-            decision, reason = _classify_source_dotenv_safe(effective_tokens, rule, config, effective_cwd)
+            decision, reason = _classify_source_dotenv_safe(
+                effective_tokens, rule, config, effective_cwd
+            )
         else:
             decision, reason = ("defer", f"class-not-implemented(handler={handler})")
 
@@ -1117,7 +1158,10 @@ def _dispatch_single(
 
     if not matched_any:
         return ("defer", f"no-class-match(first={first})", "")
-    assert first_defer is not None
+    # matched_any ⇒ a class matched and (no allow returned) first_defer was set.
+    # Guard explicitly rather than assert, which `python3 -O` strips.
+    if first_defer is None:
+        return ("defer", "no-allow-class-matched", "")
     return first_defer
 
 
@@ -1142,6 +1186,11 @@ def _classify_segment(
         return (SEG_ALLOW, reason, log_class)
 
     verb, _ = _first_verb_after_env(tokens)
+
+    # An exec-wrapper would hide the real verb from the pattern checks below
+    # (which only see the segment's leading token). Defer rather than INERT.
+    if verb in EXEC_WRAPPER_VERBS:
+        return (SEG_DEFER, f"exec-wrapper({verb})", verb)
 
     matched, raw_pat = _matches_any_pattern(tokens, _get_always_ask_patterns())
     if matched:
@@ -1353,7 +1402,7 @@ def _normalize_line_wraps(cmd: str) -> tuple[str | None, str]:
 # --------------------------------------------------------------------------- #
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION = "2023-06-01"
-DEFAULT_ARBITER_MODEL = "claude-haiku-4-5-20251001"
+DEFAULT_ARBITER_MODEL = "claude-haiku-4-5"
 DEFAULT_ARBITER_MAX_TOKENS = 1024
 DEFAULT_ARBITER_TIMEOUT_S = 8
 
@@ -1503,7 +1552,11 @@ def _invoke_arbiter(
         data = json.loads(raw)
         if isinstance(data, dict) and data.get("type") == "error":
             msg = ((data.get("error") or {}).get("message")) or "unknown api error"
-            return ("ERROR", f"arbiter api error: {msg}", {"error": msg[:200], "latency_ms": latency_ms})
+            return (
+                "ERROR",
+                f"arbiter api error: {msg}",
+                {"error": msg[:200], "latency_ms": latency_ms},
+            )
         text = "".join(
             b.get("text", "")
             for b in (data.get("content") or [])
@@ -1844,7 +1897,9 @@ def _explain(cmd: str, cwd: str) -> str:
         out.append(f"overall: DEFER ({wrap_err})")
         return "\n".join(out)
     if cmd_for_parse != cmd:
-        out.append("note: collapsed line-wrap whitespace before parsing (original cmd preserved in log)")
+        out.append(
+            "note: collapsed line-wrap whitespace before parsing (original cmd preserved in log)"
+        )
 
     try:
         normalized = _normalize_operators(cmd_for_parse)
@@ -1943,7 +1998,9 @@ def _explain(cmd: str, cwd: str) -> str:
                 out.append("              => SEG_DEFER (cd-inside-pipe)")
                 any_defer = True
                 continue
-            sub_state = _explain_single(residual, config, effective_cwd, out, sub_label, indent="              ")
+            sub_state = _explain_single(
+                residual, config, effective_cwd, out, sub_label, indent="              "
+            )
             if sub_state == SEG_DEFER:
                 any_defer = True
             elif sub_state == SEG_ALLOW:
@@ -1985,7 +2042,9 @@ def _explain_single(
             matched_classes.append(rule.get("name") or rule.get("log_as") or "?")
 
     if matched_classes:
-        out.append(f"{indent}candidate allow classes for verb '{verb}': {', '.join(matched_classes)}")
+        out.append(
+            f"{indent}candidate allow classes for verb '{verb}': {', '.join(matched_classes)}"
+        )
     else:
         out.append(f"{indent}no allow class matches verb '{verb}'")
 

@@ -124,7 +124,7 @@ def cmd_summary(since: str) -> int:
         rate = (100.0 * auto / decided) if decided else 0.0
         print(f"  auto-approved: {auto}  | user-confirm: {confirm}  | error-fallback: {errs}")
         print(f"  auto-approval rate (of decided): {rate:.0f}%  ({auto}/{decided})")
-        print(f"  verdicts: " + ", ".join(f"{v}={n}" for v, n in arb_verdicts.most_common()))
+        print("  verdicts: " + ", ".join(f"{v}={n}" for v, n in arb_verdicts.most_common()))
         if arb_latencies:
             s = sorted(arb_latencies)
             p50 = s[len(s) // 2]

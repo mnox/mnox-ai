@@ -45,6 +45,11 @@ jobs:
       - name: config-chunks smoke (engine + reconcile)
         run: bash plugins/config-chunks/scripts/test/smoke.sh
 
+      - name: bash-gate tests
+        run: |
+          pip install -r plugins/bash-gate/requirements.txt
+          python3 plugins/bash-gate/test/run_tests.py
+
   # The session-tracker utility package is TypeScript + Bun; typecheck it on its own.
   session-tracker:
     runs-on: ubuntu-latest

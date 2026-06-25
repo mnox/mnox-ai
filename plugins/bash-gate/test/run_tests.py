@@ -147,15 +147,30 @@ def _run_unit_tests() -> tuple[int, int]:
     cases = [
         # (tokens, dev_roots, expected_residual_or_None, label)
         (["rm", "/tmp/foo", "2>/dev/null"], dev_roots, ["rm", "/tmp/foo"], "inline 2>/dev/null"),
-        (["rm", "/tmp/foo", ">/dev/null", "2>&1"], dev_roots, ["rm", "/tmp/foo"], "inline >/dev/null + 2>&1"),
+        (
+            ["rm", "/tmp/foo", ">/dev/null", "2>&1"],
+            dev_roots,
+            ["rm", "/tmp/foo"],
+            "inline >/dev/null + 2>&1",
+        ),
         (["rm", "/tmp/foo", "2>&1"], dev_roots, ["rm", "/tmp/foo"], "inline 2>&1"),
         (["rm", "/tmp/foo", ">", "/tmp/log"], dev_roots, ["rm", "/tmp/foo"], "bare > /tmp/log"),
         (["rm", "/tmp/foo", "2>", "/tmp/err"], dev_roots, ["rm", "/tmp/foo"], "bare 2> /tmp/err"),
         (["rm", "/tmp/foo", ">", "/var/log/syslog"], dev_roots, None, "bare > unsafe path"),
         (["rm", "/tmp/foo", ">/var/log/syslog"], dev_roots, None, "inline > unsafe path"),
-        (["rm", "/tmp/foo", "|", "tee", "/tmp/log"], dev_roots, ["rm", "/tmp/foo", "|", "tee", "/tmp/log"], "pipe survives"),
+        (
+            ["rm", "/tmp/foo", "|", "tee", "/tmp/log"],
+            dev_roots,
+            ["rm", "/tmp/foo", "|", "tee", "/tmp/log"],
+            "pipe survives",
+        ),
         (["mkdir", "~/dev/work/a"], dev_roots, ["mkdir", "~/dev/work/a"], "no redirects"),
-        (["rm", "/tmp/foo", ">", "/Users/test/dev/work/log"], dev_roots, ["rm", "/tmp/foo"], "redirect to dev root"),
+        (
+            ["rm", "/tmp/foo", ">", "/Users/test/dev/work/log"],
+            dev_roots,
+            ["rm", "/tmp/foo"],
+            "redirect to dev root",
+        ),
     ]
     for tokens, roots, expected, label in cases:
         residual, err = bash_gate.strip_safe_redirects(tokens, roots)
@@ -168,7 +183,10 @@ def _run_unit_tests() -> tuple[int, int]:
             print(f"PASS unit:strip_safe_redirects[{label}]")
         else:
             failed += 1
-            print(f"FAIL unit:strip_safe_redirects[{label}]: got residual={residual!r} err={err!r}, expected {expected!r}")
+            print(
+                f"FAIL unit:strip_safe_redirects[{label}]: got residual={residual!r} "
+                f"err={err!r}, expected {expected!r}"
+            )
 
     # Phase 2e: symbolic mode parser unit tests.
     sym_cases = [
@@ -203,7 +221,9 @@ def _run_unit_tests() -> tuple[int, int]:
             print(f"PASS unit:_is_safe_symbolic_mode[{label}]")
         else:
             failed += 1
-            print(f"FAIL unit:_is_safe_symbolic_mode[{label}]: got {got}, expected {expected_valid}")
+            print(
+                f"FAIL unit:_is_safe_symbolic_mode[{label}]: got {got}, expected {expected_valid}"
+            )
 
     # Phase 2f: ask-pattern compilation + matching unit tests.
     ask_compile_cases = [
@@ -212,16 +232,36 @@ def _run_unit_tests() -> tuple[int, int]:
         (["Bash(sudo:*)"], "sudo", True, "sudo:* matches bare sudo"),
         (["Bash(sudo:*)"], "sudoku game", False, "sudo:* does NOT match sudoku"),
         (["Bash(npm install -g:*)"], "npm install -g foo", True, "npm install -g matches"),
-        (["Bash(npm install -g:*)"], "npm install lodash", False, "npm install lodash does NOT match"),
+        (
+            ["Bash(npm install -g:*)"],
+            "npm install lodash",
+            False,
+            "npm install lodash does NOT match",
+        ),
         (["Bash(npm install -g:*)"], "npm run build", False, "npm run build does NOT match"),
         (["Bash(npm i -g:*)"], "npm i -g pkg", True, "npm i -g matches"),
         (["Bash(npm i -g:*)"], "npm i pkg", False, "npm i pkg does NOT match"),
         (["Bash(gh pr merge:*)"], "gh pr merge 123", True, "gh pr merge matches"),
         (["Bash(gh pr merge:*)"], "gh pr list", False, "gh pr list does NOT match merge"),
         (["Bash(curl -X POST:*)"], "curl -X POST https://x", True, "curl -X POST matches"),
-        (["Bash(curl -X POST:*)"], "curl -X GET https://x", False, "curl -X GET does NOT match POST"),
-        (["Bash(find * -delete:*)"], "find /tmp -delete", True, "find * -delete matches glob middle"),
-        (["Bash(find * -delete:*)"], "find /tmp -name foo", False, "find /tmp -name foo does NOT match -delete"),
+        (
+            ["Bash(curl -X POST:*)"],
+            "curl -X GET https://x",
+            False,
+            "curl -X GET does NOT match POST",
+        ),
+        (
+            ["Bash(find * -delete:*)"],
+            "find /tmp -delete",
+            True,
+            "find * -delete matches glob middle",
+        ),
+        (
+            ["Bash(find * -delete:*)"],
+            "find /tmp -name foo",
+            False,
+            "find /tmp -name foo does NOT match -delete",
+        ),
         (["Bash(gcloud * delete:*)"], "gcloud sql delete inst", True, "gcloud * delete matches"),
         (["Bash(gcloud * delete:*)"], "gcloud sql list", False, "gcloud sql list does NOT match"),
         (["Bash(rm:*)"], "rm /tmp/foo", True, "rm:* matches"),
@@ -256,8 +296,18 @@ def _run_unit_tests() -> tuple[int, int]:
     deny_cases = [
         (["Bash(npx *)"], ["npx", "create-foo"], True, "npx * matches npx create-foo"),
         (["Bash(npx *)"], ["node", "x"], False, "npx * does NOT match node"),
-        (["Bash(curl * | sh:*)"], ["curl", "http://x", "|", "sh"], True, "curl * | sh matches full pipe"),
-        (["Bash(curl * | sh:*)"], ["curl", "http://x"], False, "curl * | sh does NOT match curl alone"),
+        (
+            ["Bash(curl * | sh:*)"],
+            ["curl", "http://x", "|", "sh"],
+            True,
+            "curl * | sh matches full pipe",
+        ),
+        (
+            ["Bash(curl * | sh:*)"],
+            ["curl", "http://x"],
+            False,
+            "curl * | sh does NOT match curl alone",
+        ),
         (["Bash(sudo rm -rf:*)"], ["sudo", "rm", "-rf", "/"], True, "sudo rm -rf matches"),
     ]
     for plist, tokens, expected, label in deny_cases:
@@ -288,12 +338,20 @@ def _run_unit_tests() -> tuple[int, int]:
             print(f"PASS unit:parse_verdict[{label}]")
         else:
             failed += 1
-            print(f"FAIL unit:parse_verdict[{label}]: got ({v!r},{r!r}), expected verdict={exp_verdict}")
+            print(
+                f"FAIL unit:parse_verdict[{label}]: got ({v!r},{r!r}), "
+                f"expected verdict={exp_verdict}"
+            )
 
     # _arbiter_config defaults + overrides.
     cfg_cases = [
         ({}, True, bash_gate.DEFAULT_ARBITER_MODEL, "empty -> enabled default"),
-        ({"arbiter": {"enabled": False}}, False, bash_gate.DEFAULT_ARBITER_MODEL, "enabled False respected"),
+        (
+            {"arbiter": {"enabled": False}},
+            False,
+            bash_gate.DEFAULT_ARBITER_MODEL,
+            "enabled False respected",
+        ),
         ({"arbiter": {"model": "claude-x"}}, True, "claude-x", "model override"),
     ]
     for cfg, exp_enabled, exp_model, label in cfg_cases:
@@ -303,7 +361,10 @@ def _run_unit_tests() -> tuple[int, int]:
             print(f"PASS unit:arbiter_config[{label}]")
         else:
             failed += 1
-            print(f"FAIL unit:arbiter_config[{label}]: got {ac}, expected enabled={exp_enabled} model={exp_model}")
+            print(
+                f"FAIL unit:arbiter_config[{label}]: got {ac}, expected "
+                f"enabled={exp_enabled} model={exp_model}"
+            )
 
     # _eligibility_segments tokenization.
     segs, all_tokens = bash_gate._eligibility_segments("sudo apt update && ls")
@@ -351,7 +412,10 @@ def _run_unit_tests() -> tuple[int, int]:
                 print(f"PASS unit:classify_gate[{label}]")
             else:
                 failed += 1
-                print(f"FAIL unit:classify_gate[{label}]: got ({kind},{reason!r}), expected kind={exp_kind}")
+                print(
+                    f"FAIL unit:classify_gate[{label}]: got ({kind},{reason!r}), "
+                    f"expected kind={exp_kind}"
+                )
     finally:
         if _saved_aa is None:
             os.environ.pop("BASH_GATE_ALWAYS_ASK_PATTERNS_OVERRIDE", None)
@@ -389,7 +453,7 @@ def run_fixture(json_path: Path, expected: str) -> tuple[bool, str]:
     # Rewrite the hardcoded dev-machine user path to the sandbox HOME so absolute
     # cwd/command/_test_setup_files paths land inside the hermetic sandbox.
     # (Tilde `~/...` paths are expanded by the hook against the sandbox HOME.)
-    raw = json_path.read_text().replace("/Users/matt.noxon", os.environ["HOME"])
+    raw = json_path.read_text().replace("/home/testuser", os.environ["HOME"])
     payload = json.loads(raw)
 
     # Per-fixture dev_roots override via _test_dev_roots key. When a fixture does
@@ -556,8 +620,6 @@ def main() -> int:
         print(f"FAIL malformed_json: rc={proc.returncode} stdout={proc.stdout!r}")
 
     # Explain-mode CLI subprocess tests.
-    explain_log = Path(tempfile.mkdtemp(prefix="bash_gate_explain_")) / "bash_gate.log.jsonl"
-    # Point the hook at an isolated log file so we can assert it stays empty.
     explain_env = {
         **os.environ,
         "PATH": os.environ.get("PATH", ""),
@@ -592,7 +654,10 @@ def main() -> int:
         print("PASS explain_cli:rm-under-tmp")
     else:
         failed += 1
-        print(f"FAIL explain_cli:rm-under-tmp: rc={proc.returncode} stdout={proc.stdout!r} stderr={proc.stderr!r}")
+        print(
+            f"FAIL explain_cli:rm-under-tmp: rc={proc.returncode} "
+            f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+        )
 
     # 2) Compound with cd + rm of untracked file -> DEFER, with segment 2 dangerous.
     proc = _run_explain([
@@ -612,7 +677,10 @@ def main() -> int:
         print("PASS explain_cli:compound-cd-rm-pipe")
     else:
         failed += 1
-        print(f"FAIL explain_cli:compound-cd-rm-pipe: rc={proc.returncode} stdout={proc.stdout!r} stderr={proc.stderr!r}")
+        print(
+            f"FAIL explain_cli:compound-cd-rm-pipe: rc={proc.returncode} "
+            f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+        )
 
     # 3) Missing --cmd -> exit 2, error to stderr, no stdout breakdown.
     proc = _run_explain(["--explain"])
@@ -625,7 +693,10 @@ def main() -> int:
         print("PASS explain_cli:missing-cmd-arg")
     else:
         failed += 1
-        print(f"FAIL explain_cli:missing-cmd-arg: rc={proc.returncode} stdout={proc.stdout!r} stderr={proc.stderr!r}")
+        print(
+            f"FAIL explain_cli:missing-cmd-arg: rc={proc.returncode} "
+            f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+        )
 
     # 4) Explain mode must NOT write to bash_gate.log.jsonl (smoke test by
     # snapshotting size before/after). Use the real log path on disk, which
@@ -643,7 +714,9 @@ def main() -> int:
         print("PASS explain_cli:no-log-writes")
     else:
         failed += 1
-        print(f"FAIL explain_cli:no-log-writes: pre={pre_size} post={post_size} rc={proc.returncode}")
+        print(
+            f"FAIL explain_cli:no-log-writes: pre={pre_size} post={post_size} rc={proc.returncode}"
+        )
 
     # ---- Phase 2g: arbiter escalation subprocess tests ----
     # Drive the real main() end-to-end with a stubbed verdict (no network), an
@@ -657,11 +730,17 @@ def main() -> int:
             "BASH_GATE_TEST_LOG": str(log_path),
             # Force the arbiter enabled regardless of the live yaml (which may be
             # disabled during the inversion); individual tests can override.
-            "BASH_GATE_ARBITER_ENABLE_OVERRIDE": extra_env.get("BASH_GATE_ARBITER_ENABLE_OVERRIDE", "1"),
+            "BASH_GATE_ARBITER_ENABLE_OVERRIDE": extra_env.get(
+                "BASH_GATE_ARBITER_ENABLE_OVERRIDE", "1"
+            ),
             **extra_env,
         }
         # Ensure no inherited stub/disable leaks unless explicitly set.
-        for k in ("BASH_GATE_ARBITER_STUB_VERDICT", "BASH_GATE_ARBITER_STUB_REASON", "BASH_GATE_ARBITER_DISABLE"):
+        for k in (
+            "BASH_GATE_ARBITER_STUB_VERDICT",
+            "BASH_GATE_ARBITER_STUB_REASON",
+            "BASH_GATE_ARBITER_DISABLE",
+        ):
             if k not in extra_env:
                 env.pop(k, None)
         payload = json.dumps({
@@ -701,7 +780,10 @@ def main() -> int:
     # 1) Gated + SAFE verdict -> allow emitted, telemetry records auto-approved.
     proc, entries = _run_main(
         GATED_CMD,
-        {"BASH_GATE_ARBITER_STUB_VERDICT": "SAFE", "BASH_GATE_ARBITER_STUB_REASON": "scoped perms change in temp dir"},
+        {
+            "BASH_GATE_ARBITER_STUB_VERDICT": "SAFE",
+            "BASH_GATE_ARBITER_STUB_REASON": "scoped perms change in temp dir",
+        },
     )
     last = entries[-1] if entries else {}
     _check(
@@ -718,7 +800,10 @@ def main() -> int:
     # 2) Gated + UNSAFE verdict -> ask emitted with reasoning, telemetry user-confirm.
     proc, entries = _run_main(
         GATED_CMD,
-        {"BASH_GATE_ARBITER_STUB_VERDICT": "UNSAFE", "BASH_GATE_ARBITER_STUB_REASON": "world-writable on a sensitive path"},
+        {
+            "BASH_GATE_ARBITER_STUB_VERDICT": "UNSAFE",
+            "BASH_GATE_ARBITER_STUB_REASON": "world-writable on a sensitive path",
+        },
     )
     last = entries[-1] if entries else {}
     _check(

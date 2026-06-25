@@ -1,0 +1,6 @@
+# bash-gate runtime dependency.
+# The hook reads its YAML config via `import yaml`; without PyYAML it loads no
+# config and auto-allows nothing (safe, but inert). Pinned with a floor that
+# excludes the CVE-2017-18342 unsafe-load default (fixed in 5.1) and a major
+# ceiling for stability.
+pyyaml>=6.0,<7
