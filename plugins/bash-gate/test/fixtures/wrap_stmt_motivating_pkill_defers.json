@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "echo \"=== api log ===\"; cat /tmp/foundry-api.log\necho \"=== who's on 8765 ===\"; lsof -nP -iTCP:8765 -sTCP:LISTEN 2>/dev/null | head\necho \"=== kill any stray api.py ===\"; pkill -f \"python3 api.py\" 2>/dev/null; sleep 0.5; echo done"}, "session_id": "test-sess", "cwd": "/Users/matt.noxon/dev/work"}

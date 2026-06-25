@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "source .env .env.local"}, "session_id": "test-sess", "cwd": "/var/tmp/__bash_gate_source__", "_test_dev_roots": "/var/tmp/__bash_gate_source__"}

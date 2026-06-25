@@ -1,0 +1,17 @@
+{
+  "description": "PreToolUse gate over Bash. Auto-allows provably-safe commands and defers everything else to the normal permission flow. Always exits 0 — never blocks Bash on an internal error.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/bash_gate.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "mkdir -p ~/dev/work/a | grep x"}, "session_id": "test-sess", "cwd": "/tmp"}

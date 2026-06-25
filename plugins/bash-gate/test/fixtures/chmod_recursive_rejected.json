@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "chmod -R 755 /var/tmp/__bash_gate_chmod__/dir"}, "session_id": "test-sess", "cwd": "/tmp", "_test_dev_roots": "/var/tmp/__bash_gate_chmod__"}

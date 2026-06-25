@@ -1,0 +1,244 @@
+# bash_gate rule configuration.
+#
+# Schema (v5 - Phase 2f):
+#
+# Phase 2f overview:
+#   (1) Effective-cwd tracking: hook seeds effective_cwd from payload.cwd and
+#       mutates it on `cd <path>` outer-statement segments. Relative paths in
+#       rm/chmod/dev-tree-safe-writes handlers are resolved against the
+#       current effective_cwd (os.path.normpath, no symlink resolution) and
+#       re-checked against dev_roots. `cd` with `..`, no arg, `-`, or
+#       multi-arg defers. `cd` inside a pipe defers.
+#   (2) Pipe splitting: outer statements (&&/||/;) are further split on
+#       top-level `|`. A statement allows iff every pipe sub-segment is
+#       ALLOW or INERT.
+#   (3) Pattern-based ask matching: settings.json permissions.ask patterns
+#       are parsed + compiled at hook startup. A segment is DEFER_DANGEROUS
+#       iff it matches one of those regexes AND no allow class matched.
+#       On settings.json load failure, the hook falls back to the YAML
+#       ask_verbs list (coarse first-word match — safer over-defer).
+#
+# Schema (v4 - Phase 2d) legacy notes preserved:
+#
+# Compound-command splitting (Phase 2b) is implemented in the Python layer as a
+# pre-dispatch transform — not as a YAML class. The hook splits on bare &&, ||,
+# and ; tokens, runs safe-redirect stripping (Phase 2d) on each segment, then
+# dispatches each segment through the class registry below. The compound is
+# allowed only when EVERY segment is either ALLOW (matched an allow class) or
+# INERT (first verb is not in ask_verbs — settings.json would not have
+# prompted on this segment standalone).
+#
+# Phase 2d safe-redirect stripping (handled in Python, not YAML):
+#   Always-safe inline tokens stripped silently:
+#     2>/dev/null, >/dev/null, &>/dev/null, 2>&1, 1>&2
+#   Path-conditional (stripped iff target is under /tmp/, /private/tmp/,
+#   /var/tmp/, or any configured dev_root — inline or bare-op + next token):
+#     >, >>, 2>, 2>>, &>
+#   Any unrecognized / unsafe redirect -> defer:unsafe-redirect(...)
+#   Pipes (|) and input redirects (<, <<, <<<) are NEVER stripped -> defer.
+#
+# dev_roots:               # absolute path prefixes considered "safe dev"
+#   - /Users/foo/dev/work  # tilde-expanded by the hook before comparison
+#
+# At runtime, env var BASH_GATE_DEV_ROOTS_OVERRIDE (colon-separated abs paths)
+# replaces the YAML dev_roots list. Used by the test harness.
+#
+# ask_verbs:               # Phase 2d. First-word verbs that would trigger
+#                          # settings.json's ask list. Used to distinguish
+#                          # INERT compound segments (auto-allow) from
+#                          # DEFER_DANGEROUS segments (must hit an allow
+#                          # class). Mirror first words of settings.json's
+#                          # ask patterns here. Coarse first-word match is
+#                          # intentional — acceptable false-positive defers
+#                          # (e.g. `npm test` is treated as dangerous like
+#                          # `npm install -g`) trade against the cost of
+#                          # building a full settings.json parser.
+#                          # IF YOU ADD AN ASK RULE TO settings.json, MIRROR
+#                          # ITS FIRST VERB HERE.
+#
+# classes:
+#   - name: <slug>
+#     match_first_word: <token>
+#     # ...OR for multi-verb classes:
+#     match_first_word_one_of: [a, b]
+#     handler: <builtin_handler_name>
+#                          #   "rm_prefix"
+#                          #   "dev_tree_safe_writes"
+#                          #   "rm_git_tracked_clean"            (Phase 2c)
+#                          #   "rm_gitignored_build_artifact"    (Phase 2d)
+#     allow_when: { ... }                # handler-specific config
+#     log_as: <class-label>              # what shows up in the log/stats
+#     allow_reason: <string>             # reason emitted on allow
+#
+# When multiple classes match the same first word, classes are tried in YAML
+# order; the FIRST class to return "allow" wins. If all defer, the FIRST
+# matching class's defer reason is reported.
+#
+# Handler: rm_prefix
+#   allow_when.all_positional_args_match: [{prefix: "/tmp/"}, ...]
+#   allow_when.no_path_traversal: true
+#
+# Handler: dev_tree_safe_writes
+#   No per-rule allow_when fields. Reads top-level dev_roots.
+#
+# Handler: rm_git_tracked_clean (Phase 2c)
+#   Predicate: rm with no -r flags, all paths absolute, no "..", no glob,
+#   under a dev root, regular file (not symlink), git-tracked AND clean vs
+#   HEAD AND no staged changes. Any git error/timeout -> defer.
+#
+# Handler: rm_gitignored_build_artifact (Phase 2d)
+#   Predicate: same cheap pre-checks as rm_git_tracked_clean, then
+#   `git -C <dirname> check-ignore -q -- <basename>` must exit 0. Targets
+#   gitignored build artifacts (_build/, node_modules/, dist/, target/, ...)
+#   which are reproducible from source. Listed AFTER rm-git-tracked-clean so
+#   the tracked-clean path takes precedence (a tracked file can also be
+#   matched by a later-added ignore rule in degenerate setups).
+#
+# Handler: chmod_safe_mode (Phase 2e)
+#   Predicate: chmod with NO recursive flags (-R/-r/--recursive) and NO
+#   symlink-following flags (-H/-L/-P); mode argument is either a SAFE
+#   symbolic mode (combinations of [ugoa]?[+-=][rwxX]+, comma-separated;
+#   setuid/setgid/sticky 's'/'t' bits forbidden) or an octal mode in the
+#   `chmod_safe_octal_modes` allowlist; every positional path is absolute,
+#   has no "..", no glob chars, is under a configured dev_root, and EXISTS.
+#   World-writable (777/666), setuid (4xxx), setgid (2xxx), and sticky-bit
+#   (1xxx) modes are categorically excluded — never loosen this.
+#
+# "dev_roots" means "source-controlled trees you treat as safely writable." The
+# path-based allow classes (rm-git-tracked-clean, dev-tree-safe-writes, chmod,
+# etc.) ONLY fire on paths under one of these roots. Tilde is expanded.
+#
+# Shipped EMPTY on purpose: out of the box this hook is a no-op (nothing is
+# auto-allowed by path) so installing it can never loosen your permissions by
+# surprise. Opt in by listing your own dev roots — preferably in your user
+# config (~/.config/bash-gate/config.yaml) so `claude plugin update` can't
+# clobber it. Example:
+#   dev_roots:
+#     - "~/dev"
+#     - "~/code"
+dev_roots: []
+
+# Phase 2g: gated_patterns + arbiter escalation tier (the "inversion").
+#
+# Background: under settings.json `defaultMode: bypassPermissions`, a PreToolUse
+# hook `allow` CANNOT suppress a settings.json `permissions.ask` rule (CC 2.1.190
+# documented precedence: deny > ask > hook decision). So the only way for the
+# hook/arbiter to actually auto-approve a dangerous verb is for that verb to NOT
+# be in settings.json's ask list. We therefore moved the gate-handled ("Tier B")
+# verbs OUT of settings.json permissions.ask and INTO `gated_patterns` below; the
+# hook is now their sole gate.
+#
+# gated_patterns: the `Bash(...)` patterns the hook+arbiter gate. A deferred
+# command matching one of these (and NOT a settings.json deny pattern) is GATED:
+#   - arbiter SAFE   -> allow (auto-approve, no prompt)
+#   - arbiter UNSAFE -> ask (prompt, with the arbiter's reasoning)
+#   - arbiter ERROR / disabled / gating exception -> ask (fail closed; gated
+#     verbs have no settings.json ask backstop anymore, so we NEVER silently
+#     bypass one)
+# Pattern syntax matches settings.json: `Bash(<prefix>:*)` or globs like
+# `Bash(rsync * :*)`. The hook OWNS this list (no settings.json coupling), which
+# also makes the test suite hermetic.
+#
+# "Tier A" verbs that must ALWAYS prompt (sudo, ssh, security/gpg/ssh-keygen,
+# eval, pdm deploy/release) deliberately STAY in settings.json permissions.ask
+# and are NOT listed here — the arbiter never sees them (always-ask is
+# deterministic, never auto-approved). CC prompts them directly when they START
+# a command; the hook reads the same permissions.ask list to also catch them
+# buried in a compound (`cd x && sudo y`), which CC's prefix match would miss.
+# permissions.deny stays the hard floor (the arbiter never overrides it).
+gated_patterns:
+  - "Bash(chmod:*)"
+  - "Bash(source:*)"
+  - "Bash(.:*)"
+  - "Bash(curl -X POST:*)"
+  - "Bash(curl -X PUT:*)"
+  - "Bash(curl -X DELETE:*)"
+  - "Bash(curl -X PATCH:*)"
+  - "Bash(curl --request POST:*)"
+  - "Bash(curl --request PUT:*)"
+  - "Bash(curl --request DELETE:*)"
+  - "Bash(curl --request PATCH:*)"
+  - "Bash(curl -d:*)"
+  - "Bash(curl --data:*)"
+  - "Bash(scp:*)"
+  - "Bash(rsync * :*)"
+  - "Bash(kill -9:*)"
+  - "Bash(killall:*)"
+  - "Bash(pkill:*)"
+
+# Arbiter transport. Requires ANTHROPIC_API_KEY in the hook env (same transport
+# the trellis hooks use). Disable with `enabled: false` or env
+# BASH_GATE_ARBITER_DISABLE=1 — note that disabling does NOT open the gate: gated
+# commands then deterministically prompt (ask). Every consultation is recorded
+# under a nested `arbiter` object in bash_gate.log.jsonl.
+# Shipped DISABLED: the arbiter hands Tier-B "gated" verbs (chmod, source/.,
+# curl mutations, scp, rsync, kill/killall/pkill) to an LLM that can AUTO-APPROVE
+# them. That is powerful and explicitly opt-in. Enabling it requires ANTHROPIC_API_KEY
+# in the hook's environment and outbound network. Fail-closed: any error/disabled
+# state -> ask (never a silent bypass). Read the README before turning this on.
+arbiter:
+  enabled: false
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 1024
+  timeout_seconds: 8
+
+# Phase 2e chmod_safe_mode allowlist. Editable here. Excluded:
+# 777/666 (world-writable), 4xxx (setuid), 2xxx (setgid), 1xxx (sticky bit).
+chmod_safe_octal_modes:
+  - "644"
+  - "755"
+  - "600"
+  - "700"
+  - "444"
+  - "400"
+  - "750"
+  - "640"
+  - "664"
+  - "775"
+
+# (Phase 2f's `ask_verbs` coarse-fallback list was removed in the Phase 2g
+# inversion: the hook now owns its danger list in `gated_patterns` above and no
+# longer reads settings.json's permissions.ask, so the fallback is obsolete.)
+
+classes:
+  - name: rm-git-tracked-clean
+    match_first_word: rm
+    handler: rm_git_tracked_clean
+    log_as: rm-git-clean
+    allow_reason: "All rm targets are git-tracked and clean (recoverable via git checkout)"
+
+  - name: rm-gitignored-build-artifact
+    match_first_word: rm
+    handler: rm_gitignored_build_artifact
+    log_as: rm-gitignored
+    allow_reason: "All rm targets are gitignored build artifacts (reproducible from source)"
+
+  - name: rm-under-tmp
+    match_first_word: rm
+    handler: rm_prefix
+    allow_when:
+      all_positional_args_match:
+        - prefix: "/tmp/"
+        - prefix: "/private/tmp/"
+      no_path_traversal: true
+      forbidden_flags: []
+    log_as: rm
+    allow_reason: "All rm targets are strictly under /tmp"
+
+  - name: dev-tree-safe-writes
+    match_first_word_one_of: [mkdir, touch, mv, cp, ln, rmdir]
+    handler: dev_tree_safe_writes
+    log_as: dev-tree-write
+    allow_reason: "All positional paths are inside a configured dev root"
+
+  - name: chmod-safe-mode
+    match_first_word: chmod
+    handler: chmod_safe_mode
+    log_as: chmod
+    allow_reason: "chmod with safe mode on existing path(s) under a dev root"
+
+  - name: source-dotenv-safe
+    match_first_word_one_of: ["source", "."]
+    handler: source_dotenv_safe
+    log_as: source-dotenv
+    allow_reason: "source of a dotenv-safe file (assignments/comments only) under a dev root"

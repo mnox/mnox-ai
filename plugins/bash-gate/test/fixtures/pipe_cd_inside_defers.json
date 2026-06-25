@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "cat /tmp/foo | cd /tmp"}, "session_id": "test-sess", "cwd": "/tmp"}

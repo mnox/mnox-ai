@@ -116,6 +116,14 @@
       "version": "0.1.0",
       "category": "utility",
       "tags": ["guidance", "claude-md", "agents-md", "context", "package-manager", "utility"]
+    },
+    {
+      "name": "bash-gate",
+      "source": "./plugins/bash-gate",
+      "description": "A PreToolUse gate over Bash that auto-allows provably-safe commands (so you stop approving the same harmless mkdir/rm of a build artifact) and defers anything dangerous to the normal prompt. Deterministic allow-classes by default, an optional LLM arbiter for the long tail, and a /bash-gate-add skill to extend it. Ships safe-by-default — auto-allows nothing until you opt in.",
+      "version": "0.1.0",
+      "category": "utility",
+      "tags": ["hook", "bash", "permissions", "pretooluse", "safety", "utility"]
     }
   ]
 }

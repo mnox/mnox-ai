@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "cd /var/tmp/__bash_gate_repo__ && rm -f .tool-versions.tmp && asdf set nodejs 22.12.0 2>&1; cat .tool-versions 2>&1; npm run build -w client 2>&1 | tail -50"}, "session_id": "test-sess", "cwd": "/tmp", "_test_dev_roots": "/var/tmp/__bash_gate_repo__"}

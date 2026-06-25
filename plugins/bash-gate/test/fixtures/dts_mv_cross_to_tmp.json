@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "mv ~/dev/work/foo /tmp/foo"}, "session_id": "test-sess", "cwd": "/Users/matt.noxon/dev/work"}
