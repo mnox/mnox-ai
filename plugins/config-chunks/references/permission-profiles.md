@@ -21,7 +21,7 @@ plus one **never-touch** setting:
 | **Capability** | What the agent can *do* to your machine | Read freely; edits reviewed; no command exec until you opt up |
 | **Approval** | *When* it must stop and ask you | Auto-run only known-safe read ops; **ask before** anything that changes, runs, or sends |
 | **Network** | Outbound internet access | **Off** (or a tight allowlist of package registries) |
-| **⛔ Bypass** | The "do everything without asking" mode | **Never enable** outside a throwaway container/VM |
+| **⛔ Bypass** | The "do everything without asking" mode | **Never run it *naked*.** In a throwaway VM, or behind a deterministic Bash gate that still stops dangerous commands — never bare |
 
 The recommended default for a less-technical user is the same everywhere —
 **Cautious**: read-only or review-gated edits, approval required on anything
@@ -34,8 +34,17 @@ Claude `bypassPermissions` / `--dangerously-skip-permissions`; Codex `--yolo` /
 Cline "YOLO Mode"; Aider `--yes-always`. Every provider's own docs name the same
 concrete risk it removes the guard against: **a prompt injection hidden in a file
 or web page running a destructive or exfiltrating command with no chance to stop
-it.** A non-engineer cannot judge command safety mid-stream — so this is never a
-default, and the flow should warn about it by name.
+it.** A non-engineer cannot judge command safety mid-stream — so *naked* bypass is
+never a default, and the flow should warn about it by name.
+
+The danger, precisely, is **ungated** bypass. If approval fatigue makes bypass
+unavoidable, the disciplined alternative to running it bare is to put a
+**deterministic Bash gate** in front (e.g. the `bash-gate` plugin): keep a safety
+net of `ask`/`deny` rules on dangerous Bash, and let the gate auto-approve only the
+provably-safe commands, so the net still catches genuine danger even with bypass
+on. That restores the mid-stream judgment a non-engineer can't supply — without the
+all-or-nothing prompt fatigue. Locks that *forbid* bypass (below) are for users who
+will never need it; they also foreclose this gated path.
 
 ---
 
@@ -63,7 +72,7 @@ Config: `settings.json` (`~/.claude/` user · `.claude/` project · `.local` loc
 - **IDE:** keep manual diff approval (do *not* enable auto-accept-edits by default); enable VS Code Restricted Mode on untrusted folders. IDE-specific risk: auto-edits can rewrite IDE config files the editor then auto-executes.
 - **Desktop:** same local settings.json model (OAuth auth). Commit project-level rules.
 - **Web (`claude.ai/code`, research preview):** user `~/.claude` settings do **not** apply — only repo-committed `.claude/settings.json` does. Rely on **network = Trusted** (default, not Full), keep **auto-fix PRs off**, review diffs before PR.
-- **⛔ Never:** `bypassPermissions` / `--dangerously-skip-permissions`. Lock it with `disableBypassPermissionsMode: "disable"`.
+- **⛔ Naked bypass:** never run `bypassPermissions` / `--dangerously-skip-permissions` *bare*. If you must run bypass (approval fatigue), gate Bash with a PreToolUse gate (e.g. `bash-gate`) that re-adds `deny`/`ask` on dangerous commands. Lock with `disableBypassPermissionsMode: "disable"` **only** if you're certain you'll never need bypass — it blocks the gated path too.
 
 Sources: code.claude.com/docs/en/{permissions,settings,security,claude-code-on-the-web}.
 Drift: `auto`/`dontAsk` modes + web surface are research-preview, post-cutoff — verify live.
