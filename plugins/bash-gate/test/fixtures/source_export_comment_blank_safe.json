@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "source /var/tmp/__bash_gate_source__/full.env"}, "session_id": "test-sess", "cwd": "/var/tmp/__bash_gate_source__", "_test_dev_roots": "/var/tmp/__bash_gate_source__", "_test_setup_files": [{"path": "/var/tmp/__bash_gate_source__/full.env", "content": "# leading comment\n\nexport FOO=bar\nBAZ=qux\n   \n# trailing comment\n"}]}

@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "mkdir -p /home/testuser/.claude/local/tools/new-thing"}, "session_id": "test-sess", "cwd": "/tmp"}

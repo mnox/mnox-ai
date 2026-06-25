@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "mkdir -p ~/dev/work/__bg_ask__ && npm install lodash"}, "session_id": "test-sess", "cwd": "/tmp"}

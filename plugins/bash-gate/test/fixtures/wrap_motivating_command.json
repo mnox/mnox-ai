@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "rm -f /var/tmp/__bash_gate_repo__/_build/artifa\n   ct.beam 2>/dev/null; cd /var/tmp/__bash_gate_repo__ && mix test\n   test/data_transformer/failure_modes/ 2>&1 | tail -10"}, "session_id": "test-sess", "cwd": "/var/tmp/__bash_gate_repo__", "_test_dev_roots": "/var/tmp/__bash_gate_repo__"}

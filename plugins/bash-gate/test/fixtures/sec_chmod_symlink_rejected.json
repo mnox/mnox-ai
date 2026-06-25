@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "chmod 644 /var/tmp/__bash_gate_sec__/link"}, "session_id": "test-sess", "cwd": "/tmp", "_test_dev_roots": "/var/tmp/__bash_gate_sec__", "_test_setup_files": [{"path": "/var/tmp/__bash_gate_sec__/link", "symlink_to": "/etc/passwd"}]}

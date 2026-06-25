@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "rm /var/tmp/__bash_gate_repo__/_build/artifact.beam"}, "session_id": "test-sess", "cwd": "/tmp", "_test_dev_roots": "/var/tmp/__bash_gate_repo__"}

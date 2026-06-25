@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "cd ~/dev/work && sudo rm -rf / && npm install -g malware"}, "session_id": "test-sess", "cwd": "/tmp", "_test_always_ask_patterns": ["Bash(sudo:*)"]}

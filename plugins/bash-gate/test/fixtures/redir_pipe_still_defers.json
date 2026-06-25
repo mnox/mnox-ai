@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "rm /tmp/foo | tee /tmp/log"}, "session_id": "test-sess", "cwd": "/tmp"}

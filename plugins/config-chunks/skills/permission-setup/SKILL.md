@@ -66,7 +66,7 @@ The whole model reduces to **three dials + one never-touch**:
 - **Capability** — what the agent can *do* (read freely; edits reviewed; no command exec until opted up).
 - **Approval** — *when* it must stop and ask (auto-run only known-safe reads; ask before anything that changes/runs/sends).
 - **Network** — outbound internet (off, or a tight registry allowlist).
-- **⛔ Bypass** — the "do everything without asking" mode. Never enable outside a throwaway container.
+- **⛔ Bypass** — the "do everything without asking" mode. The footgun is running it *naked*: outside a throwaway container, only ever run it behind a deterministic gate that still stops dangerous commands (see Step 4) — never bare.
 
 The recommended **Cautious** posture is the same everywhere; only the spelling
 differs per provider.
@@ -121,9 +121,28 @@ specific one (Claude `bypassPermissions` / `--dangerously-skip-permissions`;
 Codex `--yolo` / `danger-full-access`; Cursor "Run Everything"; etc.) and the
 concrete risk in one sentence: *"This turns off the asking entirely — so if a
 file or web page it reads contains a hidden instruction to delete or leak
-something, it just does it, with no chance for you to stop it. Leave this off
-unless you're in a throwaway sandbox."* For Claude, recommend locking it with
-`disableBypassPermissionsMode: "disable"`.
+something, it just does it, with no chance for you to stop it."*
+
+The footgun is **ungated** bypass — running it bare. Approval fatigue has *three*
+honest responses, not two — and the cure for fatigue is path 3, not path 2:
+
+1. **Stay cautious** (the default) — you keep approving things, but nothing
+   dangerous runs unseen.
+2. **Naked bypass** — no prompts, no net. **This is the footgun. Don't.**
+3. **Bypass behind a deterministic gate** — run bypass, but keep a Bash gate in
+   front that still stops dangerous commands while auto-approving the provably
+   safe ones. You get the no-prompt flow *without* the naked risk.
+
+If the user is drowning in approvals and eyeing bypass, point them at path 3, not
+2: the **`bash-gate`** plugin (same marketplace, Claude Code only) is built
+exactly for this — a PreToolUse gate that re-adds allow/deny/ask gating on Bash
+*even under bypass*, so the safety net only ever catches genuine danger. Don't
+sell a determined-bypass user a lock that forecloses it.
+
+For Claude, the hard lock `disableBypassPermissionsMode: "disable"` is right
+**only for a user who is certain they'll never need bypass** — it permanently
+blocks path 3 too. Recommend it for the cautious never-bypass user; do **not**
+apply it by default to someone with a legitimate gated-bypass workflow.
 
 ### Step 5 — Delegate the write (NEVER write it yourself)
 
@@ -150,6 +169,12 @@ Tell them it's not permanent: re-run `/permission-setup` any time, and **level u
 one rung when ready** (e.g. Claude `default` → allow more Bash; Codex
 `read-only` → `workspace-write` with network still off). One sentence, no
 ceremony.
+
+**Cutting approval fatigue (Claude Code).** If the routine "approve this safe
+command again?" prompts are the pain, the answer is the **`bash-gate`** plugin
+(see Step 4) — `claude plugin install bash-gate@mnox-ai`. It's a *separate*
+plugin, not part of config-chunks (which still never touches security config);
+mention it as a pointer, don't configure it from here.
 
 ## Guardrails
 

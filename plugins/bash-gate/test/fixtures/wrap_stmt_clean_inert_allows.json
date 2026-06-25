@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "echo a\ncat /tmp/foo.log\necho done"}, "session_id": "test-sess", "cwd": "/home/testuser/dev/work"}

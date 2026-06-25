@@ -1,0 +1,1 @@
+{"tool_name": "Bash", "tool_input": {"command": "mkdir -p ~/dev/work/a && mkdir -p ~/dev/work/b"}, "session_id": "test-sess", "cwd": "/tmp"}

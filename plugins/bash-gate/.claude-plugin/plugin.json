@@ -1,0 +1,8 @@
+{
+  "name": "bash-gate",
+  "version": "0.1.0",
+  "description": "A PreToolUse Bash gate that auto-allows provably-safe commands (so you stop approving the same harmless `mkdir`/`rm` of a build artifact) while still deferring anything dangerous. Deterministic allow-classes by default; an optional LLM arbiter handles the long tail. Ships safe-by-default (no path is auto-allowed until you opt in) and a /bash-gate-add skill to extend it when a prompt slips through.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}
