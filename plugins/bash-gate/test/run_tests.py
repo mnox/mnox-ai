@@ -902,6 +902,60 @@ def main() -> int:
         f"stdout={proc.stdout!r} entry={last}",
     )
 
+    # ---- SessionStart onboarding nudge (bash_gate_onboard.py) ----
+    onboard_hook = HOOK_DIR / "bash_gate_onboard.py"
+
+    def _ocheck(label: str, cond: bool, detail: str = "") -> None:
+        nonlocal passed, failed
+        if cond:
+            passed += 1
+            print(f"PASS onboard:{label}")
+        else:
+            failed += 1
+            print(f"FAIL onboard:{label}: {detail}")
+
+    def _run_onboard(home: Path) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            ["python3", str(onboard_hook)],
+            input="{}",
+            text=True,
+            capture_output=True,
+            env={**os.environ, "BASH_GATE_HOME": str(home)},
+            timeout=15,
+        )
+
+    # 1) Fresh, unconfigured install -> nudge emitted + marker written.
+    _ob1 = Path(tempfile.mkdtemp(prefix="bash_gate_ob1_"))
+    _p1 = _run_onboard(_ob1)
+    _ocheck(
+        "fresh-install-nudges",
+        _p1.returncode == 0
+        and "additionalContext" in _p1.stdout
+        and "inert" in _p1.stdout.lower()
+        and (_ob1 / ".onboarded").exists(),
+        f"rc={_p1.returncode} stdout={_p1.stdout!r} marker={(_ob1 / '.onboarded').exists()}",
+    )
+
+    # 2) Marker already present -> silent (never nags twice).
+    _p2 = _run_onboard(_ob1)  # same home; marker now exists
+    _ocheck(
+        "marker-stays-silent",
+        _p2.returncode == 0 and _p2.stdout.strip() == "",
+        f"rc={_p2.returncode} stdout={_p2.stdout!r}",
+    )
+
+    # 3) Configured install (non-empty dev_roots) -> silent + marker, never nags.
+    _ob3 = Path(tempfile.mkdtemp(prefix="bash_gate_ob3_"))
+    (_ob3 / "config.yaml").write_text('dev_roots:\n  - "~/dev"\n')
+    _p3 = _run_onboard(_ob3)
+    _ocheck(
+        "configured-stays-silent",
+        _p3.returncode == 0
+        and _p3.stdout.strip() == ""
+        and (_ob3 / ".onboarded").exists(),
+        f"rc={_p3.returncode} stdout={_p3.stdout!r} marker={(_ob3 / '.onboarded').exists()}",
+    )
+
     total = passed + failed
     print()
     print(f"Results: {passed}/{total} passed")

@@ -79,5 +79,8 @@ say "  your settings.json permissions.ask list. We will NOT edit your settings.j
 say "  for you — review the README's \"bypass-mode inversion\" section and make that"
 say "  change yourself if you want it. If you do NOT run bypass mode, ignore this."
 hr
+# Mark onboarding complete so the SessionStart nudge stays quiet — the user has
+# now seen the full opt-in guidance above. Delete this file to see it again.
+printf 'bash-gate onboarding shown (via setup)\n' > "$USER_DIR/.onboarded" 2>/dev/null || true
 say "Done. The hook is wired automatically via the plugin; no settings.json edit"
 say "is required for the deterministic allow-classes to work."

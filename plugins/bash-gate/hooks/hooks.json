@@ -1,5 +1,5 @@
 {
-  "description": "PreToolUse gate over Bash. Auto-allows provably-safe commands and defers everything else to the normal permission flow. Always exits 0 — never blocks Bash on an internal error.",
+  "description": "PreToolUse gate over Bash (auto-allows provably-safe commands, defers everything else to the normal permission flow) plus a one-time SessionStart onboarding nudge that flags an installed-but-inert gate. Both hooks always exit 0 — neither ever blocks.",
   "hooks": {
     "PreToolUse": [
       {
@@ -9,6 +9,18 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/bash_gate.py\"",
             "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/bash_gate_onboard.py\"",
+            "timeout": 10
           }
         ]
       }

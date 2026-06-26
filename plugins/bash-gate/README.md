@@ -95,6 +95,12 @@ bash "$(claude plugin root bash-gate)/scripts/bash-gate-setup.sh"
 
 (Or run `plugins/bash-gate/scripts/bash-gate-setup.sh` from a clone.)
 
+> **First-run nudge.** Until the gate is activated, a one-time `SessionStart`
+> hook reminds you it's installed but **inert** (auto-allowing nothing) and how
+> to opt in. It fires **once**, then never again — tracked by
+> `~/.config/bash-gate/.onboarded` (running the setup helper above also writes
+> that marker and silences it). Delete the marker to see the nudge again.
+
 ## Configure
 
 Config resolves in this order (first hit wins):
