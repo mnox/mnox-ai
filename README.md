@@ -24,6 +24,12 @@ a provider adapter.
 
 ## Installation
 
+**Per-provider install guides live in [`docs/install/`](docs/install/README.md)** —
+they spell out à la carte vs. all-skills, MCP wiring, and what doesn't port, for
+each host: **[Claude Code](docs/install/claude.md)** ·
+**[Codex](docs/install/codex.md)** · **[Cursor](docs/install/cursor.md)**. The
+quick paths below cover the common cases.
+
 ### Standard Agent Skills
 
 Export the portable skills into the skills directory for your agent host:
@@ -105,7 +111,9 @@ tools, configuration, and the opt-in semantic-search setup.
 ```
 mnox-ai/
 ├── AGENTS.md                     # provider-neutral repo instructions
-├── docs/provider-agnostic.md     # portability and adapter guidance
+├── docs/
+│   ├── install/                  # per-provider install guides (claude/codex/cursor)
+│   └── provider-agnostic.md      # portability and adapter guidance
 ├── scripts/export_skills.py      # copies/symlinks skills into host directories
 ├── .claude-plugin/
 │   └── marketplace.json          # Claude Code adapter catalog

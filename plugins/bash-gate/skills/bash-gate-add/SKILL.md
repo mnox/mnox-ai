@@ -11,6 +11,8 @@ description: >
   says "/bash-gate-add", "/bgate-add", "address this prompt", "fix this
   gate", "another gate prompt", "auto-allow this", or "the gate should
   have allowed this".
+metadata:
+  host: claude-code
 ---
 
 # /bash-gate-add
