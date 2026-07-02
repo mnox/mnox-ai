@@ -1,0 +1,8 @@
+{
+  "name": "create-skill",
+  "version": "0.1.0",
+  "description": "Author a Claude Code (or any host's) Agent Skill end-to-end — scaffold, write against a portable authoring contract, structurally validate, and design-score — in one guided lifecycle. Spec-pure by default; Claude-only affordances are opt-in.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

@@ -36,6 +36,10 @@ plugins/foundry/skills/foundry-run/scripts/repos.json
 profiles/*.toml
 !profiles/public.toml
 
+# create-skill packaging output — package_skill.py writes <skill-name>.zip to the
+# cwd; these are build artifacts, not repo content.
+plugins/create-skill/*.zip
+
 # Scratch outputs — not repo content. Canonical homes live elsewhere (e.g. dawks
 # spaces). Agentic-OS / Sven strategy artifacts land here as drafts; never ship.
 artifacts/

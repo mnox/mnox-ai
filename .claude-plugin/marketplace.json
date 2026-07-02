@@ -118,6 +118,14 @@
       "tags": ["guidance", "claude-md", "agents-md", "context", "package-manager", "utility"]
     },
     {
+      "name": "create-skill",
+      "source": "./plugins/create-skill",
+      "description": "Author a Claude Code or cross-host Agent Skill end-to-end — scaffold, write against a portable authoring contract, structurally validate, and design-score — in one guided lifecycle. Spec-pure by default; Claude-only features are opt-in.",
+      "version": "0.1.0",
+      "category": "utility",
+      "tags": ["skills", "authoring", "scaffold", "validate", "portable", "utility"]
+    },
+    {
       "name": "bash-gate",
       "source": "./plugins/bash-gate",
       "description": "A PreToolUse gate over Bash that auto-allows provably-safe commands (so you stop approving the same harmless mkdir/rm of a build artifact) and defers anything dangerous to the normal prompt. Deterministic allow-classes by default, an optional LLM arbiter for the long tail, and a /bash-gate-add skill to extend it. Ships safe-by-default — auto-allows nothing until you opt in.",
