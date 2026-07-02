@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "schema-review customization contract",
+  "description": "Every placeholder the schema-review SKILL.md.tmpl exposes. A profile supplies a value for each. Globals (owner/owner_wants/tracker/chat) are shared across all mnox-ai skills; the rest are skill-local. render_skill.py validates that the template's placeholders and a profile's keys agree.",
+  "type": "object",
+  "required": [
+    "owner",
+    "owner_wants",
+    "tracker",
+    "chat",
+    "validate_high_sev_clause",
+    "example_slug",
+    "dialect_case",
+    "verify_rationale",
+    "durable_other_target",
+    "no_mocking_cite",
+    "no_local_refs_cite",
+    "code_skepticism_cite",
+    "idor_cite",
+    "migration_policy"
+  ],
+  "properties": {
+    "owner": {
+      "type": "string",
+      "scope": "global",
+      "description": "Decision-maker referred to in subject position (e.g. 'the user' / 'Matt'). Used in '<owner> decides' and 'let <owner> choose'.",
+      "examples": ["the user", "Matt"]
+    },
+    "owner_wants": {
+      "type": "string",
+      "scope": "global",
+      "description": "Decision-maker in 'if <X> it durable' position, including verb agreement.",
+      "examples": ["you want", "Matt wants"]
+    },
+    "tracker": {
+      "type": "string",
+      "scope": "global",
+      "description": "Issue/work tracker name for the never-auto-post rule.",
+      "examples": ["issue tracker", "Shipyard"]
+    },
+    "chat": {
+      "type": "string",
+      "scope": "global",
+      "description": "Team chat surface for the never-auto-post rule.",
+      "examples": ["chat", "Slack"]
+    },
+    "validate_high_sev_clause": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Tail of the high-severity-validation bullet. Local form cites the Trellis feedback rule that mandates it.",
+      "examples": [
+        " — high-severity claims require main-context verification of the full failure/attack chain.",
+        " (per the `feedback_validate_high_severity_findings` rule — high-severity claims require main-context verification of the full failure/attack chain)."
+      ]
+    },
+    "example_slug": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Second illustrative slug in the Input section.",
+      "examples": ["orders-schema", "cx-160-schema"]
+    },
+    "dialect_case": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Lead-in to the SQLite→Postgres dialect example. Local form names the canonical internal project.",
+      "examples": ["A canonical case", "The canonical Mayflower case"]
+    },
+    "verify_rationale": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Why high-severity validation is mandatory. Local form cites Trellis feedback lessons.",
+      "examples": [
+        "unverified high-severity findings are the most expensive kind of false positive",
+        "see the `feedback_fsm_bulkzip_audit_04_false_negative` and `feedback_validate_high_severity_findings` lessons"
+      ]
+    },
+    "durable_other_target": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Where to offer to save a durable report for non-PR targets. Local form points at the dawks artifacts repo.",
+      "examples": [
+        "to `./schema-review-<slug>-<YYYY-MM-DD>.md`",
+        "under `~/dev/work/dawks/spaces/<SPACE>/research/schema-review-<slug>-<YYYY-MM-DD>/`"
+      ]
+    },
+    "no_mocking_cite": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Optional inline citation after the no-mocking rule. Empty in public.",
+      "examples": ["", " (`feedback_no_mocking_prior_devs`)"]
+    },
+    "no_local_refs_cite": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Optional inline citation after the no-local-paths rule. Empty in public.",
+      "examples": ["", " (`feedback_no_local_file_refs_external`)"]
+    },
+    "code_skepticism_cite": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "Optional inline citation after the targeted-fix rule. Empty in public.",
+      "examples": ["", " (Code Skepticism Doctrine)"]
+    },
+    "idor_cite": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "references/conventions-and-security.md — optional citation after the tenant-isolation CRITICAL rule.",
+      "examples": ["", " — per `feedback_validate_high_severity_findings`"]
+    },
+    "migration_policy": {
+      "type": "string",
+      "scope": "schema-review",
+      "description": "references/migration-safety.md — provenance of the atomic-migration-PR rule.",
+      "examples": ["a common migration-hygiene policy", "also Matt's Migration PR Policy"]
+    }
+  }
+}

@@ -30,6 +30,12 @@ node_modules/
 plugins/foundry/skills/foundry-run/scripts/repos.json
 .foundry/
 
+# Skill customization — local/private render profiles. profiles/public.toml is
+# the tracked default; any non-public profile carries personal/org binding and
+# must never publish. Edit locally, render with scripts/render_skill.py.
+profiles/*.toml
+!profiles/public.toml
+
 # Scratch outputs — not repo content. Canonical homes live elsewhere (e.g. dawks
 # spaces). Agentic-OS / Sven strategy artifacts land here as drafts; never ship.
 artifacts/

@@ -1,0 +1,54 @@
+# public.toml — the default profile. Renders the generic, host-neutral skills
+# that ship to the marketplace. TRACKED in git. No personal or org specifics.
+#
+# [vars]            — global vocabulary shared across every skill.
+# [<skill>.vars]    — skill-local placeholders (override/extend globals).
+
+[vars]
+owner = "the user"
+owner_wants = "you want"
+tracker = "issue tracker"
+chat = "chat"
+
+[schema-review.vars]
+validate_high_sev_clause = " — high-severity claims require main-context verification of the full failure/attack chain."
+example_slug = "orders-schema"
+dialect_case = "A canonical case"
+verify_rationale = "unverified high-severity findings are the most expensive kind of false positive"
+durable_other_target = "to `./schema-review-<slug>-<YYYY-MM-DD>.md`"
+no_mocking_cite = ""
+no_local_refs_cite = ""
+code_skepticism_cite = ""
+idor_cite = ""
+migration_policy = "a common migration-hygiene policy"
+
+# util-review's axis is HOST PORTABILITY (not org-binding): public = host-neutral,
+# marketplace-ready prose. None of the spine globals (owner/tracker/chat) apply here.
+[util-review.vars]
+desc = "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, side effects, security risks, and portability issues. Use when: 'review this skill', 'audit this hook', '/util-review', 'check this config', or when evaluating any supplementary agent artifact for quality and correctness."
+overview_body = "Perform a deep, systematic review of supplementary agent artifacts — Agent\nSkills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configurations, or\nworkflow definitions. Surfaces design flaws, unclosed loops, incorrect\nreferences, stale assumptions, side effects, security risks, portability issues,\nand unanswered design questions that structural validators miss."
+s_applies = "Skills, AGENTS.md/CLAUDE.md"
+artifact_md_bullet = "**AGENTS.md / CLAUDE.md**: instruction files — check for imports or linked references and read those too"
+audience_tail = "Host agent auto-invocation? Both? Delegated agents?"
+reg_both = "default host-discoverable metadata"
+reg_human_only = "use the host's supported human-invocation flag or adapter metadata"
+reg_machine_only = "use the host's supported model-invocation flag or adapter metadata"
+discovery_viable = "Will a host agent's description-matching find this when relevant? Are trigger keywords present? Is the key use case early in the description?"
+d001_summary_tail = "resolve portable resources relative to the active `SKILL.md`, not hardcoded absolute paths"
+r003_summary_tail = "model capability tiers without vendor/model-specific assumptions"
+g004_summary_tail = "structured clarification asks few questions with clear options when the host supports it"
+notes_hook = "For hook reviews, behavior differs by host and version. Check the adapter docs\n  for the exact event schema."
+notes_fork = "Skills using isolated/delegated context must provide enough actionable context\n  for the delegated agent to produce useful output — guidelines alone without a\n  task prompt return nothing."
+m001_rationale = "Invalid YAML silently breaks skill loading in many hosts; some ignore\nthe frontmatter and treat the entire file as body content."
+m003_rationale = "The description is the #1 failure point for auto-discovery. Host\nagents use it to decide relevance. Vague descriptions = never invoked."
+m007_look = "Run a mental simulation — if a user says the thing this\nskill is for, would a host agent's description-matching select it? Are there\ncompeting skills with similar descriptions?"
+s001_rationale = "Consistent structure helps both agents and humans navigate skills\npredictably."
+s006_rationale = "Wrong tool names in examples teach the host agent to use the wrong\ntools."
+c001_rationale = "If a human would struggle to follow it, the agent will too.\nAmbiguous instructions produce inconsistent results."
+c002_rationale = "When instructions conflict, agents pick one non-deterministically.\nThis produces unpredictable behavior."
+d001_look = "Host-neutral paths for bundled files, ideally resolved\nrelative to the active `SKILL.md`. Relative paths for project files. Verify every\nreferenced path actually exists right now."
+r003_rationale = "Instructions that work for a high-capability model may need more\ndetail for a smaller model. Model-specific assumptions break when the model field\nchanges."
+r003_look = "Reliance on capabilities that vary across models (complex\nreasoning, long context, tool use patterns). Consider whether the skill specifies\na model or will be used across models."
+g002_look = "How does the artifact get each piece of required context?\nStructured user clarification? File reads? Tool calls? Environment variables? Is\neach strategy appropriate for its data?"
+g004_look = "A small number of questions per interaction. When the host\nsupports structured choices, options are mutually exclusive and collectively\nexhaustive."
+h004_rationale = "A stop hook that always returns the host's continue/interrupt code creates an infinite loop — the agent can never finish responding."

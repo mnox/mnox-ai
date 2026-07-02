@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "util-review customization contract",
+  "description": "Every placeholder the util-review templates (SKILL.md.tmpl + references/check-catalog.md.tmpl) expose. A profile supplies a value for each. util-review's customization axis is HOST PORTABILITY, not org-binding: the `public` profile renders host-neutral prose (Agent Skills / AGENTS.md / 'a host agent' — ships to the marketplace, works across providers); the `matt-local` profile renders Claude-Code-specific prose (CLAUDE.md / 'Claude' / disable-model-invocation / ${CLAUDE_SKILL_DIR} / Opus-Sonnet-Haiku). None of util-review's tokens are the spine globals (owner/tracker/chat) — they do not appear in this skill. render_skill.py validates that the templates' placeholders and a profile's keys agree.",
+  "type": "object",
+  "required": [
+    "desc",
+    "overview_body",
+    "s_applies",
+    "artifact_md_bullet",
+    "audience_tail",
+    "reg_both",
+    "reg_human_only",
+    "reg_machine_only",
+    "discovery_viable",
+    "d001_summary_tail",
+    "r003_summary_tail",
+    "g004_summary_tail",
+    "notes_hook",
+    "notes_fork",
+    "m001_rationale",
+    "m003_rationale",
+    "m007_look",
+    "s001_rationale",
+    "s006_rationale",
+    "c001_rationale",
+    "c002_rationale",
+    "d001_look",
+    "r003_rationale",
+    "r003_look",
+    "g002_look",
+    "g004_look",
+    "h004_rationale"
+  ],
+  "properties": {
+    "desc": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "SKILL.md frontmatter description string. Host-neutral lists 'Agent Skills … AGENTS.md/CLAUDE.md … any supplementary agent artifact'; local says 'Claude Code skills … CLAUDE.md … any supplementary Claude Code artifact'.",
+      "examples": [
+        "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, side effects, security risks, and portability issues. Use when: 'review this skill', 'audit this hook', '/util-review', 'check this config', or when evaluating any supplementary agent artifact for quality and correctness.",
+        "Review Claude Code skills, hooks, CLAUDE.md files, scripts, or workflow configurations for design flaws, unclosed loops, stale references, side effects, security risks, and portability issues. Use when: 'review this skill', 'audit this hook', '/util-review', 'check this config', or when evaluating any supplementary Claude Code artifact for quality and correctness."
+      ]
+    },
+    "overview_body": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "The Overview paragraph. Public form is hard-wrapped and names 'supplementary agent artifacts'; local form is single-line and names 'Claude Code supplementary artifacts'.",
+      "examples": [
+        "Perform a deep, systematic review of supplementary agent artifacts — Agent\nSkills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configurations, or\nworkflow definitions. Surfaces design flaws, unclosed loops, incorrect\nreferences, stale assumptions, side effects, security risks, portability issues,\nand unanswered design questions that structural validators miss.",
+        "Perform a deep, systematic review of Claude Code supplementary artifacts — skills, hooks, CLAUDE.md files, scripts, MCP configurations, or workflow definitions. Surfaces design flaws, unclosed loops, incorrect references, stale assumptions, side effects, security risks, portability issues, and unanswered design questions that structural validators miss."
+      ]
+    },
+    "s_applies": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "'Applies To' cell for the Structure & Format row in the coverage table.",
+      "examples": ["Skills, AGENTS.md/CLAUDE.md", "Skills, CLAUDE.md"]
+    },
+    "artifact_md_bullet": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Phase 1 artifact-detection bullet for the instruction-file type. Public covers AGENTS.md/CLAUDE.md with generic imports; local is CLAUDE.md with `@import`.",
+      "examples": [
+        "**AGENTS.md / CLAUDE.md**: instruction files — check for imports or linked references and read those too",
+        "**CLAUDE.md**: Instruction file — check for `@import` references and read those too"
+      ]
+    },
+    "audience_tail": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Tail of the Phase 2 'Who is the audience?' line after 'Human users? '. Public says 'Host agent auto-invocation? … Delegated agents?'; local says 'Claude (auto-invocation)? … Sub-agents?'.",
+      "examples": [
+        "Host agent auto-invocation? Both? Delegated agents?",
+        "Claude (auto-invocation)? Both? Sub-agents?"
+      ]
+    },
+    "reg_both": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Registration outcome for the both-human-and-model case.",
+      "examples": ["default host-discoverable metadata", "default (no flags)"]
+    },
+    "reg_human_only": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Registration outcome for the human-only case. Local cites the concrete `disable-model-invocation: true` flag.",
+      "examples": ["use the host's supported human-invocation flag or adapter metadata", "`disable-model-invocation: true`"]
+    },
+    "reg_machine_only": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Registration outcome for the machine-only case. Local cites the concrete `user-invocable: false` flag.",
+      "examples": ["use the host's supported model-invocation flag or adapter metadata", "`user-invocable: false`"]
+    },
+    "discovery_viable": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Phase 2 'Is discovery viable?' body. Local names Claude's matcher and the concrete first-250-character truncation point.",
+      "examples": [
+        "Will a host agent's description-matching find this when relevant? Are trigger keywords present? Is the key use case early in the description?",
+        "Will Claude's description-matching find this when relevant? Are trigger keywords present? Is the key use case in the first 250 characters (truncation point)?"
+      ]
+    },
+    "d001_summary_tail": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Phase 3 D001 summary-table tail. Public resolves bundled paths relative to the active SKILL.md; local uses `${CLAUDE_SKILL_DIR}`.",
+      "examples": [
+        "resolve portable resources relative to the active `SKILL.md`, not hardcoded absolute paths",
+        "use `${CLAUDE_SKILL_DIR}` for portability, not hardcoded absolute paths"
+      ]
+    },
+    "r003_summary_tail": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Phase 3 R003 summary-table tail after 'Instructions work across '. Public is model-tier-neutral; local names Opus/Sonnet/Haiku.",
+      "examples": [
+        "model capability tiers without vendor/model-specific assumptions",
+        "Claude models (Opus/Sonnet/Haiku) without model-specific assumptions"
+      ]
+    },
+    "g004_summary_tail": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Phase 3 G004 summary-table tail after 'User interaction quality — '. Local names AskUserQuestion with concrete limits.",
+      "examples": [
+        "structured clarification asks few questions with clear options when the host supports it",
+        "AskUserQuestion uses 1-4 questions, 2-4 options, ≤12-char headers"
+      ]
+    },
+    "notes_hook": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Notes bullet on hook-review version sensitivity. Public is host/version-generic (hard-wrapped); local pins the Claude Code `if` field to v2.1.85+.",
+      "examples": [
+        "For hook reviews, behavior differs by host and version. Check the adapter docs\n  for the exact event schema.",
+        "For hook reviews, behavior can differ between Claude Code versions. The `if` field requires v2.1.85+."
+      ]
+    },
+    "notes_fork": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "Notes bullet on isolated-context skills. Public says 'isolated/delegated context … the delegated agent' (hard-wrapped); local says '`context: fork` … the sub-agent'.",
+      "examples": [
+        "Skills using isolated/delegated context must provide enough actionable context\n  for the delegated agent to produce useful output — guidelines alone without a\n  task prompt return nothing.",
+        "Skills using `context: fork` must provide enough actionable context for the sub-agent to produce useful output — guidelines alone without a task prompt return nothing."
+      ]
+    },
+    "m001_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog M001 rationale. Public: 'many hosts; some ignore the frontmatter…'; local: 'Claude Code won't error — it'll just ignore…'.",
+      "examples": [
+        "Invalid YAML silently breaks skill loading in many hosts; some ignore\nthe frontmatter and treat the entire file as body content.",
+        "Invalid YAML silently breaks skill loading. Claude Code won't error — it'll just ignore the frontmatter and treat the entire file as body content."
+      ]
+    },
+    "m003_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog M003 rationale. Public: 'Host agents use it to decide relevance.'; local: 'Claude uses it to decide relevance.'.",
+      "examples": [
+        "The description is the #1 failure point for auto-discovery. Host\nagents use it to decide relevance. Vague descriptions = never invoked.",
+        "The description is the #1 failure point for auto-discovery. Claude uses it to decide relevance. Vague descriptions = never invoked."
+      ]
+    },
+    "m007_look": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog M007 what-to-look-for. Public: 'would a host agent's description-matching select it?'; local: 'would Claude's…'.",
+      "examples": [
+        "Run a mental simulation — if a user says the thing this\nskill is for, would a host agent's description-matching select it? Are there\ncompeting skills with similar descriptions?",
+        "Run a mental simulation — if a user says the thing this skill is for, would Claude's description-matching select it? Are there competing skills with similar descriptions?"
+      ]
+    },
+    "s001_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog S001 rationale. Public: 'helps both agents and humans'; local: 'helps both Claude and humans'.",
+      "examples": [
+        "Consistent structure helps both agents and humans navigate skills\npredictably.",
+        "Consistent structure helps both Claude and humans navigate skills predictably."
+      ]
+    },
+    "s006_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog S006 rationale. Public: 'teach the host agent to use the wrong tools'; local: 'teach Claude to use the wrong tools'.",
+      "examples": [
+        "Wrong tool names in examples teach the host agent to use the wrong\ntools.",
+        "Wrong tool names in examples teach Claude to use the wrong tools."
+      ]
+    },
+    "c001_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog C001 rationale. Public: 'the agent will too'; local: 'Claude will too'.",
+      "examples": [
+        "If a human would struggle to follow it, the agent will too.\nAmbiguous instructions produce inconsistent results.",
+        "If a human would struggle to follow it, Claude will too. Ambiguous instructions produce inconsistent results."
+      ]
+    },
+    "c002_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog C002 rationale. Public: 'agents pick one non-deterministically'; local: 'Claude picks one non-deterministically'.",
+      "examples": [
+        "When instructions conflict, agents pick one non-deterministically.\nThis produces unpredictable behavior.",
+        "When instructions conflict, Claude picks one non-deterministically. This produces unpredictable behavior."
+      ]
+    },
+    "d001_look": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog D001 what-to-look-for. Public: 'Host-neutral paths … relative to the active SKILL.md'; local: '`${CLAUDE_SKILL_DIR}` for bundled files'.",
+      "examples": [
+        "Host-neutral paths for bundled files, ideally resolved\nrelative to the active `SKILL.md`. Relative paths for project files. Verify every\nreferenced path actually exists right now.",
+        "`${CLAUDE_SKILL_DIR}` for bundled files. Relative paths for project files. Verify every referenced path actually exists right now."
+      ]
+    },
+    "r003_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog R003 rationale. Public: 'a high-capability model … a smaller model'; local: 'Opus … Haiku'.",
+      "examples": [
+        "Instructions that work for a high-capability model may need more\ndetail for a smaller model. Model-specific assumptions break when the model field\nchanges.",
+        "Instructions that work for Opus may need more detail for Haiku. Model-specific assumptions break when the model field changes."
+      ]
+    },
+    "r003_look": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog R003 what-to-look-for. Same wording both profiles — tokenized only because the public copy is hard-wrapped and the local copy is single-line.",
+      "examples": [
+        "Reliance on capabilities that vary across models (complex\nreasoning, long context, tool use patterns). Consider whether the skill specifies\na model or will be used across models.",
+        "Reliance on capabilities that vary across models (complex reasoning, long context, tool use patterns). Consider whether the skill specifies a model or will be used across models."
+      ]
+    },
+    "g002_look": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog G002 what-to-look-for. Public: 'Structured user clarification?'; local: 'AskUserQuestion?'.",
+      "examples": [
+        "How does the artifact get each piece of required context?\nStructured user clarification? File reads? Tool calls? Environment variables? Is\neach strategy appropriate for its data?",
+        "How does the artifact get each piece of required context? AskUserQuestion? File reads? Tool calls? Environment variables? Is each strategy appropriate for its data?"
+      ]
+    },
+    "g004_look": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog G004 what-to-look-for. Public: generic 'A small number of questions … when the host supports structured choices'; local: concrete AskUserQuestion limits.",
+      "examples": [
+        "A small number of questions per interaction. When the host\nsupports structured choices, options are mutually exclusive and collectively\nexhaustive.",
+        "AskUserQuestion with 1-4 questions per interaction. 2-4 options per question. Headers ≤12 characters. Options are mutually exclusive and collectively exhaustive."
+      ]
+    },
+    "h004_rationale": {
+      "type": "string",
+      "scope": "util-review",
+      "description": "check-catalog H004 rationale. Public: 'a stop hook that always returns the host's continue/interrupt code … the agent'; local: 'a Stop hook that always exits 2 … Claude'.",
+      "examples": [
+        "A stop hook that always returns the host's continue/interrupt code creates an infinite loop — the agent can never finish responding.",
+        "A Stop hook that always exits 2 creates an infinite loop — Claude can never finish responding."
+      ]
+    }
+  }
+}
