@@ -130,7 +130,9 @@ Evaluate against the pattern complexity hierarchy:
 - *Unit (deterministic)*: mocked-LLM tests for tool routing, argument extraction, result
   handling, schema validation — running in CI on every commit.
 - *Evals (quality)*: curated datasets with LLM-as-judge scoring, threshold assertions
-  (`assert avg_accuracy >= 0.8`), prompts versioned as code with regression testing.
+  (`assert avg_accuracy >= 0.8`), prompts versioned as code with regression testing. Validate
+  the judge itself — audit agreement/consistency/bias; high judge self-consistency is not
+  validity. `[KB:judge-validity]`
 - *Integration/E2E*: full multi-step workflows against real/simulated environments covering API
   timeouts, auth failures, bad external responses, edge cases.
 
