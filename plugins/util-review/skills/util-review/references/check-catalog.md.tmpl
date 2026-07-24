@@ -278,7 +278,7 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 
 ---
 
-## Hooks-Specific (H001-H007)
+## Hooks-Specific (H001-H009)
 
 ### H001: Event Type Appropriateness
 **Severity:** CRITICAL (wrong event)
@@ -314,3 +314,13 @@ Detailed rationale, what-to-look-for, and examples for each check in the `/util-
 **Severity:** WARNING
 **Rationale:** Hooks communicate via stdin/stdout JSON. Malformed output is silently ignored or causes errors.
 **What to look for:** Reads input from stdin (not arguments). Writes structured JSON to stdout. Fields ≤10,000 chars. Stderr used only for blocked-action feedback (exit 2) or error messages.
+
+### H008: Non-Blocking Critical Path (HARDLINE)
+**Severity:** CRITICAL
+**Rationale:** A hook runs on the host agent's critical path — the prompt, the tool call, and the session lifecycle all block until it returns. Any real work done synchronously taxes every event, and on the tail case (a multi-MB transcript, a cold binary, a slow network call) stalls the harness until the timeout fires. A hook is an event-dispatch shim, never a worker.
+**What to look for:** The registered script does only: read the stdin payload → fork → `exit 0`. ZERO business logic on the critical path — parsing, file/transcript I/O, `jq`, hashing, LLM calls, registry/network writes all belong inside a detached child, not before the fork. Foreground return is sub-~50ms even against a worst-case payload. A `timeout:` in the hook config is a backstop for a wedged fork, not the design: if removing it would make the hook block, the hook is blocking. Applies to every hook event and every language.
+
+### H009: Detached Child Stdio Severance
+**Severity:** CRITICAL
+**Rationale:** The host reaps a hook when its stdout pipe reaches EOF. A backgrounded child that inherits the hook's stdout file descriptor keeps that pipe open, so the harness blocks until the timeout fires **even though the work was "backgrounded."** This is the specific defect that makes a nominally-async hook still block.
+**What to look for:** The backgrounded subshell/child severs its stdio from the harness pipe — `</dev/null >/dev/null 2>&1` on the `&`'d subshell (stdin from /dev/null, stdout/stderr detached), plus `disown`. A bare `&` without those redirects is the classic non-fix. Node/Python hooks reach the same end by double-forking or spawning a detached, stdio-severed child process.

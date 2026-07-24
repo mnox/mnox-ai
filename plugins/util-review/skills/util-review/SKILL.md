@@ -29,7 +29,7 @@ and unanswered design questions that structural validators miss.
 | Side Effects | E | 6 | All |
 | Security | X | 5 | All |
 | Context Gathering | G | 5 | Skills, Hooks |
-| Hooks-Specific | H | 7 | Hooks only |
+| Hooks-Specific | H | 9 | Hooks only |
 
 **Pass criteria:** Zero CRITICAL issues.
 
@@ -150,7 +150,7 @@ Run through each applicable check category. Classify every finding by severity a
 | G004 | User interaction quality — structured clarification asks few questions with clear options when the host supports it |
 | G005 | Feedback loop closed — the artifact can validate its own output or the user can verify results |
 
-#### Hooks-Specific (H001-H007)
+#### Hooks-Specific (H001-H009)
 
 | Check | What to verify |
 |-------|---------------|
@@ -161,6 +161,8 @@ Run through each applicable check category. Classify every finding by severity a
 | H005 | Shell profile safe — `~/.zshrc`/`~/.bashrc` echo statements won't corrupt JSON I/O |
 | H006 | Parallel-safe — no conflicting `updatedInput` rewrites across multiple hooks on same event |
 | H007 | JSON I/O compliant — input via stdin, output via stdout, fields ≤10,000 chars |
+| H008 | Non-blocking (HARDLINE) — hook returns in sub-~50ms; registered script is pure event dispatch (read stdin → fork → `exit 0`) with ZERO business logic on the critical path; all parsing/I/O/jq/LLM/network detached to a backgrounded child. If removing `timeout:` would make it block, it's blocking |
+| H009 | Detached child's stdio severed from the harness pipe (`</dev/null >/dev/null 2>&1` on the backgrounded subshell). A bare `&` inherits fd 1, keeps the pipe open, and stalls the harness to the timeout even though "backgrounded" — the classic non-fix |
 
 ### Phase 4: Design Questions Audit
 
