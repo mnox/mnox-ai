@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **`compliance-review` plugin** — added a fifth input mode, `readiness`, which
+  shifts the question from "does this artifact implement the controls" to "can
+  this organization pass a SOC 2 examination," where most failures are
+  evidentiary rather than technical. Readiness assesses governance, evidence
+  gaps, program deliverables, phasing, and cost, and emits a risk register with
+  discovery steps, fix/prevent actions, cost-of-inaction, and a
+  dependency-ordered phase plan. Backed by a new
+  `references/readiness-program.md`, a per-control `type` (technical vs program)
+  column and governance-series (CC1–CC5) coverage in the SOC 2 catalog, and
+  expanded scope-boundary guidance. New triggers include SOC 2 readiness, audit
+  prep, Type I vs Type II, controls matrix, and evidence gaps.
+
 ## [0.5.0] - 2026-06-22
 
 ### Added
