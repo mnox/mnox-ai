@@ -84,8 +84,21 @@ session for every subscriber. Two body-size caps (chars; ~4 chars/token):
   ```
 
 The `chunk-review` skill is the **hard gate** at authoring time (over-cap →
-`drop`). `reconcile.sh` only **warns** at runtime (stderr) — bundles are never
-silently mutilated.
+`drop`). `reconcile.sh` enforces the same caps at runtime and is **fail-closed**:
+an over-cap chunk aborts the reconcile *before* assembly begins, so the previous
+`bundle.md` survives untouched. (It used to warn and ship anyway, which trained
+every reader to ignore the warning.)
+
+Two sanctioned escapes:
+
+```yaml
+oversize_approved: <reason>   # per-chunk, durable — a deliberate exception
+```
+
+The reason is echoed to stderr on **every** reconcile, so an exemption stays
+visible instead of quietly becoming permanent. For a one-off run instead, use
+`reconcile.sh --allow-oversize` (or `CONFIG_CHUNKS_ALLOW_OVERSIZE=1`), which
+downgrades the whole gate to warnings.
 
 See `templates/chunk.template.md` and `templates/pointer-chunk.template.md`.
 
