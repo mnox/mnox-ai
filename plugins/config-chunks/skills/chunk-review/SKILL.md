@@ -49,6 +49,28 @@ The chunk MUST have all required keys. Reject outright (score 0, verdict
   named skill isn't installed or shipped alongside this chunk, flag it in the
   recommendation — a pointer to a skill nobody has is dead context.
 
+**Optional replacement key:**
+
+- `supersedes` — comma-separated `name`s this chunk REPLACES. Each named chunk
+  is dropped from the bundle entirely, so this key **deletes guidance** and gets
+  the sharpest scrutiny in the whole review. Three checks, all mandatory:
+
+  1. **Rider or replacement?** Read the target chunk. If this chunk merely ADDS
+     local specifics on top of the target's substance, it is a *rider*, not a
+     replacement — flag the `supersedes` as wrong and recommend removing it in
+     favour of a "Rides on **`<target>`**" line in the body.
+  2. **Orphan sweep.** Diff the two bodies and enumerate every rule, caveat, and
+     rationale the target carries that this chunk does NOT. Quote them. Each one
+     is guidance that vanishes on merge, so it must be absorbed into this chunk
+     first or explicitly waived. An unabsorbed orphan is a `revise`.
+  3. **Dangling references.** Grep the rest of the corpus for prose citing the
+     superseded name (e.g. "Rides on **`<target>`**"). Those references break
+     silently — list them so they can be repointed.
+
+  Also note: superseding a chunk whose substance is delegated to an on-demand
+  skill moves that doctrine OUT of always-on context. Call that out explicitly;
+  it is a behavior change, not a cleanup.
+
 ## Step 1b — Size gate (hard fail / auto-fail)
 
 Strip the frontmatter and measure the body in characters

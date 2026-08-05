@@ -262,6 +262,137 @@ assert_grep   "DUPE_BODY_V2_NEW" "$BUNDLE" "dedup keeps highest version body"
 assert_nogrep "DUPE_BODY_V1_OLD" "$BUNDLE" "dedup drops lower version body"
 
 # ---------------------------------------------------------------------------
+echo "smoke: supersedes"
+# ---------------------------------------------------------------------------
+# A chunk declaring `supersedes:` replaces the named chunk(s) outright. The
+# canonical case is a local chunk that restates a universal one bound to
+# concrete tools — both carry distinct `name`s, so version-dedup cannot
+# collapse them.
+
+# Universal chunk that will be replaced.
+bash "$ENGINE" add-chunk sup-universal >/dev/null 2>&1 || true
+cat > "$REG_DIR/config-chunks.sup-universal.md" <<'EOF'
+---
+name: sup-universal
+version: 1.0.0
+owner: config-chunks
+order: 30
+summary: generic guidance.
+---
+
+SUP_UNIVERSAL_BODY_GENERIC
+EOF
+
+# A second universal chunk, superseded by the SAME local chunk (multi-target).
+bash "$ENGINE" add-chunk sup-universal-two >/dev/null 2>&1 || true
+cat > "$REG_DIR/config-chunks.sup-universal-two.md" <<'EOF'
+---
+name: sup-universal-two
+version: 1.0.0
+owner: config-chunks
+order: 31
+summary: more generic guidance.
+---
+
+SUP_UNIVERSAL_TWO_BODY_GENERIC
+EOF
+
+# Local (foreign-owner) chunk that supersedes both, plus a name that is absent
+# entirely — the absent target must be a SILENT no-op, not a warning.
+cat > "$REG_DIR/mnox-local.sup-local.md" <<'EOF'
+---
+name: sup-local
+version: 1.0.0
+owner: mnox-local
+order: 32
+supersedes: sup-universal, sup-universal-two, sup-never-registered
+summary: concrete local replacement.
+---
+
+SUP_LOCAL_BODY_CONCRETE
+EOF
+
+rm -f "$STAMP"
+sup_err=$(bash "$RECONCILE" 2>&1 >/dev/null || true)
+
+assert_grep   "SUP_LOCAL_BODY_CONCRETE"     "$BUNDLE" "supersedes keeps the superseding chunk"
+assert_nogrep "SUP_UNIVERSAL_BODY_GENERIC"  "$BUNDLE" "supersedes drops the superseded chunk"
+assert_nogrep "SUP_UNIVERSAL_TWO_BODY_GENERIC" "$BUNDLE" "supersedes drops every comma-listed target"
+
+# Applied supersedes are announced (a silent suppression is invisible doctrine loss).
+[[ "$sup_err" == *"superseded: 'sup-universal' dropped"* ]] \
+  && ok "supersedes announces the applied drop" || nope "supersedes announces the applied drop"
+# An absent target is satisfied by definition — it must NOT produce output.
+[[ "$sup_err" != *"sup-never-registered"* ]] \
+  && ok "supersedes is silent on an absent target" || nope "supersedes is silent on an absent target"
+
+# Owner-blindness: a first-party chunk may supersede a foreign one too.
+cat > "$REG_DIR/some-other-plugin.sup-foreign.md" <<'EOF'
+---
+name: sup-foreign
+version: 1.0.0
+owner: some-other-plugin
+order: 33
+summary: foreign chunk to be superseded by a first-party one.
+---
+
+SUP_FOREIGN_BODY
+EOF
+bash "$ENGINE" add-chunk sup-firstparty >/dev/null 2>&1 || true
+cat > "$REG_DIR/config-chunks.sup-firstparty.md" <<'EOF'
+---
+name: sup-firstparty
+version: 1.0.0
+owner: config-chunks
+order: 34
+supersedes: sup-foreign
+summary: first-party chunk superseding a foreign one.
+---
+
+SUP_FIRSTPARTY_BODY
+EOF
+rm -f "$STAMP"
+bash "$RECONCILE" >/dev/null 2>&1
+assert_grep   "SUP_FIRSTPARTY_BODY" "$BUNDLE" "supersedes is owner-blind (first-party survives)"
+assert_nogrep "SUP_FOREIGN_BODY"    "$BUNDLE" "supersedes is owner-blind (foreign dropped)"
+
+# --- fail-closed chain guard ---
+# `sup-local` already supersedes sup-universal; now make something supersede
+# sup-local. A chunk that both declares and receives a supersede is ambiguous,
+# so the reconcile must ABORT and leave the previous bundle byte-identical.
+cat > "$REG_DIR/mnox-local.sup-chain.md" <<'EOF'
+---
+name: sup-chain
+version: 1.0.0
+owner: mnox-local
+order: 35
+supersedes: sup-local
+summary: chains onto a chunk that itself supersedes.
+---
+
+SUP_CHAIN_BODY
+EOF
+bundle_before=$(hash_of "$BUNDLE")
+rm -f "$STAMP"
+if bash "$RECONCILE" >/dev/null 2>"$TMP/chain.err"; then
+  nope "supersede chain aborts the reconcile"
+else
+  ok "supersede chain aborts the reconcile"
+fi
+grep -qF "supersede chain" "$TMP/chain.err" && ok "supersede chain names the ambiguity" \
+  || nope "supersede chain names the ambiguity"
+[ "$(hash_of "$BUNDLE")" = "$bundle_before" ] \
+  && ok "supersede chain leaves bundle.md unchanged" || nope "supersede chain leaves bundle.md unchanged"
+
+# Clean up the supersede fixtures so later sections run against a sane set.
+rm -f "$REG_DIR/config-chunks.sup-universal.md" \
+      "$REG_DIR/config-chunks.sup-universal-two.md" \
+      "$REG_DIR/config-chunks.sup-firstparty.md" \
+      "$REG_DIR/some-other-plugin.sup-foreign.md" \
+      "$REG_DIR/mnox-local.sup-local.md" \
+      "$REG_DIR/mnox-local.sup-chain.md"
+
+# ---------------------------------------------------------------------------
 echo "smoke: staleness prune (>14 days)"
 # ---------------------------------------------------------------------------
 bash "$ENGINE" add-chunk stale-demo >/dev/null 2>&1 || true

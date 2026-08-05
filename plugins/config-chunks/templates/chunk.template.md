@@ -34,6 +34,29 @@ Optional progressive-disclosure keys (see templates/pointer-chunk.template.md):
   skill      — required iff disclosure: pointer. Slug of the skill that holds
                the full procedure / examples.
 
+Optional replacement key:
+  supersedes — comma-separated `name`s this chunk REPLACES. Each named chunk is
+               dropped from the bundle entirely. Use it when your chunk restates
+               another's substance (e.g. a local chunk binding a universal
+               chunk's generic steps to concrete tools) — shipping both is
+               duplicated always-on context tax, and version-dedup cannot
+               collapse them because the `name`s differ.
+
+               Owner-blind: a local chunk may supersede a first-party one and
+               vice versa. Naming an absent chunk is a silent no-op. Applied
+               drops are announced on every reconcile.
+
+               RIDER vs REPLACEMENT: only supersede when your chunk carries the
+               other's substance. If it merely ADDS local specifics on top, it
+               is a rider — ship both and say "Rides on **<name>**" in the body.
+               Before superseding, move any prose the target holds and yours
+               lacks INTO yours; the supersede silently deletes the rest.
+
+               Chains are rejected fail-closed: if a chunk both declares
+               `supersedes` and is itself superseded, the reconcile aborts and
+               the previous bundle survives. Flatten instead — have the one
+               surviving chunk name every target directly.
+
 To ship this chunk from your plugin:
   1. Put this file in your plugin's `chunks/` dir.
   2. Copy config-chunks/scripts/publish-chunks.sh into your plugin's

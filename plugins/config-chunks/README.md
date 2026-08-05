@@ -54,6 +54,8 @@ summary: One-line human description for review + catalog purposes.
 # optional progressive-disclosure keys:
 disclosure: inline       # `inline` (default) or `pointer`
 skill: my-procedure      # required iff disclosure: pointer
+# optional replacement key:
+supersedes: other-chunk  # comma-separated `name`s this chunk REPLACES
 ---
 
 Body content — injected verbatim into the bundle.
@@ -63,6 +65,37 @@ Body content — injected verbatim into the bundle.
   one, highest `version` wins.
 - **`owner`** names the published file: `registered/<owner>.<name>.md`.
 - Both `name` and `owner` must be kebab-case (enforced by `publish-chunks.sh`).
+
+### Supersede: replacing a chunk instead of riding alongside it
+
+`version` dedup only collapses chunks that share a `name`. It cannot help when
+a chunk **restates another chunk's substance under a different name** — the
+usual case being a local chunk that binds a universal chunk's generic steps to
+concrete tools. Shipping both is pure duplicated context tax.
+
+`supersedes:` is the lever. Each named chunk is dropped from the bundle:
+
+```yaml
+name: discovery-pipeline-sources
+supersedes: discovery-pipeline
+```
+
+- **Owner-blind.** A local chunk may supersede a first-party one and vice
+  versa. Supersede is an authoring-time claim, not a privilege.
+- **Absent targets are a silent no-op.** Superseding a chunk that was never
+  installed is already the desired end state; warning would be permanent noise.
+- **Applied drops are announced every run** — same reasoning as
+  `oversize_approved`. A suppression that goes quiet is invisible doctrine loss.
+- **Chains abort the reconcile, fail-closed.** If a chunk both declares
+  `supersedes` and is itself superseded, the end state is ambiguous, so the
+  previous bundle survives untouched. Flatten instead: have the one surviving
+  chunk name every target directly.
+
+**Rider vs replacement.** Only supersede when your chunk genuinely *carries*
+the other's substance. A chunk that merely adds local specifics on top is a
+**rider** — ship both, and say "Rides on **`<name>`**" in the body. And before
+superseding, move any prose the target holds that yours lacks *into* yours: the
+supersede silently deletes everything you did not absorb.
 
 ### Size gates + progressive disclosure
 

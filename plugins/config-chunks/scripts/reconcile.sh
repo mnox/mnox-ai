@@ -9,7 +9,8 @@
 #
 # A full reconcile: prunes stale chunks (disabled/uninstalled plugins stop
 # re-publishing → their files age out), dedups by `name` keeping the highest
-# `version`, sorts by `order`, writes ~/.claude/chunks/bundle.md, and maintains
+# `version`, drops chunks claimed by another chunk's `supersedes:`, sorts by
+# `order`, writes ~/.claude/chunks/bundle.md, and maintains
 # a single marker-wrapped block in each active target:
 #   - claude  → an @import line in CLAUDE.md (bundle loaded by reference).
 #   - agents  → the bundle body INLINED in AGENTS.md (no @import support there).
@@ -364,6 +365,74 @@ if [ -f "$tmp/all" ]; then
   ' "$tmp/all" > "$tmp/winners"
 fi
 sort -t"$(printf '\t')" -k3,3n -k1,1 "$tmp/winners" > "$tmp/ordered"
+
+# ---------------------------------------------------------------------------
+# --- supersede resolution (MUST precede the size gate and assembly) ---
+#
+# A chunk may declare `supersedes: <name>[, <name>...]` in its frontmatter to
+# REPLACE another chunk outright instead of riding alongside it. The canonical
+# case: a local chunk that restates a universal chunk's substance bound to
+# concrete tools. Shipping both is duplicated always-on context tax, and the
+# version-dedup above cannot collapse them because they carry distinct `name`s.
+#
+# Deliberate properties:
+#   - Runs on the post-dedup WINNERS, so it composes with version dedup rather
+#     than racing it (a superseded name loses regardless of which file won).
+#   - Owner-blind: a local chunk may supersede a first-party one and vice versa.
+#     Supersede is an authoring-time claim, not a privilege.
+#   - Unmatched targets are a SILENT no-op. Superseding an absent chunk (plugin
+#     uninstalled, never opted in) is already the desired end state, so warning
+#     would emit permanent noise for a satisfied condition.
+#   - Applied supersedes ARE announced, every run. Same reasoning as
+#     `oversize_approved`: a suppression that goes quiet becomes invisible
+#     doctrine loss, and dropping a chunk is exactly that.
+: > "$tmp/sup_edges"      # target <TAB> supersedor
+: > "$tmp/sup_sources"    # names of chunks that declare a supersedes key
+while IFS=$'\t' read -r name ver ord file; do
+  [ -n "$name" ] || continue
+  sup=$(fm_value supersedes "$file")
+  [ -n "$sup" ] || continue
+  printf '%s\n' "$name" >> "$tmp/sup_sources"
+  printf '%s\n' "$sup" | tr ',' '\n' | while IFS= read -r target; do
+    target=$(printf '%s' "$target" | tr -d '[:space:]')
+    [ -n "$target" ] || continue
+    [ "$target" = "$name" ] && continue   # self-supersede is meaningless; ignore
+    printf '%s\t%s\n' "$target" "$name" >> "$tmp/sup_edges"
+  done
+done < "$tmp/ordered"
+
+# Chain/cycle guard, fail-CLOSED. If a chunk both declares `supersedes` and is
+# itself superseded by another, the intended end state is ambiguous (does its
+# own claim still bind after it is dropped?). Rather than pick a silent winner
+# and quietly delete guidance, abort and leave the previous bundle intact.
+if [ -s "$tmp/sup_edges" ] && [ -s "$tmp/sup_sources" ]; then
+  cut -f1 "$tmp/sup_edges" | sort -u > "$tmp/sup_targets"
+  chained=$(sort -u "$tmp/sup_sources" | grep -xF -f "$tmp/sup_targets" 2>/dev/null || true)
+  if [ -n "$chained" ]; then
+    while IFS= read -r c; do
+      [ -n "$c" ] || continue
+      by=$(awk -F'\t' -v t="$c" '$1==t{print $2}' "$tmp/sup_edges" | paste -sd, -)
+      echo "${OWNER}: ERROR: supersede chain — '$c' declares supersedes but is itself superseded by: ${by}." >&2
+    done <<< "$chained"
+    echo "${OWNER}: ABORTED — supersede chains are ambiguous. bundle.md left unchanged." >&2
+    echo "${OWNER}:        Resolve by flattening: have the surviving chunk supersede every name directly." >&2
+    exit 1
+  fi
+fi
+
+# Drop superseded chunks, announcing only the ones that were actually present.
+if [ -s "$tmp/sup_edges" ]; then
+  cut -f1 "$tmp/sup_edges" | sort -u > "$tmp/sup_targets"
+  while IFS= read -r target; do
+    [ -n "$target" ] || continue
+    awk -F'\t' -v t="$target" '$1==t{found=1} END{exit !found}' "$tmp/ordered" || continue
+    by=$(awk -F'\t' -v t="$target" '$1==t{print $2}' "$tmp/sup_edges" | sort -u | paste -sd, -)
+    echo "${OWNER}: superseded: '$target' dropped from the bundle — replaced by ${by}." >&2
+  done < "$tmp/sup_targets"
+  awk -F'\t' 'NR==FNR { drop[$0]=1; next } !($1 in drop)' \
+    "$tmp/sup_targets" "$tmp/ordered" > "$tmp/ordered.kept"
+  mv "$tmp/ordered.kept" "$tmp/ordered"
+fi
 
 # Strip frontmatter and emit body bytes. Used for both rendering and sizing.
 strip_frontmatter() {
