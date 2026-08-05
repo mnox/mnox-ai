@@ -17,9 +17,13 @@ a provider adapter.
 | `util-review` | Tooling | Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, MCP configs, and workflow configs for design flaws, unclosed loops, stale references, side effects, and portability risks. |
 | `debut` | Open Source | Audit a repo for public-readiness before open-sourcing — secrets/PII in history, licensing, community-health files, code quality, tests/CI, deps — scored SHIP IT / NEEDS POLISH / NOT READY with fix commands. |
 | `diagnose-queries` | Data | Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — five modes from known-query analysis to live-incident triage, ending in a root-caused, verified fix. |
+| `ontology-review` | Data | Audit a knowledge graph or ontology for structural health across seven axes (orthogonality, granularity, taxonomic hygiene, identity & rigidity, relationship semantics, competency questions, inference safety) — flags defects before they corrupt inference. |
+| `retrieval-review` | Data | Audit a retrieval / vector-index / RAG pipeline across seven layered axes (eval foundation, corpus & chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank fusion, reranking) — flags the defects that silently return wrong or missing context. |
+| `foundry` | Agentic AI | **Decommissioned for public use.** Formerly an autonomous-fix loop driver; execution now routes into the maintainer's private Sven Unit runtime, not distributed in this repo. See [`plugins/foundry/README.md`](plugins/foundry/README.md) before installing. |
 | `config-chunks` | Tooling | Package manager for agent-instruction guidance — named, versioned "chunks" reconciled into your `CLAUDE.md` / `AGENTS.md` bundle, with guided onboarding (`/ai-setup`) and safe permission setup (`/permission-setup`). |
+| `create-skill` | Tooling | Author a Claude Code or cross-host Agent Skill end-to-end — scaffold, write against a portable authoring contract, structurally validate, and design-score, in one guided lifecycle. Spec-pure by default; Claude-only features are opt-in. |
 | `bash-gate` | Tooling | **PreToolUse hook** (not a skill). A deterministic-first gate over Bash that auto-allows provably-safe commands (writes confined to your dev roots, `rm` of git-clean/ignored files, safe `chmod`) so you stop re-approving them — built for `bypassPermissions` mode. Ships safe-by-default (auto-allows nothing on install); optional LLM arbiter for the long tail. Claude-Code-specific. |
-| `all-skills` | Bundle | Meta-plugin that installs every skill above at once. |
+| `all-skills` | Bundle | Meta-plugin that installs the 10 core agentic-review skills above at once (excludes the tooling plugins and the decommissioned `foundry`). |
 | `session-tracker` | Utility | **MCP server** (not a skill). Indexes and searches AI coding-agent sessions — list, search, label, inspect file-change history, view token usage. Lexical search by default; semantic search opt-in. Requires [Bun](https://bun.sh). |
 
 ## Installation
@@ -128,8 +132,14 @@ mnox-ai/
     ├── util-review/               # skills/util-review/{SKILL.md, references/}
     ├── debut/                     # skills/debut/{SKILL.md, scripts/, references/, templates/, agents/}
     ├── diagnose-queries/          # skills/diagnose-queries/{SKILL.md, references/}
+    ├── ontology-review/           # skills/ontology-review/{SKILL.md, references/}
+    ├── retrieval-review/          # skills/retrieval-review/{SKILL.md, references/}
+    ├── foundry/                   # decommissioned for public use — see plugins/foundry/README.md
+    ├── config-chunks/             # utility: guidance-chunk package manager (scripts/, chunks/, groups/)
+    ├── create-skill/              # skills/create-skill/{SKILL.md, scripts/, references/}
+    ├── bash-gate/                 # utility: PreToolUse hook (hooks/, skills/bash-gate-add/) — not a skill
     ├── all-skills/
-    │   └── .claude-plugin/plugin.json   # dependencies: every skill above
+    │   └── .claude-plugin/plugin.json   # dependencies: the 10 core agentic-review skills above
     └── session-tracker/           # utility: MCP server (src/, bin/, hooks/) — not a skill
         ├── .claude-plugin/plugin.json
         └── src/server.ts

@@ -98,7 +98,7 @@ Strangle Progress:
    If yes → `live`. If no → `spec`. Announce the tier explicitly.
 6. Create the workspace:
    ```bash
-   uv run scripts/init_workspace.py <repo-path> <scope-slug>
+   python3 scripts/init_workspace.py <repo-path> <scope-slug>
    ```
    This creates the artifact directory under `.strangler-fig/runs/<scope-slug>/` and a clean, empty
    greenfield directory under `.strangler-fig/greenfield/<repo-name>-<scope-slug>/` (relative to the

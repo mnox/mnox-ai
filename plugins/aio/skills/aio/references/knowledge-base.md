@@ -5,10 +5,12 @@ operational *rules*; this file carries the *proof*. Core skill text points here 
 tags — resolve a tag by jumping to its `### [KB:claim-id]` anchor below.
 
 **Claim-centric, consolidation-managed.** Sources are grouped under the operational claim they
-support, not listed chronologically. `/aio-update` maintains this file deterministically: a new
-finding **updates a claim's `**Evidence**` headline** and **demotes the prior source to `**Trail**`** —
-it does NOT append a new bullet. The full append-only citation history lives in the dawks sources
-registry, not here; this file holds only the current headline + a compressed supersession trail.
+support, not listed chronologically. This file is maintained deterministically by `aio-update`, a
+private maintenance skill the author runs outside this repo (not shipped here, not part of this
+plugin or its CI): a new finding **updates a claim's `**Evidence**` headline** and **demotes the
+prior source to `**Trail**`** — it does NOT append a new bullet. The full append-only citation
+history lives in an external, maintainer-local sources registry (not part of this repo); this
+file holds only the current headline + a compressed supersession trail.
 
 **How to read an entry:**
 - **Rule** — the one-line imperative the evidence backs (what the agent should DO).
@@ -148,8 +150,8 @@ reference data, not citation chains — they carry only a **Rule** + the table/l
 
 ## Compliance
 
-### [KB:eu-ai-act] EU AI Act — high-risk delayed to Dec 2 2027, but transparency still binds Aug 2 2026
-**Rule:** For any EU-deployed or EU-user-touching agent, build ≥6-month log retention + override mechanisms + external-monitoring data flows (Articles 19/26); flag missing infra as HIGH. The high-risk delay does NOT cover transparency — Article 50(1) interaction-disclosure still binds Aug 2 2026; flag missing disclosure as HIGH on the unchanged clock. Don't dismantle infra already built for the original deadline.
+### [KB:eu-ai-act] EU AI Act — high-risk delayed to Dec 2 2027; transparency has bound since Aug 2 2026
+**Rule:** For any EU-deployed or EU-user-touching agent, build ≥6-month log retention + override mechanisms + external-monitoring data flows (Articles 19/26); flag missing infra as HIGH. The high-risk delay did NOT cover transparency — Article 50(1) interaction-disclosure has bound since Aug 2 2026; flag any undisclosed AI interaction as non-compliant now, not as a future risk. Don't dismantle infra already built for the original deadline.
 **Evidence:** EU AI Act Council–Parliament Provisional Agreement (consilium.europa.eu, May 7 2026): high-risk applicability for stand-alone systems shifted Aug 2 2026 → Dec 2 2027; Articles 19/26 unchanged; penalties unchanged up to €15M or 3% global turnover; final adoption pending. EC Draft Guidelines on AI Transparency (May 2026): Article 50(1) disclosure (a deployer must disclose when a human is *likely* interacting with an AI agent) unchanged at Aug 2 2026, plus multi-layered synthetic-content marking (no single watermark sufficient); providers handle upstream marking, deployers bear downstream disclosure.
 
 ### [KB:nist] Pair EU/OWASP with NIST as the emerging compliance triangle

@@ -151,8 +151,9 @@ Combining multiple ranked lists into one.
 ### Score-aware fusion (the alternatives)
 
 - **relativeScoreFusion** — normalize each retriever's scores to its own range,
-  then weight-combine. Weaviate's default since v1.24 (~6% recall lift over RRF
-  in their data).
+  then weight-combine. Weaviate's default as of v1.24, 2024 (~6% recall lift over
+  RRF in their data) — verify the current default before relying on this, it may
+  have changed since.
 - **DBSF (distribution-based score fusion)** — normalize by score distribution;
   Qdrant. Warns that top-k outliers skew naive min-max.
 - **Weighted sum / convex (alpha)** — `alpha·dense + (1−alpha)·sparse` after
@@ -340,6 +341,3 @@ Retrieval / rerank / chunking:
 - Anthropic 2024, *Introducing Contextual Retrieval* —
   https://www.anthropic.com/news/contextual-retrieval
 - Jina AI 2024, *Late Chunking* — https://arxiv.org/abs/2409.04701
-
-Raw per-axis research digests (with extended notes) are persisted under
-`~/dev/work/dawks/spaces/ClaudeTooling/retrieval-skill/research/`.

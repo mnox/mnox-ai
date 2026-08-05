@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`bash-gate` plugin** (0.1.0) — a **PreToolUse hook**, not a skill. A
+  deterministic-first gate over Bash that auto-allows provably-safe commands
+  (writes confined to your dev roots, `rm` of git-clean/ignored files, safe
+  `chmod`) so you stop re-approving them under `bypassPermissions` mode. Ships
+  safe-by-default (auto-allows nothing until you opt in); optional LLM arbiter
+  for the long tail; a `/bash-gate-add` skill to extend the classifier; a
+  one-time SessionStart onboarding nudge.
+- **`create-skill` plugin** (0.1.0) — author a Claude Code or cross-host Agent
+  Skill end-to-end: scaffold, write against a portable authoring contract,
+  structurally validate, and design-score, in one guided lifecycle. Spec-pure
+  by default; Claude-only features are opt-in.
+- Per-provider onboarding guides under `docs/install/` (Claude, Codex, Cursor)
+  and a `scripts/smoke_host_load.py` host-load smoke test that exports skills
+  into a temp tree shaped like each host's real discovery path and verifies
+  they actually land, rather than trusting the exporter's own unit tests.
+
 ### Changed
 - **`compliance-review` plugin** — added a fifth input mode, `readiness`, which
   shifts the question from "does this artifact implement the controls" to "can
@@ -19,6 +36,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   column and governance-series (CC1–CC5) coverage in the SOC 2 catalog, and
   expanded scope-boundary guidance. New triggers include SOC 2 readiness, audit
   prep, Type I vs Type II, controls matrix, and evidence gaps.
+- **`util-review` plugin** — added H008/H009 to the Hooks-Specific check
+  category (non-blocking-hook checks), bringing that category from 7 to 9
+  checks.
+- **`config-chunks` plugin** (0.1.0 → 0.1.1) — the guidance-chunk size gate is
+  now **fail-closed**: `reconcile.sh` exits non-zero on a bundle-size
+  violation instead of only warning. Added a new `correction-scrutiny`
+  doctrine chunk to the `recommended` group (now 9 chunks). Published the
+  fail-closed gate to the plugin cache.
+- **`aio` plugin** — synced the knowledge base with the latest research
+  refresh (judge-validity claim, 13 evidence updates).
+- **`foundry` plugin** — **decommissioned for public use.** The V0
+  autonomous-fix loop (deterministic bash engine driving a Worker/Integrator
+  pair over isolated git worktrees) has been retired; `/foundry-run` is now a
+  compatibility shim that routes into the maintainer's private Sven Unit
+  runtime, which is not distributed in this repo. The plugin is no longer
+  functional for other marketplace installs and has been removed from the
+  `all-skills` bundle. See `plugins/foundry/README.md`.
 
 ## [0.5.0] - 2026-06-22
 
@@ -32,8 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   coverage where the embeddings and a labeled query set are available. Grounded in
   BEIR/MTEB evaluation methodology, the anisotropy & alignment/uniformity geometry
   literature, ANN-index recall theory, and the rank-fusion (RRF) and cross-encoder
-  reranking research. The audit twin of a future `/retrieval-draft`, mirroring the
-  `/ontology-review` ↔ `/ontology-draft` pairing. Added to the `all-skills`
+  reranking research. The audit twin of a future `/retrieval-draft` (not yet
+  built); a similar draft↔review split is planned for `/ontology-review`, but
+  `/ontology-draft` doesn't exist yet either. Added to the `all-skills`
   meta-plugin.
 - **`config-chunks` utility plugin** — a package manager for agent-instruction
   guidance. Contributing plugins publish versioned, scored guidance **chunks**;

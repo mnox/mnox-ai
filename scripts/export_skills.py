@@ -153,7 +153,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skill name to export. Repeat to export a subset. Defaults to all skills.",
     )
     parser.add_argument("--mode", choices=("copy", "symlink"), default="copy")
-    parser.add_argument("--overwrite", action="store_true", help="Replace existing exported skill directories.")
+    parser.add_argument(
+        "--overwrite", action="store_true", help="Replace existing exported skill directories."
+    )
     parser.add_argument(
         "--with-engine",
         action="store_true",
@@ -161,7 +163,9 @@ def build_parser() -> argparse.ArgumentParser:
         "<output>/.engines/<plugin>/ so engine-backed skills (e.g. config-chunks) "
         "are self-contained on non-Claude hosts.",
     )
-    parser.add_argument("--list", action="store_true", help="List discovered skills as JSON and exit.")
+    parser.add_argument(
+        "--list", action="store_true", help="List discovered skills as JSON and exit."
+    )
     return parser
 
 
@@ -223,4 +227,4 @@ if __name__ == "__main__":
         raise
     except Exception as exc:  # pragma: no cover - defensive CLI boundary
         print(f"export_skills.py: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc

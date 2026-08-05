@@ -39,6 +39,10 @@ Valid `--skill` names: `aio`, `compliance-review`, `curriculum`, `debut`,
 `config-chunks` skills (`ai-setup`, `chunks`, `chunk-review`, `ideation`,
 `permission-setup`) and `bash-gate-add`.
 
+> `foundry-run` exports but is **decommissioned for public use** — it now
+> routes into the maintainer's private Sven Unit runtime, not distributed
+> here. See [`plugins/foundry/README.md`](../../plugins/foundry/README.md).
+
 > **Path trap.** `.codex/skills/` is **not** a discovery path — it's
 > `.agents/skills/` (project) or `~/.codex/skills/` (user). Exporting to the wrong
 > place is a silent no-op: Codex finds nothing and never tells you.

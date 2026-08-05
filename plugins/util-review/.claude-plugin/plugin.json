@@ -1,7 +1,7 @@
 {
   "name": "util-review",
   "version": "0.5.0",
-  "description": "Review Claude Code skills, hooks, CLAUDE.md, and workflow configs for design flaws, unclosed loops, stale references, and risks.",
+  "description": "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, and risks.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",
   "license": "MIT"

@@ -40,7 +40,7 @@
     {
       "name": "compliance-review",
       "source": "./plugins/compliance-review",
-      "description": "Audit a repo, ADR/PRD, IaC, or live cloud state against SOC 2, HIPAA, or PCI-DSS with structured, evidence-backed findings.",
+      "description": "Audit a repo, ADR/PRD, IaC, or live cloud state against SOC 2, HIPAA, or PCI-DSS with structured, evidence-backed findings — or assess organizational readiness for a SOC 2 examination (governance, evidence gaps, phased remediation).",
       "version": "0.5.0",
       "category": "agentic",
       "tags": ["compliance", "security", "audit", "soc2", "hipaa", "pci"]
@@ -48,7 +48,7 @@
     {
       "name": "util-review",
       "source": "./plugins/util-review",
-      "description": "Review Claude Code skills, hooks, CLAUDE.md, and workflow configs for design flaws, unclosed loops, stale references, and risks.",
+      "description": "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, and risks.",
       "version": "0.5.0",
       "category": "agentic",
       "tags": ["review", "tooling", "skills", "hooks"]
@@ -88,15 +88,15 @@
     {
       "name": "foundry",
       "source": "./plugins/foundry",
-      "description": "Autonomous-fix loop driver — drains a bucket of work-unit files one at a time, spawning an Opus Worker to implement each in an isolated git worktree and an independent Opus Integrator to review it, strictly serial and never pushing to a remote.",
+      "description": "DECOMMISSIONED for public use — the original autonomous-fix loop has been retired in favor of the maintainer's private Sven Unit runtime, which isn't distributed in this repo. Not functional for other marketplace installs; see plugins/foundry/README.md.",
       "version": "0.1.0",
       "category": "agentic",
-      "tags": ["agents", "automation", "loop", "worktree", "review", "autonomous"]
+      "tags": ["agents", "automation", "loop", "worktree", "review", "autonomous", "decommissioned"]
     },
     {
       "name": "all-skills",
       "source": "./plugins/all-skills",
-      "description": "Meta-plugin that installs every mnox-ai skill at once.",
+      "description": "Meta-plugin that installs every mnox-ai agentic-review skill at once. Standalone utility plugins (session-tracker, config-chunks, create-skill, bash-gate) are installed separately.",
       "version": "0.5.0",
       "category": "agentic",
       "tags": ["bundle", "all-skills"]

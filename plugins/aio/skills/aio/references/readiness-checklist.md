@@ -22,4 +22,4 @@ Load this at Mode 2 Step 4, before declaring a new agentic implementation "done"
 - [ ] Observability (tracing, logging, metrics; OTel GenAI conventions) `[KB:otel]`
 - [ ] Error handling with actionable guidance
 - [ ] Kill switch / circuit breaker
-- [ ] Compliance requirements met — EU AI Act transparency (Aug 2026) / NIST, if applicable `[KB:eu-ai-act]` `[KB:nist]` `[KB:compliance-properties]`
+- [ ] Compliance requirements met — EU AI Act transparency (Article 50, binding since Aug 2 2026) / NIST, if applicable `[KB:eu-ai-act]` `[KB:nist]` `[KB:compliance-properties]`

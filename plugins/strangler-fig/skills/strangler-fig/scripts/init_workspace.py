@@ -1,10 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "cyclopts>=3.9.0",
-# ]
-# ///
+#!/usr/bin/env python3
 """Initialize the workspace for a /strangler-fig run.
 
 Creates the artifact directory (specs, harness, parity report) and a clean, empty
@@ -16,21 +10,17 @@ folder in the current working directory). Override with --out-dir. The greenfiel
 directory is created as a sibling of the legacy repo so it never overlaps it.
 
 Usage:
-    uv run scripts/init_workspace.py <repo_path> <scope_slug> [--out-dir DIR] [--no-greenfield]
+    python3 scripts/init_workspace.py <repo_path> <scope_slug> [--out-dir DIR] [--no-greenfield]
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import subprocess
 from pathlib import Path
 
-from cyclopts import App
 
-app = App()
-
-
-@app.default
 def main(
     repo_path: Path,
     scope_slug: str,
@@ -91,8 +81,9 @@ def main(
                 "Spawn the builder agent with this as its working directory."
             )
             result["leakage_audit_note"] = (
-                "legacy-surface-inventory.md and the taint-audit-*.md reports in the run dir are "
-                "AUDITOR-ONLY — they hold legacy structural detail and must never reach the builder."
+                "legacy-surface-inventory.md and the taint-audit-*.md reports in the run dir "
+                "are AUDITOR-ONLY — they hold legacy structural detail and must never reach "
+                "the builder."
             )
         except OSError as e:
             print(json.dumps({"success": False, "error": f"Greenfield dir failed: {e}"}))
@@ -102,5 +93,32 @@ def main(
     print(json.dumps(result, indent=2))
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Create the artifact and greenfield directories for a strangler-fig run."
+    )
+    parser.add_argument(
+        "repo_path", type=Path, help="Path to the legacy repo containing the scoped code."
+    )
+    parser.add_argument(
+        "scope_slug", help='Short kebab-case identifier for this run (e.g. "order-pricing").'
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=Path(".strangler-fig"),
+        help="Base directory for run artifacts and the greenfield build. Defaults to "
+        "a `.strangler-fig` directory under the current working directory.",
+    )
+    parser.add_argument(
+        "--no-greenfield",
+        dest="greenfield",
+        action="store_false",
+        help="Skip creating the clean greenfield build directory (e.g. for distill mode).",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    app()
+    args = _parse_args()
+    main(args.repo_path, args.scope_slug, args.out_dir, args.greenfield)

@@ -38,9 +38,10 @@ SYNC_TTL=$(( 24 * 3600 ))
 PRUNE_TTL=$(( 14 * 24 * 3600 ))
 
 # Body-size guardrails. The bundle is always-on context tax in every session,
-# so each chunk has a soft char budget (~4 chars/token). The hard gate lives
-# in the chunk-review skill at authoring time; reconcile only WARNS so a user's
-# bundle is never silently mutilated.
+# so each chunk has a soft char budget (~4 chars/token). reconcile enforces
+# this itself, fail-closed: an over-cap chunk aborts the run and the previous
+# bundle survives untouched (see the size gate below for the sanctioned
+# escapes).
 #
 #   INLINE_SOFT_CAP    — full-body chunks (disclosure: inline, the default).
 #   POINTER_SOFT_CAP   — pointer chunks (disclosure: pointer). Tighter because

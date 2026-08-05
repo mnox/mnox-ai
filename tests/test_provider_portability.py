@@ -63,13 +63,15 @@ class ProviderPortabilityTest(unittest.TestCase):
         self.assertEqual(offenders, [])
 
     def test_claude_marketplace_versions_match_plugin_manifests(self) -> None:
-        marketplace = json.loads((REPO_ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+        marketplace_path = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+        marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
         mismatches: list[str] = []
         for entry in marketplace["plugins"]:
             manifest_path = REPO_ROOT / entry["source"] / ".claude-plugin" / "plugin.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if entry["version"] != manifest["version"]:
-                mismatches.append(f"{entry['name']}: marketplace={entry['version']} manifest={manifest['version']}")
+                mkt_v, mf_v = entry["version"], manifest["version"]
+                mismatches.append(f"{entry['name']}: marketplace={mkt_v} manifest={mf_v}")
         self.assertEqual(mismatches, [])
 
     def test_root_agent_instructions_exist(self) -> None:

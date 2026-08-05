@@ -52,7 +52,11 @@ def main() -> int:
         emit({"success": False, "error": "skill_dir_not_found", "skill_dir": skill_dir.as_posix()})
         return 1
     if not skill_dir.is_dir():
-        emit({"success": False, "error": "skill_dir_not_a_directory", "skill_dir": skill_dir.as_posix()})
+        emit({
+            "success": False,
+            "error": "skill_dir_not_a_directory",
+            "skill_dir": skill_dir.as_posix(),
+        })
         return 1
     if not (skill_dir / "SKILL.md").exists():
         emit({"success": False, "error": "skill_md_missing", "skill_dir": skill_dir.as_posix()})

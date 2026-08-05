@@ -1,12 +1,12 @@
 # Chunk Scores — Universal Starter Library
 
-These are the eight shipped universal chunks in the `config-chunks` starter
+These are the ten shipped universal chunks in the `config-chunks` starter
 library: provider-agnostic, global-altitude engineering-discipline principles
 injected into every agent session via the always-on bundle. Each was scored with
 the **chunk-review 7-axis rubric** (Universality, Altitude, Not-a-skill,
 Non-redundancy, Concision, Impact, Stability — 0–10 each, summed /70). Keep
 threshold is **≥ 49/70**, and the verdict is capped at `revise` if Impact ≤ 2 or
-Stability ≤ 2. All eight clear `keep`; seven sit within the 2000-char inline body
+Stability ≤ 2. All ten clear `keep`; nine sit within the 2000-char inline body
 cap, and `problem-framing` is a `disclosure: pointer` stub (400-char cap) backed
 by the `ideation` skill.
 
@@ -21,8 +21,10 @@ behavior that gets visibly worse if the chunk is removed.
 | consultative-partnership | 63/70 | keep | 1184 |
 | discovery-pipeline | 62/70 | keep | 1127 |
 | code-skepticism | 64/70 | keep | 1104 |
+| correction-scrutiny | 63/70 | keep | 1479 |
 | communication-style | 60/70 | keep | 1069 |
 | coding-style | 61/70 | keep | 1081 |
+| skill-discovery | 50/70 | keep | 1387 |
 
 ---
 
@@ -132,6 +134,23 @@ code search and asserts from recall instead of verifying against ground truth.
 pattern and calls the duplication "consistency."
 **Rot risk (Stability):** None — durable invariant about code vs. correctness.
 
+## correction-scrutiny v1.0.0 — 63/70 — keep
+
+| Axis | Score | Note |
+|------|-------|------|
+| Universality   | 9/10  | Any agent that ever issues a correction needs the same evidence bar. |
+| Altitude       | 9/10  | Global evidence-bar policy for a specific speech act — overturning a prior claim. |
+| Not-a-skill    | 9/10  | A passive scrutiny discipline applied inline, not an invokable procedure. |
+| Non-redundancy | 9/10  | Distinct from code-skepticism and discovery-pipeline — this targets the correction itself, not the code or the search. |
+| Concision      | 9/10  | 1479 chars; four bullets, each load-bearing. |
+| Impact         | 9/10  | Directly changes whether an uncited "actually, that's wrong" is allowed to overwrite a correct finding. |
+| Stability      | 9/10  | Durable evidence-bar principle; no tools, versions, or dates. |
+| **Total**      | **63/70** | |
+
+**Deletion regression (Impact):** Without it a confident, uncited correction
+erases a right answer and rides downstream as doctrine for weeks.
+**Rot risk (Stability):** None — describes a durable evidence standard, not any stack or tool.
+
 ## communication-style v0.1.0 — 60/70 — keep
 
 | Axis | Score | Note |
@@ -165,3 +184,22 @@ confirmations and buries recommendations under preamble and recap.
 **Deletion regression (Impact):** Without it the agent silences the type checker
 with an `any`-escape and bolts on back-compat shims that calcify mistakes.
 **Rot risk (Stability):** None — principles outlast any specific language or type system.
+
+## skill-discovery v0.1.0 — 50/70 — keep
+
+| Axis | Score | Note |
+|------|-------|------|
+| Universality   | 8/10  | Applies to any agent operating in an environment that might have a skills library, but the payoff is conditional on one existing. |
+| Altitude       | 7/10  | An always-applied check, but narrower in scope than the pure reasoning/communication postures — it gates one specific decision (build vs. reuse). |
+| Not-a-skill    | 6/10  | The closest of the set to being a mini-procedure itself — a lookup routine with an explicit source order, not a pure passive stance. |
+| Non-redundancy | 8/10  | discovery-pipeline covers finding facts; this covers finding pre-built workflows — adjacent but distinct. |
+| Concision      | 8/10  | 1387 chars; the two-source lookup order is dense but earns it. |
+| Impact         | 7/10  | Prevents hand-rolling a structured workflow that a purpose-built skill already does better; explicitly non-blocking, so lower urgency than a hard behavioral change. |
+| Stability      | 6/10  | Names concrete host paths (`.claude/skills`, `.cursor/skills`, `.agents/skills`, `marketplace.json`) that can rot if host conventions shift. |
+| **Total**      | **50/70** | |
+
+**Deletion regression (Impact):** Without it the agent reinvents a recurring
+workflow from scratch instead of naming an existing skill that already does it.
+**Rot risk (Stability):** Low-moderate — the host skill-directory conventions and
+the marketplace catalog path are the volatile parts; a host convention change
+would need a chunk refresh.

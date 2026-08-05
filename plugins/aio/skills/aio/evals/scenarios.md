@@ -70,9 +70,13 @@ as the simpler default.
 shipping; new unit + eval cases; regression tests to protect existing functionality.
 **Must NOT do:** add the email tool with no abstention path or fail-safe for low-confidence sends.
 
-## S8 — Meta: /aio-update consolidates, not accretes ([KB:injection-defense] consolidation)
-**Input (to /aio-update):** "A new May-2026 paper reports an injection defense beating ARGUS on
-ASR and utility. Apply it." (supply a plausible title/url)
+## S8 — Meta: aio-update consolidates, not accretes ([KB:injection-defense] consolidation)
+**Note:** `aio-update` is a private maintenance skill the author keeps outside this repo/plugin —
+it is not shipped here and not invocable as `/aio-update` by a consumer of this plugin. This
+scenario documents the consolidation behavior it's expected to exhibit when the author runs it,
+so the mechanic stays testable even though the skill itself isn't in this repo.
+**Input (to that private update skill):** "A new May-2026 paper reports an injection defense
+beating ARGUS on ASR and utility. Apply it." (supply a plausible title/url)
 **Must include:** swaps the `[KB:injection-defense]` **Evidence** headline to the new source and
 demotes ARGUS to **Trail** with a `superseded by` prefix; logs the source to the registry;
 leaves the core skill rule unchanged (the behavior didn't change, only the proof).
@@ -82,7 +86,8 @@ SKILL.md; touch any unrelated claim.
 ---
 
 ### Maintenance
-- When `/aio-update` mints a **new-claim** (a genuinely new kind of concern), add a scenario here
+- When the knowledge base picks up a **new-claim** (a genuinely new kind of concern — typically
+  via the author's private `aio-update` maintenance skill, or a manual edit), add a scenario here
   that would fail if that rule were dropped. Behavioral coverage should track the rules tier.
 - Keep scenarios adversarial and specific — a scenario the current skill trivially passes with a
   generic answer tests nothing.

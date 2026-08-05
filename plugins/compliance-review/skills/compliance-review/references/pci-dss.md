@@ -82,3 +82,7 @@ Columns: **ID** · **Requirement** · **Automated signal** · **Domain**.
 - The single highest-severity PCI finding class is **SAD retention** (`PCI-3.2.1`)
   and **PAN in logs** (`PCI-3.4.1`) — these are outright prohibited, not weak
   configurations. Treat any confirmed instance as Critical.
+- A subset of v4.0 requirements (e.g. `PCI-8.4.1` MFA into the CDE, `PCI-11.6.1`
+  payment-page tamper detection) were **future-dated** best practices when v4.0
+  was published and became mandatory on 2025-03-31. That date has passed — audit
+  all requirements in this catalog as fully in effect now, not as upcoming.

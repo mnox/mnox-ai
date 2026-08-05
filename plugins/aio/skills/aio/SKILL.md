@@ -193,10 +193,10 @@ pass-through and over-broad scopes as HIGH.
 
 **Compliance readiness** `[KB:eu-ai-act]` `[KB:nist]` `[KB:compliance-properties]`:
 - EU AI Act: high-risk applicability provisionally delayed to **Dec 2 2027**, but **Article 50
-  transparency/agent-disclosure still binds Aug 2 2026** — flag any EU-user-facing agent lacking
-  interaction disclosure on the *unchanged* Aug 2026 clock. Don't let the high-risk delay create
-  false comfort. ≥6-month log retention + override mechanisms for high-risk; penalties up to €15M
-  / 3% turnover.
+  transparency/agent-disclosure has bound since Aug 2 2026** — flag any EU-user-facing agent
+  lacking interaction disclosure as non-compliant now, not as a future risk. Don't let the
+  high-risk delay create false comfort. ≥6-month log retention + override mechanisms for
+  high-risk; penalties up to €15M / 3% turnover.
 - US parallel: NIST AI Agent Standards Initiative (agent identity/auth, JIT access, action-level
   approvals). The five compliance properties (traceability, explainability, authorization,
   immutability, reproducibility) map directly to AI Act requirements.
@@ -313,6 +313,7 @@ tables, and the consolidated provenance trail per claim — lives in
 **`references/knowledge-base.md`**. Load the specific `[KB:claim-id]` entry on demand when you
 need to cite a source, justify a finding, or go deeper. Do not load it wholesale.
 
-This knowledge base is refreshed by the **`/aio-update`** skill, which consolidates new research
-into the existing claims (updating headline citations, demoting superseded sources to a trail)
-rather than accreting new bullets — keeping this skill lean. See `aio-update/SKILL.md`.
+This knowledge base is periodically refreshed by **`aio-update`**, a private maintenance skill
+the author keeps outside this repo — not shipped or invocable here. It consolidates new research
+into existing claims (updating headline citations, demoting superseded sources to a trail) rather
+than accreting new bullets, keeping this skill lean.

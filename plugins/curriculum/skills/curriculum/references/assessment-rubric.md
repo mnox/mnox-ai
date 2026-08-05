@@ -116,7 +116,11 @@ wrong. Examples across domains:
 If the same misconception appears in two different rows, flag it in the
 curriculum's `assessments/misconceptions.md` with a counter. On the
 third appearance, pause curriculum progress and propose a remediation
-mini-module (see `curriculum-design.md`).
+mini-module (see `curriculum-design.md`). This is a distinct trigger from
+`curriculum-meta.md`'s "gap persists across two modules" rule — a gap is
+an unresolved topic tracked per module boundary, a misconception is a
+specific named false belief tracked per occurrence; they can fire
+independently and are not meant to share a threshold.
 
 ## Cross-module synthesis cadence
 

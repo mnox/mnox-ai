@@ -17,8 +17,9 @@ you've measured first-stage recall). Output is a prioritized findings list, led
 by the issues that make a relevant document **structurally unretrievable** — the
 retrieval analog of a system asserting a false fact.
 
-This is the *audit* twin of a constructive `/retrieval-draft` (designing a
-pipeline from scratch), the way `/ontology-review` pairs with `/ontology-draft`.
+This is the *audit* twin of a constructive `/retrieval-draft` — not yet built. A
+similar draft↔review split is planned for `/ontology-review`, but `/ontology-draft`
+doesn't exist yet either; neither pairing is live today.
 
 **This review is numeric, not config-only.** Retrieval quality is a measured
 property. Where the embeddings and a labeled query set are available, *compute*
@@ -346,9 +347,10 @@ recall; the unfiltered number is fiction.
 - **Axis order is load-bearing.** Axis 1 (eval) is the measurement substrate for
   axes 4–7; axis 3 (geometry) gates score interpretation in axes 6–7; axis 4
   (recall) is the ceiling that bounds axis 7. Do not reorder.
-- This skill **audits**; a future `/retrieval-draft` would **construct** (design
-  chunking, model, index, fusion, and rerank choices for a corpus from scratch) —
-  the same draft↔review pairing as `/ontology-draft` ↔ `/ontology-review`.
+- This skill **audits**; a future `/retrieval-draft` (not yet built) would
+  **construct** (design chunking, model, index, fusion, and rerank choices for a
+  corpus from scratch). A similar draft↔review split is planned for
+  `/ontology-review`, but `/ontology-draft` doesn't exist yet either.
 - It is distinct from `/aio` (which audits whole agentic systems broadly): this
   goes deep on the *retrieval subsystem* — fusion math, ANN recall, geometry,
   eval harness — the way `/schema-review` is distinct from a general code review.

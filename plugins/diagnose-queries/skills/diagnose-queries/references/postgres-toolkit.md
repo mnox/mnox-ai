@@ -33,7 +33,7 @@ To pipe straight into the analyzer:
 
 ```bash
 psql -XqAt -d <db> -c "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT ..." \
-  | uv run scripts/analyze_plan.py --pretty
+  | python3 scripts/analyze_plan.py --pretty
 ```
 
 ## Finding the offender (aggregate, over time)

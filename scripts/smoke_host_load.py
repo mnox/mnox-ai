@@ -107,7 +107,8 @@ def check_host(host: str, skills: list[str], workdir: Path) -> Report:
     subpath = HOST_SKILL_SUBPATH[host]
     dest = workdir / host / subpath
     # config-chunks skills need their engine bundled off Claude.
-    with_engine = any(s in {"ai-setup", "chunks", "chunk-review", "ideation", "permission-setup"} for s in skills)
+    engine_skills = {"ai-setup", "chunks", "chunk-review", "ideation", "permission-setup"}
+    with_engine = any(s in engine_skills for s in skills)
 
     proc = run_exporter(dest, skills, with_engine)
     rep.check(proc.returncode == 0, f"exporter ran into {subpath}/ (rc={proc.returncode})")
@@ -119,8 +120,13 @@ def check_host(host: str, skills: list[str], workdir: Path) -> Report:
     missing = [s for s in skills if not (dest / s / "SKILL.md").is_file()]
     rep.check(not missing, f"all {len(skills)} skills present at discovery path"
               + (f" (missing: {missing})" if missing else ""))
-    bad_fm = [s for s in skills if (dest / s / "SKILL.md").is_file() and not valid_frontmatter(dest / s / "SKILL.md")]
-    rep.check(not bad_fm, "exported SKILL.md frontmatter valid" + (f" (bad: {bad_fm})" if bad_fm else ""))
+    bad_fm = [
+        s for s in skills
+        if (dest / s / "SKILL.md").is_file() and not valid_frontmatter(dest / s / "SKILL.md")
+    ]
+    rep.check(
+        not bad_fm, "exported SKILL.md frontmatter valid" + (f" (bad: {bad_fm})" if bad_fm else "")
+    )
     rep.check((dest / "skills-manifest.json").is_file(), "skills-manifest.json written")
 
     # 2. Engine bundling.
@@ -134,8 +140,13 @@ def check_host(host: str, skills: list[str], workdir: Path) -> Report:
     if host == "claude":
         rep.check(True, "MCP wired by marketplace plugin (no manual snippet)")
     else:
-        rep.check(str(SERVER_SH) in snippet and SERVER_SH.is_absolute(), "MCP snippet uses resolved absolute path")
-        rep.check("${CLAUDE_PLUGIN_ROOT}" not in snippet, "MCP snippet free of ${CLAUDE_PLUGIN_ROOT}")
+        rep.check(
+            str(SERVER_SH) in snippet and SERVER_SH.is_absolute(),
+            "MCP snippet uses resolved absolute path",
+        )
+        rep.check(
+            "${CLAUDE_PLUGIN_ROOT}" not in snippet, "MCP snippet free of ${CLAUDE_PLUGIN_ROOT}"
+        )
     return rep
 
 
@@ -166,15 +177,25 @@ def manual_steps(host: str, skills: list[str]) -> str:
     subset = " ".join(f"--skill {s}" for s in skills[:2])
     lines = [f"\n--- {host}: manual real-host verification ---"]
     if host == "cursor":
-        lines.append(f"  # Cursor 2.4+ reads ~/.claude/skills directly — if you use Claude Code, nothing to do.")
-        lines.append(f"  python3 scripts/export_skills.py --output-dir {user_dir} --overwrite   # otherwise")
-        lines.append(f"  # then open Cursor → Skills panel and confirm they appear (Agent/Chat mode)")
+        lines.append(
+            "  # Cursor 2.4+ reads ~/.claude/skills directly — nothing to do if you use Claude."
+        )
+        lines.append(
+            f"  python3 scripts/export_skills.py --output-dir {user_dir} --overwrite   # otherwise"
+        )
+        lines.append(
+            "  # then open Cursor → Skills panel and confirm they appear (Agent/Chat mode)"
+        )
     elif host == "codex":
         lines.append(f"  python3 scripts/export_skills.py --output-dir {user_dir} --overwrite")
-        lines.append(f'  codex exec "list the skills you can load"   # confirm discovery (model call)')
+        lines.append(
+            '  codex exec "list the skills you can load"   # confirm discovery (model call)'
+        )
     else:
-        lines.append(f"  /plugin marketplace add mnox/mnox-ai && /plugin install all-skills@mnox-ai")
-    lines.append(f"  # à la carte example: python3 scripts/export_skills.py --output-dir {user_dir} {subset}")
+        lines.append("  /plugin marketplace add mnox/mnox-ai && /plugin install all-skills@mnox-ai")
+    lines.append(
+        f"  # à la carte example: python3 scripts/export_skills.py --output-dir {user_dir} {subset}"
+    )
     return "\n".join(lines)
 
 
@@ -183,19 +204,24 @@ def run_checks(hosts: list[str], skills: list[str], workdir: Path) -> list[Repor
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--host", choices=(*HOST_SKILL_SUBPATH, "all"), default="all")
     parser.add_argument("--skill", action="append", default=[], help="Skill subset (default: all).")
-    parser.add_argument("--live", action="store_true", help="Run a real host-load probe (Codex: costs a model call).")
-    parser.add_argument("--keep", action="store_true", help="Keep the temp export tree for inspection.")
+    parser.add_argument(
+        "--live", action="store_true", help="Run a real host-load probe (Codex: costs a model call)"
+    )
+    parser.add_argument(
+        "--keep", action="store_true", help="Keep the temp export tree for inspection."
+    )
     args = parser.parse_args(argv)
 
     hosts = list(HOST_SKILL_SUBPATH) if args.host == "all" else [args.host]
-    skills = args.skill or [
-        s["name"] for s in json.loads(
-            subprocess.run([sys.executable, str(EXPORTER), "--list"], capture_output=True, text=True).stdout
-        )
-    ]
+    list_proc = subprocess.run(
+        [sys.executable, str(EXPORTER), "--list"], capture_output=True, text=True
+    )
+    skills = args.skill or [s["name"] for s in json.loads(list_proc.stdout)]
 
     workdir = Path(tempfile.mkdtemp(prefix="mnox-smoke-"))
     try:
@@ -206,8 +232,9 @@ def main(argv: list[str] | None = None) -> int:
                 print(live_probe(rep.host, skills, workdir))
             print(manual_steps(rep.host, skills))
         ok = all(r.passed for r in reports)
-        print(f"\n{'ALL AUTOMATED CHECKS PASSED' if ok else 'SMOKE TEST FAILED'} "
-              f"({sum(len(r.checks) for r in reports)} checks, {len(hosts)} hosts, {len(skills)} skills)")
+        total_checks = sum(len(r.checks) for r in reports)
+        status = "ALL AUTOMATED CHECKS PASSED" if ok else "SMOKE TEST FAILED"
+        print(f"\n{status} ({total_checks} checks, {len(hosts)} hosts, {len(skills)} skills)")
         if args.keep:
             print(f"temp tree kept at: {workdir}")
         return 0 if ok else 1

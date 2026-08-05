@@ -99,7 +99,10 @@ def check_files():
     if UPDATE.is_file():
         ok("file present: aio-update SKILL.md")
     else:
-        warn(f"aio-update SKILL.md absent ({UPDATE}) — sibling skill not in this context; skipping its checks")
+        warn(
+            f"aio-update SKILL.md absent ({UPDATE}) — sibling skill not in this "
+            "context; skipping its checks"
+        )
 
 
 # ---- 2. frontmatter ----------------------------------------------------------
@@ -135,7 +138,10 @@ def check_sizes():
         if lines <= CORE_MAX_LINES:
             ok(f"core SKILL.md lines {lines} <= {CORE_MAX_LINES}")
         else:
-            fail(f"core SKILL.md lines {lines} > {CORE_MAX_LINES} — provenance likely mis-routed into the rules tier")
+            fail(
+                f"core SKILL.md lines {lines} > {CORE_MAX_LINES} — provenance likely "
+                "mis-routed into the rules tier"
+            )
         if words <= CORE_MAX_WORDS:
             ok(f"core SKILL.md words {words} <= {CORE_MAX_WORDS}")
         else:
@@ -145,7 +151,10 @@ def check_sizes():
         if lines <= KB_WARN_LINES:
             ok(f"knowledge-base.md lines {lines} <= {KB_WARN_LINES}")
         elif lines <= KB_FAIL_LINES:
-            warn(f"knowledge-base.md lines {lines} > {KB_WARN_LINES} soft cap — consolidate (merge near-duplicate claims, prune dead trails)")
+            warn(
+                f"knowledge-base.md lines {lines} > {KB_WARN_LINES} soft cap — consolidate "
+                "(merge near-duplicate claims, prune dead trails)"
+            )
         else:
             fail(f"knowledge-base.md lines {lines} > {KB_FAIL_LINES} hard cap")
 
@@ -184,14 +193,18 @@ def check_pointers():
 
     broken = sorted(c for c in refs if c not in defs)
     for cid in broken:
-        fail(f"dangling pointer [KB:{cid}] (in {', '.join(sorted(refs[cid]))}) — no matching heading")
+        referers_str = ", ".join(sorted(refs[cid]))
+        fail(f"dangling pointer [KB:{cid}] (in {referers_str}) — no matching heading")
     if not broken:
         ok(f"all {len(refs)} referenced [KB:*] pointers resolve to a heading")
 
     # truly-dead claims: defined but referenced from nowhere at all
     orphans = sorted(c for c in defs if c not in refs)
     for cid in orphans:
-        warn(f"orphan claim [KB:{cid}] — defined but referenced nowhere (core, KB cross-ref, or templates)")
+        warn(
+            f"orphan claim [KB:{cid}] — defined but referenced nowhere "
+            "(core, KB cross-ref, or templates)"
+        )
 
 
 # ---- 5. tier discipline ------------------------------------------------------
@@ -232,7 +245,10 @@ def check_kb_format():
     if not missing_rule:
         ok("every KB claim block has a **Rule:** line")
     for cid in long_trails:
-        warn(f"[KB:{cid}] Trail is long (>{TRAIL_WARN_WORDS} words) — drop the oldest superseded source")
+        warn(
+            f"[KB:{cid}] Trail is long (>{TRAIL_WARN_WORDS} words) — "
+            "drop the oldest superseded source"
+        )
 
 
 # ---- 8. aio-update path integrity --------------------------------------------
@@ -255,14 +271,16 @@ def check_update_paths():
 def check_registry_crosscheck():
     if not KB.is_file():
         return
-    registry = SKILLS_DIR.parent  # placeholder; resolve real dawks path from update skill
     reg_path = None
     if UPDATE.is_file():
         m = re.search(r"`(/[^`]*agentic-optimization-sources\.md)`", read(UPDATE))
         if m:
             reg_path = Path(m.group(1))
     if not reg_path or not reg_path.is_file():
-        warn("registry cross-check skipped — sources registry not found (dawks not on this machine?)")
+        warn(
+            "registry cross-check skipped — sources registry not found "
+            "(external registry not on this machine?)"
+        )
         return
     reg_ids = set(ARXIV_ID.findall(read(reg_path)))
     kb_ids = set(ARXIV_ID.findall(read(KB)))

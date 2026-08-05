@@ -29,6 +29,7 @@ The skill has four workflows: **Create** a new curriculum, **Assess** the learne
 | `assessments/responses.jsonl` | Append-only log of (question, answer, assessment) rows |
 | `assessments/progress.md` | Per-module status table (rewritten by `compute_progress.py`) |
 | `assessments/misconceptions.md` | Running ledger of recurring misconceptions |
+| `assessments/synthesis_prompts.md` | Cross-module synthesis questions, written every 3 modules; answers log with `module: "synthesis-<n>"` |
 
 ## Workflow: Create a new curriculum
 
@@ -167,6 +168,8 @@ Invoked when the user says "ready for the next module," "prep module N," or simi
 ### Step 1 — Identify open gaps
 
 Read `curriculum-meta.md` and the tail of `responses.jsonl`. Collect gaps flagged `revisit_before_next_module` that have not been resolved (no later level-≥3 answer on a related question).
+
+Every 3rd completed module (3, 6, 9, …), also write a synthesis question spanning the preceding three modules to `assessments/synthesis_prompts.md` (see `curriculum-meta.md`'s Cross-Module Synthesis rules). The learner's answer logs to the same JSONL with `module: "synthesis-<n>"`.
 
 ### Step 2 — Inject a Bridge section
 

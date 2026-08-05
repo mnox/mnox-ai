@@ -1,10 +1,8 @@
 """Tests for plugins/strangler-fig/skills/strangler-fig/scripts/init_workspace.py.
 
-The script depends on the third-party ``cyclopts`` package (not installed in the
-test env) and is normally run via ``uv run``. To test its real logic hermetically
-we inject a minimal stub ``cyclopts`` module into sys.modules BEFORE loading the
-script. The stub's ``App`` + ``@app.default`` decorator simply return the wrapped
-function unchanged, so we can call ``main(...)`` directly with plain args.
+The script is stdlib-only (argparse + subprocess), invoked via ``python3``. Its
+``main()`` is a plain, directly-callable function (CLI parsing lives separately in
+``_parse_args()``), so we call it with keyword args here and capture its JSON stdout.
 
 git is invoked for the greenfield dir; git is available in the environment and we
 run it against a real temp dir, so the test stays hermetic (no network, temp only).
@@ -35,25 +33,7 @@ SCRIPT = (
 )
 
 
-def _install_cyclopts_stub() -> None:
-    if "cyclopts" in sys.modules and getattr(sys.modules["cyclopts"], "_mnoxai_stub", False):
-        return
-    stub = ModuleType("cyclopts")
-    stub._mnoxai_stub = True  # marker so we don't clobber a real install
-
-    class App:
-        def default(self, func):
-            return func  # identity: leaves main() directly callable
-
-        def __call__(self, *args, **kwargs):  # pragma: no cover - CLI entry, unused in tests
-            return None
-
-    stub.App = App
-    sys.modules["cyclopts"] = stub
-
-
 def _load_init_workspace() -> ModuleType:
-    _install_cyclopts_stub()
     spec = importlib.util.spec_from_file_location("_mnoxai_init_workspace", SCRIPT)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)

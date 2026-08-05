@@ -114,8 +114,10 @@ description). The current roster:
 | `consultative-partnership` | Reduce the user's cognitive load; exhaust sources, recommend one path, flag adjacent risks proactively. |
 | `discovery-pipeline` | Exhaust sources in a fixed order before asking or guessing. |
 | `code-skepticism` | Treat existing code as evidence of what was built, not what is correct; reason from requirements. |
+| `correction-scrutiny` | A correction is a claim too — cite the check that falsified the original before overturning it. |
 | `communication-style` | Brevity by default; lead with the takeaway; frame at the right altitude. |
 | `coding-style` | Self-documenting code, type strictness, no legacy/back-compat shims. |
+| `skill-discovery` | Before hand-rolling a recurring workflow, check whether a purpose-built skill already exists (optional, non-blocking; not in `recommended`). |
 
 The first two — **`problem-framing`** and **`engineering-mindset`** — are the
 ones that matter most for a **less-technical user**: together they make the agent
@@ -151,12 +153,13 @@ Tell the user, in two plain sentences, what chunks are and that this is a one-ti
 their instruction files.
 
 **Lead with the fast path — make it the default, not a fallback:** *"The simplest
-option is the `recommended` set — eight chunks that make me frame your problem
-before building, reason at a systems level, recommend one clear path, and write
-clean code. Most people should just take it. Want me to apply the recommended set
-(I'll confirm before writing anything), or walk through a couple of questions to
-tailor it?"* Only run the interview (Step 2) if they choose to tailor; otherwise
-go straight to Step 4 with the `recommended` group.
+option is the `recommended` set — nine chunks that make me frame your problem
+before building, reason at a systems level, recommend one clear path, scrutinize
+my own corrections, and write clean code. Most people should just take it. Want
+me to apply the recommended set (I'll confirm before writing anything), or walk
+through a couple of questions to tailor it?"* Only run the interview (Step 2) if
+they choose to tailor; otherwise go straight to Step 4 with the `recommended`
+group.
 
 ### Step 1 — Preflight, then read the live state
 

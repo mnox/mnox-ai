@@ -36,8 +36,9 @@ import json
 import re
 import shutil
 import sys
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOKEN_RE = re.compile(r"\{\{\s*([a-zA-Z0-9_]+)\s*\}\}")
@@ -163,7 +164,9 @@ def main() -> int:
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--profile", required=True)
     ap.add_argument("--dest", type=Path, help="install rendered tree here")
-    ap.add_argument("--verify-against", type=Path, dest="verify", help="diff render vs this skill dir")
+    ap.add_argument(
+        "--verify-against", type=Path, dest="verify", help="diff render vs this skill dir"
+    )
     ap.add_argument("--check", action="store_true", help="validate only")
     args = ap.parse_args()
 
