@@ -8,15 +8,23 @@ verification systems that let models do real work, increasingly autonomously.
 system and say *where the intelligence should live, what the model must never be
 trusted to decide, and what has to be built around it* — and then build that.
 
-**How to use it:** eight modules plus a capstone. Each has the core ideas
-(self-contained — you can learn the principle without any repo access), a
-*field trip* into real working systems that embody it (paths are
-`repo:path/to/file`), and an exercise. Do the exercises; reading alone won't
-rewire the instincts. Pace: roughly two modules a week.
+**How to use it:** eight modules plus a capstone. Each has the core ideas, an
+exercise, and — where a public repo demonstrates the pattern — a *field trip*
+into a real working system. Field trips reference two public repos:
 
-Everything here is distilled from live, working systems — not blog posts. Where
-a claim has research behind it, the evidence trail lives in
-`mnox-ai:plugins/aio/skills/aio/references/knowledge-base.md` (cited below as
+- **[mnox/mnox-ai](https://github.com/mnox/mnox-ai)** — a portable,
+  provider-agnostic library of agent skills, including the AIO
+  ("Agentic Implementation Optimizer") skill this curriculum leans on heavily.
+- **[mnox/codex](https://github.com/mnox/codex)** — a personal fork of
+  OpenAI's Codex CLI ("Dinglehopper") that customizes the harness itself.
+
+Everything else here is distilled from private production systems and is
+included **inline** — templates, checklists, and contracts you can lift
+directly into your own tooling. Do the exercises; reading alone won't rewire
+the instincts. Pace: roughly two modules a week.
+
+Where a claim has research behind it, the evidence trail lives in
+`mnox-ai: plugins/aio/skills/aio/references/knowledge-base.md` (cited below as
 **KB**), which keeps rules and evidence in separate layers on purpose — you'll
 see why in Module 4.
 
@@ -44,13 +52,13 @@ engineer:
   critical dependency: understand it, instrument it, and be willing to fork it.
   Compaction, dispatch, and telemetry are runtime concerns, not prompt hacks.
 
-**Field trip:** `codex:DINGLEHOPPER.md` — a personal fork of OpenAI's Codex CLI
-that replaces transcript-summarization compaction with a typed "context
-compiler," adds bounded sub-agent dispatch, and measures its own ROI against
-stock baselines. Note especially
-`codex:dingle/evals/dispatch-runs/2026-07-09-value-assessment-notes.md`: an
-honest self-audit that recommends *time-boxing the fork rather than expanding
-it*. Measuring your own tooling honestly is part of the discipline.
+**Field trip:** `mnox/codex: DINGLEHOPPER.md` — the fork replaces
+transcript-summarization compaction with a typed "context compiler," adds
+bounded sub-agent dispatch behind blessed worker profiles, and measures its
+own ROI against stock baselines. Note especially
+`dingle/evals/dispatch-runs/2026-07-09-value-assessment-notes.md`: an honest
+self-audit that recommends *time-boxing the fork rather than expanding it*.
+Measuring your own tooling honestly is part of the discipline.
 
 **Exercise:** take an agent workflow you already use (Claude Code, Cursor,
 Codex, anything). List every component that is *not* the model: context
@@ -89,11 +97,12 @@ theory of why it fails.
   while disavowing it. Anything that grants autonomy, merges code, or spends
   money must be gated by a check the model cannot edit (Module 7).
 
-**Field trip:** `mnox-ai:plugins/aio/skills/aio/SKILL.md` lines 28–71 — the
-escape-hatch/resourcing thesis stated as operational rules, including the
-requirement that every abstention emit a structured, queryable event: *"a
-hatch with no durable sink is theater."* Aggregate hatch trips by decision
-point, rank by frequency × cost, and you have your roadmap for free.
+**Field trip:** `mnox/mnox-ai: plugins/aio/skills/aio/SKILL.md` (the
+escape-hatch section near the top) — the resourcing thesis stated as
+operational rules, including the requirement that every abstention emit a
+structured, queryable event: *"a hatch with no durable sink is theater."*
+Aggregate hatch trips by decision point, rank by frequency × cost, and you
+have your roadmap for free.
 
 **Exercise:** find a place in any workflow where a model is asked a question
 it sometimes can't answer correctly. Enumerate what it would *need* to answer
@@ -127,31 +136,52 @@ makes the model *worse*.
   badly."
 - **Engineer what agents read before they act.** A repo can be built so a
   fresh, memoryless session picks up mid-program work correctly: decided
-  structure ("canon") separated from undesigned ideas and from accepted work
-  programs, each with explicit status markers so an agent can tell settled
-  from live.
+  structure ("canon") kept separate from undesigned ideas and from accepted
+  work programs, each with explicit status markers so an agent can tell
+  settled from live.
 - **Handoffs should carry negative space.** The most valuable sections of a
   cross-session handoff are "known friction — do not re-diagnose" and
   "decisions made — do not re-propose." Without them, every fresh session
   re-derives the same dead ends at full price.
 
-**Field trips:**
-- `consuela:artifacts/handoffs/2026-08-08-work-types-registry.md` — a real
-  cross-session bridge: TL;DR with CONSTRAINT/SETTLED/OBSERVED/HYPOTHESIS
-  tags, files-to-read table with a *why* column, do-not-re-diagnose section,
-  and an append-only progress ledger.
-- `consuela:CLAUDE.md` — a one-page orientation prompt: current work state,
-  the blocking constraint, and a numbered cloud-session runbook.
-- `dawks:spaces/sven/plans/HANDOFF-20260731-session-capture-p6-8-exit.md` —
-  a context-exhaustion handoff with commit SHAs, runnable recovery commands,
-  and explicitly out-of-scope follow-ups.
+**Portable template — the session handoff.** This shape is battle-tested in
+private production systems; steal it verbatim:
 
-**Exercise:** write a handoff for something you're mid-way through, as if the
-reader is a competent stranger with zero access to your head: state, next
-steps in order, decisions already made, dead ends already hit, exact paths and
-commands. Then give it to an agent in a *fresh* session and see how far it
-gets. Every place it stumbles is a gap in your context engineering, not in
-the model.
+```markdown
+# HANDOFF — <task> — <date>
+
+## TL;DR
+One paragraph. Tag each load-bearing statement:
+[CONSTRAINT] [SETTLED] [OBSERVED] [HYPOTHESIS]
+
+## Done
+Completed work with commit SHAs and test counts. Verifiable, not vibes.
+
+## Files to read, in order
+| Path (absolute) | Why |
+
+## Decisions made — do NOT re-propose
+Each with a one-line rationale.
+
+## Known friction — do NOT re-diagnose
+Dead ends already hit; expected-but-alarming behaviors ("X skips when
+$VAR unset — expected, not a regression").
+
+## Live issues
+Each with copy-paste recovery commands.
+
+## Next steps, in order
+## Out of scope / follow-ups
+## Open questions — parked, each with ONE recommendation + confidence
+## Progress ledger (append-only)
+[PROGRESS] [DECISION] [CORRECTION] [FINDING] entries as work proceeds.
+```
+
+**Exercise:** write a handoff for something you're mid-way through using the
+template, as if the reader is a competent stranger with zero access to your
+head. Then give it to an agent in a *fresh* session and see how far it gets.
+Every place it stumbles is a gap in your context engineering, not in the
+model.
 
 ---
 
@@ -166,12 +196,12 @@ up at every scale of an AI-native system.
   only always-on cost; the body is free until invoked.
 - **Make disclosure a typed, per-item decision.** For every piece of standing
   guidance ask: does the agent need this in *every* session (inline), or does
-  it only need to know a fuller procedure *exists* (a pointer that hands off
-  to an on-demand doc)?
+  it only need to know a fuller procedure *exists* (a one-line pointer that
+  hands off to an on-demand doc)?
 - **Generate your always-on context; don't hand-write it.** Small, versioned,
   single-topic chunks assembled by a reconciler into the actual prompt file —
-  reviewable, diffable, drift-detectable. Your system prompt is a build
-  artifact.
+  reviewable, diffable, drift-detectable via a content hash. Your system
+  prompt is a build artifact.
 - **Consolidate, don't accrete.** When new evidence arrives, it *replaces*
   the headline and demotes the old source to a compressed trail line. A
   knowledge base that only appends grows until it poisons its own context.
@@ -182,15 +212,13 @@ up at every scale of an AI-native system.
   less* than its parent — the minimum context to execute its brief. Never
   more.
 
-**Field trips:**
-- `mnox-ai:plugins/aio/skills/aio/` — the whole skill is a worked example:
-  rules in `SKILL.md`, evidence in `references/knowledge-base.md` (each claim
-  as Rule / Evidence / Trail), templates loaded only at the step that needs
-  them, and `evals/check_structure.py` enforcing the tiering
-  deterministically.
-- `.claude:chunks/registered/config-chunks.problem-framing.md` — the smallest
-  clean demonstration of a `disclosure: pointer` chunk: five lines of
-  principle ending in a handoff to a skill.
+**Field trip:** `mnox/mnox-ai: plugins/aio/skills/aio/` — the whole skill is
+a worked example: rules in `SKILL.md` (each tagged with a KB claim id),
+evidence in `references/knowledge-base.md` (each claim as Rule / Evidence /
+Trail), templates loaded only at the step that needs them, and
+`evals/check_structure.py` enforcing the tiering deterministically — its
+checks exist specifically to prevent evidence bleeding back into the
+always-on rules tier.
 
 **Exercise:** take your longest prompt, system prompt, or CLAUDE.md. Split
 every line into three piles: (1) imperative rule needed every session,
@@ -209,15 +237,12 @@ instincts — the ones you already have — compound hardest.
   prose guidance under pressure, just like humans. Enforce invariants
   structurally: visibility walls that make violations a compile error, guard
   tests that fail when an invariant is reintroduced, contracts with forbidden
-  markers. Make the wrong thing impossible, not discouraged.
+  markers scanned by CI. Make the wrong thing impossible, not discouraged.
 - **One writer, many projections.** Give the system a single choke point that
-  every surface already passes through (one kernel, one DB writer authority).
+  every surface already passes through (one kernel, one DB-writer authority).
   Then authz, validation, telemetry, and event emission come free for every
-  surface — including ones that don't exist yet.
-- **Hooks are event-dispatch shims, never workers.** Anything on the agent's
-  critical path must return in milliseconds, do zero business logic, and
-  fork-and-detach real work with stdio severed. A hook must never block or
-  break a turn — and never be authoritative over state.
+  surface — including ones that don't exist yet. Mirrors and caches subscribe
+  to the event log; they never co-write, because dual writes fork truth.
 - **Tool specs are contracts.** Action-verb openings, typed parameters with
   units, semantic field names, few-shot examples, pagination (KB:
   tool-design). Prefer constrained decoding over validate-and-retry: invalid
@@ -229,21 +254,28 @@ instincts — the ones you already have — compound hardest.
   per-subsystem instrumentation. Err on tracking more.
 - **Automate away permission friction — then constrain the automation.** A
   rules engine that auto-allows provably-safe commands (parsed, segmented,
-  cwd-tracked) with a fixture test suite and an explain mode turns a
-  hundred daily prompts into a governed, extensible system. Guardrails
-  belong *outside* the agent loop (KB: guardrail-stack), and no filter is a
-  complete answer to prompt injection — there are impossibility results;
-  design for blast-radius containment instead (KB: injection-impossibility).
+  cwd-tracked, every segment must pass) with a fixture test suite and an
+  explain mode turns a hundred daily prompts into a governed, extensible
+  system. Guardrails belong *outside* the agent loop (KB: guardrail-stack),
+  and no filter is a complete answer to prompt injection — there are
+  impossibility results; design for blast-radius containment instead (KB:
+  injection-impossibility).
 
-**Field trips:**
-- `sven:docs/agentic-os/sven-framework-blueprint-2026-08-05.md` — an "agentic
-  OS" specified as ~10 primitives, each stated as Why + Requirements + Tests,
-  with the enforcement tripod (macro-as-only-door, crate visibility, hard-gate
-  tests).
-- `sven:hooks/session_transcript_stop.sh` — per-turn ingestion done right:
-  bounded payload, detached consumers, exits 0 no matter what.
-- `.claude:hooks/bash_gate.yaml` — a documented permission-automation rules
-  engine with named allow-classes and fixture tests.
+**Portable contract — hooks on the agent's critical path.** Any code that
+runs on every turn (session-start, pre-tool, post-turn) must obey:
+
+1. A hook is an **event-dispatch shim, never a worker** — it publishes a
+   bounded payload and returns; a durable consumer does the real work.
+2. Return in **milliseconds**; zero business logic inline.
+3. Real work forks **detached with stdio severed**
+   (`</dev/null >/dev/null 2>&1 &`) — a bare `&` keeps the pipe open and
+   blocks the harness until timeout, the classic non-fix.
+4. **Exit 0 no matter what.** A hook must never block or break a turn.
+5. Hooks are never authoritative over state — the kernel/consumer owns
+   idempotency, retries, and reconciliation.
+6. Never fall back to a stale binary or path: resolve explicitly and *fail*
+   if missing — "a stale binary that still runs fails invisibly, which is
+   strictly worse than a missing one."
 
 **Exercise:** pick one invariant you currently enforce by telling the agent
 about it in a prompt. Re-enforce it structurally: a pre-tool-use hook, a
@@ -265,39 +297,50 @@ do pay it, the brief is everything.
 - **A sub-agent is a stranger in a clean room.** It knows *only* what the
   dispatch tells it. Every gap in the brief gets filled with a confident,
   plausible, wrong guess — the most expensive failure mode in delegated work.
-- **The seven-part brief:** objective stated as a result (not an activity);
-  provenance (why this, why now); all needed payload inlined with absolute
-  paths; boundaries — both in and out of scope; known traps and
-  do-not-repeat dead ends (the highest-leverage, most-omitted block);
-  definition of done plus an explicit return contract; routing (which
-  model/agent and why).
-- **The gate question before sending:** *could a competent stranger with zero
-  access to this conversation execute this brief and return exactly what I
-  need?* If not, the failure that follows is yours, not the agent's.
 - **Put the intelligence upstream.** In a pipeline, the admission-controller
   and orchestrator do the thinking — distill requirements, bound scope, mint
   the verification criteria — and the implementor is deliberately the
-  scope-*dumbest* rung: narrowest decision space, no mid-task pivots.
-  Separate *mandate* (what it may decide) from *mechanism* (it can still
-  delegate read-only discovery downward without widening its mandate).
+  scope-*dumbest* rung: narrowest decision space, no mid-task pivots (the #1
+  autonomous failure mode). Separate *mandate* (what it may decide) from
+  *mechanism* (it can still delegate read-only discovery downward without
+  widening its mandate).
 - **Fold results back as hypotheses, not facts.** And treat prior
   memory/context as priors to verify, not truth to obey.
 - **Escalate to humans like it costs money — because it does.** Exhaust your
-  sources first (cheap → expensive: memory, session history, plans, docs,
-  code, web). Then bring ELI5 background and commit to ONE recommendation
-  with a confidence and a what-settles-it condition. No a/b/c menus. "Can't
-  confidently recommend" means "haven't researched enough," not "time to
-  ask."
+  sources first, cheap to expensive: memory → session history → plans →
+  internal docs → codebase → public specs → web. (Broad code search comes
+  late, not first.) Then bring ELI5 background and commit to ONE
+  recommendation with a confidence and a what-settles-it condition. No a/b/c
+  menus. "Can't confidently recommend" means "haven't researched enough,"
+  not "time to ask."
 
-**Field trips:**
-- `.claude:skills/dispatch/SKILL.md` — the flagship artifact: the
-  stranger-in-a-clean-room doctrine, mandatory artifact sweep, seven-part
-  brief, self-containment gate.
-- `.claude:skills/ask-matt/SKILL.md` — a complete escalation protocol in 65
-  lines.
-- `dawks:spaces/Agentic-AI/docs/autonomous-work-bucket-architecture.md` §2.5
-  — the arbiter → orchestrator → implementor "silver platter" pipeline, and
-  vertical delegation / never horizontal negotiation.
+**Portable template — the seven-part brief.** Before dispatching any
+sub-agent (or, honestly, any contractor):
+
+```markdown
+1. OBJECTIVE      — stated as a result, not an activity.
+2. PROVENANCE     — why this exists, why now, what it feeds into.
+3. PAYLOAD        — everything needed, inlined; absolute paths only.
+                    Never assume shared context. There is none.
+4. BOUNDARIES     — explicitly in scope AND explicitly out of scope.
+5. KNOWN TRAPS    — dead ends already hit; do-not-repeat list.
+                    (The highest-leverage, most-omitted section.)
+6. DEFINITION OF DONE + RETURN CONTRACT — exact shape/length/format
+                    of what comes back.
+7. ROUTING        — which model/agent tier and why (cheap for discovery,
+                    expensive for synthesis and validation).
+```
+
+The gate before sending: *could a competent stranger with zero access to this
+conversation execute this brief and return exactly what I need?* If not, the
+failure that follows is yours, not the agent's. When a result comes back thin
+or off-target, the failure is usually the brief, not the agent.
+
+**Field trip:** `mnox/codex: AGENTS.md` and the dispatch sections of
+`DINGLEHOPPER.md` — bounded dispatch behind blessed worker profiles with hard
+caps (timeouts, output-size limits), per-run artifacts, and standing scope
+limits (workers can't push, can't touch external APIs, can't edit the
+harness's own tree).
 
 **Exercise:** next time you're about to delegate to a sub-agent (or a
 teammate!), write the seven-part brief first. Send *only* the brief. Score
@@ -311,45 +354,52 @@ Autonomy is not a model property. It's a property of the system you build
 around the model — and it extends exactly as far as three things:
 
 - **Verify: gate autonomy on verifiability, not confidence.** A
-  *deterministic predicate* — a tamper-proof test the worker cannot edit —
-  decides whether a unit of work is defined well enough to run
-  unsupervised. Write the verifier *before* dispatching. If you can't write
-  one, the unit isn't ready; it escalates. And every escalation is a
-  structured signal telling you what to build next.
+  *deterministic predicate* — a tamper-proof check the worker cannot edit —
+  decides whether a unit of work is defined well enough to run unsupervised.
+  Write the verifier *before* dispatching. If you can't write one, the unit
+  isn't ready; it escalates. And every escalation is a structured signal
+  telling you what to build next. Never let an LLM self-assessment stand in
+  for the predicate.
 - **Bound: make every autonomous action reversible by construction.**
-  Isolated worktrees; no push, no merge, no deploy from inside the loop.
-  Crossing to the remote is always a human gate — and that gate is a design
-  feature, not a compromise: it's what makes everything upstream safe to
-  automate aggressively. Containment must bind the whole agent subtree
-  (sub-agents inherit the sandbox and the denials). Process isolation, not
-  language-level sandboxing, is the trust boundary (KB: tool-exec-sandbox).
+  Isolated workspaces/worktrees; no push, no merge, no deploy from inside
+  the loop. Crossing to the shared world is always a human gate — and that
+  gate is a design *feature*, not a compromise: it's what makes everything
+  upstream safe to automate aggressively. Containment must bind the whole
+  agent subtree (sub-agents inherit the sandbox and the denials). Process
+  isolation, not language-level sandboxing, is the trust boundary (KB:
+  tool-exec-sandbox).
 - **Meter: treat dispatch as a budget with structural enforcement.** Bounded
   concurrency, timeouts, output-size caps, strict output schemas, resumable
   state files, and a dry-run before the first real token. Budgets should be
-  transition guards — a breach structurally blocks dispatch, rather than
+  transition guards — a breach structurally *blocks* dispatch rather than
   warning about it. Unmetered fan-out is how agentic systems fail
-  expensively. And consolidate your dispatch primitive: the canonical failure
-  is hand-rolling it three times in three places.
+  expensively. And consolidate your dispatch primitive: the canonical
+  failure is hand-rolling it three times in three places.
 - **Recovery is a designed loop, not an assumed capability.** Given Module
-  2's diagnosis/recovery gap: when a fleet run fails, you want salvage
-  manifests, per-unit merge verdicts, human-review flags, and a rollback
-  bundle — planned before the run, not improvised after.
+  2's diagnosis/recovery gap: plan for the mostly-failed fleet run *before*
+  the run — salvage manifests, per-unit merge verdicts, human-review flags,
+  and a rollback bundle. Resource exhaustion is a harness concern too:
+  admission control that defers (never refuses), single-flight locks, and
+  heartbeats — because a queued job looks exactly like a wedged one.
 
-**Field trips:**
-- `dawks:spaces/Agentic-AI/docs/autonomous-work-bucket-architecture.md` — the
-  best single text in these repos on autonomy: the deterministic gate,
-  containment invariants (Invariant 0), the agent hierarchy.
-- `dawks:spaces/Foundry/sweeps/preserve-run26-20260616/integration-manifest.md`
-  — what a well-engineered *mostly-failed* fleet run looks like: salvage,
-  verdicts, rollback.
-- `sven:docs/agentic-os/build-fanout-remediation-plan-2026-07-28.md` —
-  resource exhaustion as a harness concern: admission control that defers
-  (never refuses), single-flight locks, heartbeats because "a queued build
-  looks exactly like a wedged one."
+**Portable checklist — defining one autonomous work unit:**
+
+```markdown
+- [ ] Objective as a verifiable result
+- [ ] Deterministic verifier, written first, worker cannot edit it
+- [ ] Containment boundary (isolated workspace; what it may never touch)
+- [ ] Budget: max tokens / time / sub-agents / retries — enforced, not advisory
+- [ ] Escalation path: the typed abstention it returns when under-resourced
+- [ ] Recovery plan: what "failed" produces (salvage, verdict, rollback)
+- [ ] Provenance: where its decisions get logged (Module 8)
+```
+
+**Field trip:** `mnox/codex: dingle/` — the dispatch runs and eval
+directories show metered dispatch in practice: per-run artifact bundles,
+sealed manifests, canary trajectory tests, and honest baseline comparisons.
 
 **Exercise:** design (on paper) one task from your last job as an autonomous
-work unit: write the deterministic verifier, the containment boundary, the
-budget, and the escalation path. If you can't write the verifier, write down
+work unit using the checklist. If you can't write the verifier, write down
 precisely *why* — that gap is the actual state of the art.
 
 ---
@@ -365,17 +415,27 @@ counterweight is provenance discipline — and deep skepticism about memory.
   interpretation layer, and almost nobody records it. Corollary: "we built
   exactly what was said" is not validation — fidelity and correctness are
   independent axes.
-- **Log decisions with type and altitude.** Autonomous vs user-directed vs
-  prompted; foundational vs architectural vs tactical; files touched;
-  alternatives considered. This enables the inverse query — *which decisions
-  caused this fault?* — and closes a learning loop where confirmed
-  fault-causing decisions become negative training signal. Include an
-  honesty guard: report "no decision record found" rather than fabricating a
-  culprit.
+- **Log decisions with type and altitude.** This enables the inverse query —
+  *which decisions caused this fault?* — and closes a learning loop where
+  confirmed fault-causing decisions become negative training signal. Include
+  an honesty guard: report "no decision record found — likely a manual
+  change" rather than fabricating a culprit. A portable decision-record
+  shape:
+
+  ```markdown
+  decision:
+    type: autonomous | user-directed | prompted
+    altitude: foundational | architectural | tactical
+    rationale: <one paragraph>
+    alternatives_considered: [...]
+    files_touched: [...]
+    anchor: commit_sha (or files+timestamp when no commit exists)
+  ```
+
 - **Supersede, never delete.** Mark dead sections `archaeology_only` with a
   banner naming what replaced them; keep the reasoning record. A clean doc
   can still be stale — and a deleted rationale guarantees the debate gets
-  re-run from scratch.
+  re-run from scratch. Never create `-v2` sibling docs.
 - **Divergence is not failure; *undetected* divergence is.** Keep an open
   ledger of places where implementation drifted from intent, adjudicated by
   a human — never silently edit the intent to match the code.
@@ -387,21 +447,16 @@ counterweight is provenance discipline — and deep skepticism about memory.
   governance model (who writes, who reads, who forgets) before any
   vector-vs-graph debate.
 
-**Field trips:**
-- `consuela:artifacts/ideas/README.md` and
-  `consuela:artifacts/ideas/registry.md` — the verbatim → interpretation →
-  realization lineage, CI-enforced immutability, and a live divergence
-  ledger that candidly flags agent over-reach.
-- `dawks:spaces/Agentic-AI/decision-provenance/DESIGN.md` — decision records,
-  the anchor ladder, fault→decision trace-back, honesty guard — and the doc
-  itself demonstrates superseding-in-place.
-- `codex:dingle/evals/context-management/state-ownership-contract.md` —
-  memory as an ownership problem: claim = statement + owner + authority +
-  evidence + lifecycle + invalidation rule. "Compaction quality is mostly a
-  lifecycle test: did the agent forget correctly?"
+**Field trip:** `mnox/codex:
+dingle/evals/context-management/state-ownership-contract.md` — memory as an
+ownership problem, not a summarization problem: a claim = statement + owner +
+authority + evidence + lifecycle + freshness + invalidation rule, with
+agent / tool-observed / verifier / human kept as distinct trust levels.
+"Compaction quality is mostly a lifecycle test: did the agent forget
+correctly?"
 
-**Exercise:** for your next agent-assisted change, keep a decision log with
-type/altitude/rationale. A week later, pick one odd line of code and try to
+**Exercise:** for your next agent-assisted change, keep a decision log using
+the record shape above. A week later, pick one odd line of code and try to
 answer "which decision caused this?" from the log alone.
 
 ---
@@ -435,12 +490,12 @@ tools lie.
   to conclude it isn't worth it.
 
 **Field trips:**
-- `mnox-ai:plugins/aio/skills/aio/evals/` — the deterministic/behavioral
-  split in miniature: `check_structure.py`, `scenarios.md`, and the README
-  explaining why both exist.
-- `mnox-ai:plugins/aio/skills/aio/references/readiness-checklist.md` — a
-  23-item production gate; the best "did I actually do the work" artifact
-  here.
+- `mnox/mnox-ai: plugins/aio/skills/aio/evals/` — the
+  deterministic/behavioral split in miniature: `check_structure.py`,
+  `scenarios.md`, and the README explaining why both layers exist.
+- `mnox/mnox-ai: plugins/aio/skills/aio/references/readiness-checklist.md` —
+  a 23-item production gate; the best "did I actually do the work" artifact
+  in either repo.
 
 **Exercise:** write five eval cases for any agent behavior you rely on —
 including two adversarial ones drawn from real failures you've seen. Add one
@@ -454,14 +509,16 @@ The credential in "AI-native product engineer" isn't the phrase — it's that
 every syllable is backed by artifacts. Build yours:
 
 1. **Build a harness, however small.** A skill/command system with
-   progressive disclosure, a permission hook, per-session telemetry. It can
-   be personal tooling — personal tooling is where these instincts form
-   fastest, because you feel every failure yourself.
+   progressive disclosure, a permission hook obeying the Module 5 contract,
+   per-session telemetry. It can be personal tooling — personal tooling is
+   where these instincts form fastest, because you feel every failure
+   yourself.
 2. **Run the audit.** Take any agentic implementation — yours, open-source,
    a take-home — and audit it against the readiness checklist: resourcing,
    escape hatches, context discipline, verification gates, containment,
    telemetry, cost. Write findings with evidence. (The audit methodology
-   itself lives in `mnox-ai:plugins/aio/skills/aio/SKILL.md`, Mode 1.)
+   itself is `mnox/mnox-ai: plugins/aio/skills/aio/SKILL.md`, Mode 1 — it's
+   a runnable skill; install the plugin and point it at a codebase.)
 3. **Ship one bounded autonomous loop.** One work type, one deterministic
    verifier, one containment boundary, one budget, one escalation path, with
    provenance. Small and real beats large and aspirational.
