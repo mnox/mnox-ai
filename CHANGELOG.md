@@ -34,6 +34,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   they actually land, rather than trusting the exporter's own unit tests.
 
 ### Changed
+- **`apply` plugin** (0.1.0 → 0.2.0) — resume tailoring now targets the
+  evaluator engines big companies actually run, based on current (2025–2026)
+  industry research. New `references/ats-engines.md` documents how Workday
+  HiredScore (A–D per-req grading, skills inference), Taleo Req Rank +
+  knockout auto-rejects, iCIMS keyword frequency, SuccessFactors, Greenhouse
+  recruiter search, Lever, Ashby evidence-sentence matching, LinkedIn
+  skills-match ranking, Eightfold-class deep-learning matchers, and LLM
+  screeners each score resumes, with per-engine tactics. The tailoring guide
+  gains tiered keyword mapping (hard skills > title > certs > soft/domain),
+  placement rules (skills section + in-bullet evidence, top-third, recency,
+  acronym dual forms, exact-title alignment), a quotable-evidence bullet
+  formula, parse-fidelity format rules with a rendered-file round-trip check,
+  and a coverage loop driven by a new stdlib `scripts/keyword_coverage.py`
+  (weighted tiered scoring, ≥80 target, missing-term gap report). Truth lock
+  unchanged: coverage is only ever closed with true content — the truth sets
+  the score ceiling.
 - **`compliance-review` plugin** — added a fifth input mode, `readiness`, which
   shifts the question from "does this artifact implement the controls" to "can
   this organization pass a SOC 2 examination," where most failures are
