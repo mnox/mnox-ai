@@ -19,6 +19,7 @@ a provider adapter.
 | `diagnose-queries` | Data | Diagnose slow database queries across Postgres, the ORM layer (N+1), and Snowflake/dbt — five modes from known-query analysis to live-incident triage, ending in a root-caused, verified fix. |
 | `ontology-review` | Data | Audit a knowledge graph or ontology for structural health across seven axes (orthogonality, granularity, taxonomic hygiene, identity & rigidity, relationship semantics, competency questions, inference safety) — flags defects before they corrupt inference. |
 | `retrieval-review` | Data | Audit a retrieval / vector-index / RAG pipeline across seven layered axes (eval foundation, corpus & chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank fusion, reranking) — flags the defects that silently return wrong or missing context. |
+| `apply` | Agentic AI | Browser-driven job application copilot — locate matching postings, score fit, tailor the resume / cover letter / screening answers to each individual job, drive the application form with a hard human confirmation gate before every submit, and track the pipeline locally. Truth-locked: emphasis adapts per job, facts never do. |
 | `foundry` | Agentic AI | **Decommissioned for public use.** Formerly an autonomous-fix loop driver; execution now routes into the maintainer's private Sven Unit runtime, not distributed in this repo. See [`plugins/foundry/README.md`](plugins/foundry/README.md) before installing. |
 | `config-chunks` | Tooling | Package manager for agent-instruction guidance — named, versioned "chunks" reconciled into your `CLAUDE.md` / `AGENTS.md` bundle, with guided onboarding (`/ai-setup`) and safe permission setup (`/permission-setup`). |
 | `create-skill` | Tooling | Author a Claude Code or cross-host Agent Skill end-to-end — scaffold, write against a portable authoring contract, structurally validate, and design-score, in one guided lifecycle. Spec-pure by default; Claude-only features are opt-in. |
@@ -134,6 +135,7 @@ mnox-ai/
     ├── diagnose-queries/          # skills/diagnose-queries/{SKILL.md, references/}
     ├── ontology-review/           # skills/ontology-review/{SKILL.md, references/}
     ├── retrieval-review/          # skills/retrieval-review/{SKILL.md, references/}
+    ├── apply/                     # skills/apply/{SKILL.md, references/, templates/}
     ├── foundry/                   # decommissioned for public use — see plugins/foundry/README.md
     ├── config-chunks/             # utility: guidance-chunk package manager (scripts/, chunks/, groups/)
     ├── create-skill/              # skills/create-skill/{SKILL.md, scripts/, references/}

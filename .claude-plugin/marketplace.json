@@ -86,6 +86,14 @@
       "tags": ["retrieval", "rag", "vector-search", "embeddings", "rerank", "review", "audit"]
     },
     {
+      "name": "apply",
+      "source": "./plugins/apply",
+      "description": "Browser-driven job application copilot — locate matching postings, score fit, tailor resume/cover letter/screening answers per job, drive the application form with a human confirmation gate before every submit, and track the pipeline locally.",
+      "version": "0.1.0",
+      "category": "agentic",
+      "tags": ["jobs", "browser", "automation", "resume", "career"]
+    },
+    {
       "name": "foundry",
       "source": "./plugins/foundry",
       "description": "DECOMMISSIONED for public use — the original autonomous-fix loop has been retired in favor of the maintainer's private Sven Unit runtime, which isn't distributed in this repo. Not functional for other marketplace installs; see plugins/foundry/README.md.",

@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`apply` plugin** (0.1.0) — browser-driven job application copilot. Locates
+  matching postings (LinkedIn, aggregators, company careers pages), scores fit
+  0–100, tailors the resume / cover letter / screening answers to each
+  individual posting, drives the application form via whatever browser-control
+  surface the host provides, and tracks the pipeline in a local JSONL tracker.
+  Truth-locked (tailoring changes emphasis, never facts), hard per-application
+  submit gate, credentials/CAPTCHAs always handed to the human. Ships a
+  tailoring guide, a per-ATS browser playbook (LinkedIn Easy Apply, Greenhouse,
+  Lever, Workday, Ashby, iCIMS), and profile / cover-letter templates.
 - **`bash-gate` plugin** (0.1.0) — a **PreToolUse hook**, not a skill. A
   deterministic-first gate over Bash that auto-allows provably-safe commands
   (writes confined to your dev roots, `rm` of git-clean/ignored files, safe

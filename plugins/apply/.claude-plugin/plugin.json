@@ -1,0 +1,8 @@
+{
+  "name": "apply",
+  "version": "0.1.0",
+  "description": "Browser-driven job application copilot — locate matching postings, score fit, tailor resume/cover letter/screening answers per job, drive the application form with a human confirmation gate before every submit, and track the pipeline locally.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}
