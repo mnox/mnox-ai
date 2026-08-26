@@ -14,14 +14,58 @@ mislead ("familiar with" for something the profile doesn't mention at all).
 
 ## Resume tailoring
 
-### 1. Build the requirement map
+Two audiences read every resume: literal engines (exact-term matchers,
+recruiter keyword search) and semantic readers (AI graders, LLM screeners,
+humans). The method below serves both at once; engine-specific intel is in
+`references/ats-engines.md`.
+
+### 1. Build the requirement map and keyword map
 
 From `fit.md`, list the posting's requirements in the order the employer
 weighted them (usually: first-listed and repeated items matter most). For each,
 find the strongest supporting bullet(s) in `resume-base.md`. The map drives
 everything below.
 
-### 2. Select and order bullets
+Then extract a **tiered keyword map** from the posting into
+`applications/<slug>/keywords.json` (schema in `scripts/keyword_coverage.py`):
+
+- **hard_skills** (weight 50): tools, technologies, methodologies, named
+  systems. The tier engines and recruiters weigh most.
+- **title_seniority** (20): the exact job title and level words.
+- **certifications** (15): named certs/licenses/clearances.
+- **soft_skills** (10): only ones the posting states explicitly.
+- **domain** (5): industry/domain vocabulary the posting leans on.
+
+Rules of extraction: take the posting's **exact surface forms**; a term that
+appears in the title or repeats in the body is tier-1 within its tier; list
+known variants (`"Kubernetes"` with variant `"k8s"`, `"CI/CD"` with
+`"continuous integration"`) so the coverage check credits any true form.
+Mark which terms the profile can truthfully support — the rest are **fit
+gaps**, recorded in `fit.md`, never keyword targets.
+
+### 2. Place keywords where engines look
+
+For every truthfully-supported tier-1 term:
+
+- **Both placements:** in the skills section AND inside at least one
+  experience bullet as evidence — listed-but-never-used reads as filler to
+  semantic engines; used-but-not-listed misses recruiter skill filters.
+- **Top third:** the posting's top requirements appear in the summary or
+  first role's bullets — screeners and match engines both weight the top of
+  page one.
+- **Recency:** relevant terms live in the most recent roles where truthful;
+  several engines discount skills last used years ago.
+- **Frequency, naturally:** core skills appear 2–3 times across the resume
+  in different true contexts (iCIMS-style engines count; LLM screeners
+  penalize unnatural repetition — context keeps it legitimate).
+- **Dual forms on first use:** acronym + spelled-out — "Search Engine
+  Optimization (SEO)", "Amazon Web Services (AWS)" — so both literal search
+  forms hit.
+- **Exact title alignment:** use the posting's job title verbatim in the
+  summary/headline when it truthfully names the candidate's level; adjust
+  phrasing ("Senior Engineer specializing in…"), never the level itself.
+
+### 3. Select and order bullets
 
 - The **top third** of page one must answer the top 3 requirements — a
   screener spends ~10 seconds deciding whether to keep reading.
@@ -30,9 +74,15 @@ everything below.
   `resume-base.md`).
 - Prefer bullets with outcomes and numbers over responsibility statements.
   If the base bullet has a metric, keep the metric exact — never round up.
+- Shape each key bullet as **quotable evidence**: verb + task + tool/skill +
+  scale + result, one claim per bullet. Semantic engines (Ashby, HiredScore,
+  LLM screeners) extract exactly this shape as proof of a requirement, and
+  it's also what a human skim retains. "Cut p99 latency 40% by moving the
+  ingest pipeline to Kafka across 200+ services" beats "responsible for
+  performance improvements".
 - Old or irrelevant roles compress to one line (title, company, dates).
 
-### 3. Mirror terminology — honestly
+### 4. Mirror terminology — honestly
 
 Use the employer's words for things the candidate genuinely did:
 
@@ -47,19 +97,56 @@ Use the employer's words for things the candidate genuinely did:
   hide keyword soup in white text or metadata. ATS keyword matching is
   served by using real terms in real bullets.
 
-### 4. Rewrite the summary/headline
+### 5. Rewrite the summary/headline
 
 One or two lines, rewritten per job: candidate's actual seniority + the 2–3
 matched strengths from the requirement map + the domain, phrased toward this
-role's language. No objectives, no adjectives-without-evidence.
+role's language — including the posting's exact title where truthful (§2). No
+objectives, no adjectives-without-evidence.
 
-### 5. Render
+### 6. Score the draft — the coverage loop
 
+Run the deterministic check (script beside this skill):
+
+```
+python3 scripts/keyword_coverage.py \
+  --keywords applications/<slug>/keywords.json \
+  --resume   applications/<slug>/resume.md
+```
+
+- **Target: ≥80 weighted coverage** (industry tooling converges on 75–80%),
+  with the job title present and tier-1 hard skills each appearing more than
+  once, at least one of them in the top third.
+- For each MISSING term: if `resume-base.md` truthfully supports it, work it
+  into a real bullet or the skills section and re-run. If it doesn't, it
+  stays missing — record it as a fit gap (candidate for the cover letter's
+  honest-gap line), and never add it anyway. **The score ceiling is set by
+  the truth**; a truthful 65 ships before a padded 85.
+- Include the final score and remaining gaps in the pre-submit summary so
+  the user sees what the application's keyword posture actually is.
+
+### 7. Render — parse fidelity is half the score
+
+If parsing drops a section, its keywords were never evaluated (~40% of
+resumes hit at least one parsing error). Non-negotiable format rules:
+
+- **Single column**, no tables, no text boxes, no images/icons/skill bars.
+- **Contact info in the document body** — parsers skip header/footer layers.
+- **Standard section headers** (Summary, Experience, Education, Skills,
+  Certifications) — custom headers break section detection.
+- **Dates as `Mon YYYY – Mon YYYY`** ("Jan 2020 – Present"), consistent
+  everywhere.
+- 10–12pt standard font (Arial/Calibri/Georgia/Times), 0.75–1in margins.
+- **Text-based PDF or .docx** — never an image/scanned PDF.
 - One page default; two pages only if the profile says the candidate's field
   expects it (senior/staff+, academia, etc.).
-- Simple single-column layout — ATS parsers mangle tables, text boxes, and
-  multi-column layouts. Standard section headers (Experience, Education,
-  Skills). File name: `Firstname-Lastname-Resume.pdf` (companies see it).
+- File name: `Firstname-Lastname-Resume.pdf` (companies see it).
+
+**Round-trip check before anything ships:** extract the rendered file's text
+(`pdftotext resume.pdf -` or equivalent) and confirm sections survive in
+order, no scrambling, and the coverage script scores the same on the
+extracted text as on the markdown. If extraction looks scrambled to you, it
+looks scrambled to the ATS.
 
 ### Truth-lock checklist (run before anything ships)
 

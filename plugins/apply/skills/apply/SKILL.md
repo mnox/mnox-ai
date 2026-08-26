@@ -1,6 +1,6 @@
 ---
 name: apply
-description: "Browser-driven job search and application copilot — locate matching job postings, score fit, tailor the resume / cover letter / screening answers to each individual posting, then drive the application form in a real browser with a human confirmation gate before every submit. Use when: '/apply', 'help me apply to jobs', 'find jobs and apply', 'tailor my resume for this posting', 'apply to this job for me', 'run my job hunt', 'fill out this application'. Truth-locked: emphasis and wording adapt per job, facts never do. Never submits without explicit approval, never handles passwords, never bypasses CAPTCHAs or anti-bot controls."
+description: "Browser-driven job search and application copilot — locate matching job postings, score fit, tailor the resume / cover letter / screening answers to each individual posting, and optimize each resume to score well on the evaluator engines big companies actually use (Workday HiredScore grading, Taleo Req Rank, iCIMS, Greenhouse/LinkedIn recruiter search, Ashby and LLM screeners) via tiered keyword mapping, a deterministic coverage check, and parse-fidelity verification — then drive the application form in a real browser with a human confirmation gate before every submit. Use when: '/apply', 'help me apply to jobs', 'find jobs and apply', 'tailor my resume for this posting', 'make my resume pass the ATS', 'apply to this job for me', 'run my job hunt', 'fill out this application'. Truth-locked: emphasis and wording adapt per job, facts never do. Never submits without explicit approval, never handles passwords, never bypasses CAPTCHAs or anti-bot controls."
 ---
 
 # apply
@@ -123,9 +123,18 @@ Locate candidate postings via the browser (and/or web search when faster):
 
 For each `found` posting, write `applications/<slug>/fit.md`:
 
-1. Extract from the posting: hard requirements, nice-to-haves, the 5–8
-   keywords the role actually screens on, culture/values signals, and any
-   red flags (comp below floor, dealbreakers, ghost-posting signals).
+1. Extract from the posting: hard requirements, nice-to-haves, culture/values
+   signals, and any red flags (comp below floor, dealbreakers, ghost-posting
+   signals). Also extract the **tiered keyword map** into
+   `applications/<slug>/keywords.json` (hard skills / title / certs / soft
+   skills / domain — schema in `scripts/keyword_coverage.py`, extraction
+   rules in `references/tailoring-guide.md`), and note which ATS/evaluator
+   the application URL points at (recognizable from the host — see
+   `references/ats-engines.md`) so tailoring can target that engine's
+   behavior. Flag likely knockout questions (work auth, licenses, minimum
+   quals) — those hard-auto-reject on the wrong answer, and the answer is
+   always the truth, so a disqualifying one means skipping the job, not
+   shading it.
 2. Score fit 0–100 against `profile.md`: requirements coverage (50), keyword/
    domain overlap (25), seniority/comp alignment (15), candidate's stated
    preferences (10). Note the 2–3 strongest hooks and the honest gaps.
@@ -140,14 +149,29 @@ technique and quality bars are in `references/tailoring-guide.md`; the shape:
 
 1. **Resume variant** (`resume.md`, then render to PDF):
    - Select and re-order bullets from `resume-base.md` so the top third of
-     the resume answers this posting's top requirements.
+     the resume answers this posting's top requirements; shape key bullets
+     as quotable evidence (verb + task + tool + scale + result) — the form
+     semantic evaluators (HiredScore, Ashby, LLM screeners) extract.
    - Mirror the posting's terminology **where truthful** (their "Kubernetes"
-     over your "k8s"; their "stakeholders" over your "partners") — this is
-     for the human reader, not keyword-stuffing.
+     over your "k8s"; their "stakeholders" over your "partners"), with
+     acronym + spelled-out dual forms, exact-title alignment in the summary,
+     and each tier-1 skill in both the skills section and an experience
+     bullet — placement rules in `references/tailoring-guide.md`, per-engine
+     behavior in `references/ats-engines.md`.
+   - **Coverage loop:** run `python3 scripts/keyword_coverage.py --keywords
+     applications/<slug>/keywords.json --resume applications/<slug>/resume.md`
+     (script beside this SKILL.md); iterate toward ≥80 weighted coverage
+     using only truthful content. Terms the profile can't support stay
+     missing and get recorded as fit gaps — the truth sets the score
+     ceiling. Report the final score + gaps in the pre-submit summary.
    - Rewrite the summary line for this role; keep facts identical.
    - Render to PDF with what the host has (pandoc/typst/LaTeX via Bash, a
-     docx/pdf skill, or hand the user the .md if nothing can render). One
-     page unless the profile says senior-multi-page.
+     docx/pdf skill, or hand the user the .md if nothing can render) using
+     the parse-safe format rules (single column, contact in body, standard
+     headers, `Mon YYYY` dates). Then **round-trip check**: extract the
+     rendered file's text and confirm section order survives and the
+     coverage score holds on the extracted text. One page unless the
+     profile says senior-multi-page.
 2. **Cover letter** (`cover-letter.md`, from `templates/cover-letter.md`):
    ≤300 words, specific to this company (name a real product/mission/team
    fact found during discovery), lead with the strongest hook from `fit.md`,
@@ -167,7 +191,10 @@ Per job, with the user available (this phase is interactive by design):
 
 1. Open the application URL. Identify the ATS (Greenhouse, Lever, Workday,
    Ashby, iCIMS, LinkedIn Easy Apply, …) and follow its playbook in
-   `references/browser-playbook.md`.
+   `references/browser-playbook.md`. On structured-form ATSes (Workday,
+   iCIMS) the evaluator grades the **form fields**, not the uploaded file —
+   repairing every auto-parsed title/date/description is scoring work, do it
+   with the same care as the resume itself (`references/ats-engines.md`).
 2. If login/CAPTCHA appears → pause per non-negotiables #3/#4.
 3. Fill the form top-to-bottom from `profile.md` + `answers.md`: contact
    info, work history (dates/titles exactly as in the profile), education,
@@ -204,5 +231,7 @@ Per job, with the user available (this phase is interactive by design):
 
 - `templates/candidate-profile.md` — profile + answers-bank intake template
 - `templates/cover-letter.md` — cover-letter skeleton with quality bar
-- `references/tailoring-guide.md` — full tailoring technique: bullet selection, keyword mirroring, truth-lock checklist, screening-question patterns
+- `references/tailoring-guide.md` — full tailoring technique: tiered keyword mapping, placement rules, evidence-bullet formula, coverage loop, parse-fidelity rules, truth-lock checklist, screening-question patterns
+- `references/ats-engines.md` — evaluator-engine intelligence: how Workday HiredScore, Taleo Req Rank, iCIMS, SuccessFactors, Greenhouse, Lever, Ashby, LinkedIn, Eightfold-class matchers, and LLM screeners score resumes, and the per-engine tailoring tactics
 - `references/browser-playbook.md` — per-ATS/per-board mechanics: LinkedIn Easy Apply, Greenhouse, Lever, Workday, Ashby, iCIMS, plus discovery search patterns
+- `scripts/keyword_coverage.py` — deterministic tiered keyword-coverage check (stdlib `python3`); the tailoring loop iterates against its score

@@ -28,6 +28,7 @@ SCRIPTS = {
     "append_assessment": _script("curriculum", "append_assessment.py"),
     "init_workspace": _script("strangler-fig", "init_workspace.py"),
     "collect_signals": _script("debut", "collect_signals.py"),
+    "keyword_coverage": _script("apply", "keyword_coverage.py"),
 }
 
 
