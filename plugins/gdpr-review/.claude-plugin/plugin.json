@@ -1,0 +1,8 @@
+{
+  "name": "gdpr-review",
+  "version": "0.1.0",
+  "description": "Audit a repo, design doc, IaC, or data-flow map against GDPR — lawful basis, consent, data subject rights, retention/erasure, transfers, processors, privacy by design — with article-cited, evidence-backed findings, or assess organizational GDPR readiness. Analysis aid, not legal advice.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

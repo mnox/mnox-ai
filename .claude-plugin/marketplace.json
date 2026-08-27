@@ -46,6 +46,14 @@
       "tags": ["compliance", "security", "audit", "soc2", "hipaa", "pci"]
     },
     {
+      "name": "gdpr-review",
+      "source": "./plugins/gdpr-review",
+      "description": "Audit a repo, design doc, IaC, or data-flow map against GDPR — lawful basis, consent, data subject rights, retention/erasure, transfers, processors, privacy by design — with article-cited, evidence-backed findings, or assess organizational GDPR readiness. Analysis aid, not legal advice.",
+      "version": "0.1.0",
+      "category": "agentic",
+      "tags": ["compliance", "gdpr", "privacy", "audit", "data-protection"]
+    },
+    {
       "name": "util-review",
       "source": "./plugins/util-review",
       "description": "Review Agent Skills, hooks, AGENTS.md/CLAUDE.md files, scripts, MCP configs, or workflow configurations for design flaws, unclosed loops, stale references, and risks.",

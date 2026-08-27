@@ -11,6 +11,7 @@
     { "name": "curriculum" },
     { "name": "debut" },
     { "name": "diagnose-queries" },
+    { "name": "gdpr-review" },
     { "name": "ontology-review" },
     { "name": "retrieval-review" },
     { "name": "schema-review" },
