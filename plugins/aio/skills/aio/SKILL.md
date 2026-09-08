@@ -7,10 +7,8 @@ description: "Agentic Implementation Optimizer — audit existing agentic AI imp
 
 Expert-level guidance for building, auditing, and extending agentic AI systems. The
 operational rules below are stated imperatively; every rule is tagged with a `[KB:claim-id]`
-pointer into `references/knowledge-base.md`, which carries the supporting evidence
-(papers, benchmarks, dates, supersession trail). **Read a KB entry on demand** — when you
-need to justify a finding, cite a source, or go deeper on a check. Do not front-load the
-knowledge base; pull the specific claim you need, when you need it.
+pointer into `references/knowledge-base.md`, which carries the supporting evidence.
+**Read a KB entry on demand** — to justify a finding, cite a source, or go deeper on a check.
 
 ---
 
@@ -27,24 +25,23 @@ knowledge base; pull the specific claim you need, when you need it.
 
 ## Cross-Cutting Principle: Resourcing, Escape Hatches & Gap Signals
 
-These three concerns are one loop, and they apply in **every** mode — Audit checks for them,
-Create builds them in, Extend must preserve them. Most "hallucination" in production is not a
-model defect; it is an agent forced to act without the resources to act correctly, with no
-sanctioned way to decline. Close this loop and hallucinations convert from silent failures
-into a labeled backlog of exactly what to build next. `[KB:gap-signals]`
+These three concerns are one loop, applied in **every** mode. Most production "hallucination" is
+not a model defect; it is an agent forced to act without the resources to act correctly and with
+no sanctioned way to decline. Close the loop and hallucinations convert from silent failures into
+a labeled backlog of what to build next. `[KB:gap-signals]`
 
 **1. Progressive disclosure — provision context just-in-time.** Surface a thin, high-signal
 layer by default; let the agent pull deeper detail on demand (skill/sub-skill loading,
 retrieval, sub-agent hand-off). Prefer tools that *fetch* context over statically stuffing it.
 More context is not more capability — identical context can yield large gains *or* sharp
-degradation, even with perfect retrieval. Disclose progressively and measure the sign.
-`[KB:progressive-disclosure]` By the time the agent must decide, it either *has* what it needs
-or can *go get it*. If neither is true, it hits an escape hatch — never guess.
+degradation, even with perfect retrieval. Disclose progressively and measure the sign. On
+frontier models, single-source instructions and prefer judgment over rigid rules — prune
+scaffolding the model no longer needs. `[KB:progressive-disclosure]` By decision time it either
+*has* what it needs or can *go get it*; if neither, it hits an escape hatch — never guess.
 
 **2. Escape hatches — sanction the decision to NOT decide.** Abstention is an architectural
-primitive, not an afterthought. State it to the agent plainly: *"If you do not have what you
-need for a high-confidence decision, do not make one. Abstain, take the safe action, log the
-gap."*
+primitive, not an afterthought. State it to the agent plainly: *"Without what you need for a
+high-confidence decision, don't make one. Abstain, take the safe action, log the gap."*
 - Define the safe default per decision point — escalate, return a typed "insufficient-context"
   result, fall back to a deterministic path, or no-op. Silence-and-guess is never the default.
 - Gate on calibrated trajectory-level confidence, not vibes; hedge specificity rather than
@@ -52,6 +49,9 @@ gap."*
 - Make the hatch cheap and reachable in the tool surface — an explicit `flag_gap` / `escalate`
   / `report_insufficient_context` action. If the only action is "answer," the agent *will*
   answer — wrong.
+- Clarification is a sanctioned hatch — trigger it on structural events (fork, conflict, scope
+  change), not the agent's felt uncertainty (detection is the weak link); generate candidates
+  first, ask what discriminates. `[KB:clarification]`
 - Recovery ≠ diagnosis — the hatch is the *guaranteed* recovery path when in-loop recovery
   fails. `[KB:diagnosis-recovery-gap]`
 
@@ -60,10 +60,10 @@ an *instrument*: each trip points at a missing resource, dataset, or capability.
 - Route every trip to a durable, queryable sink — a structured event
   (`{decision_point, missing_resource, confidence, inputs_hash, timestamp}`), not a scrolling
   log line.
-- Capture caught hallucinations as the same signal class — a hatch that *should have fired and
-  didn't*; feed it back as both a gap signal and a calibration correction.
-- Aggregate by decision point, rank by frequency × cost, feed the top gaps into the roadmap.
-  This is the agent telling you what to build next, grounded in real traffic. `[KB:gap-signals]`
+- Capture caught hallucinations as the same class — a hatch that *should have fired and didn't* —
+  feeding both a gap signal and a calibration correction.
+- Aggregate by decision point, rank by frequency × cost, feed the top gaps into the roadmap —
+  the agent telling you what to build next, grounded in real traffic. `[KB:gap-signals]`
 
 **Mode hooks:** Audit verifies all three exist and that gap signals reach a queryable sink (a
 hatch with no sink is theater). Create builds the abstention primitive in Phase D and the
@@ -155,6 +155,9 @@ is strictly more reliable; if using validation+retry, confirm it's a conscious t
 - **Does it RECOVER, not just diagnose?** Correct attribution does not imply the agent can act
   on it — recovery is a separate, harder metric. Flag any recovery story measured only by
   attribution accuracy. `[KB:diagnosis-recovery-gap]`
+- **Is review external?** Flag self-critique loops with no external signal, and "are you sure?"
+  challenge prompts (sycophancy, not reconsideration). Late-stage review goes to a
+  fresh-context reviewer as someone else's plan. `[KB:self-critique]`
 
 **Long-horizon framing**: is reliability measured beyond pass@1? For multi-step agents, single-
 shot success is the wrong metric — look for reliability-decay metrics and checkpoint-and-restart
@@ -192,11 +195,10 @@ per-agent identity, scoped least-privilege credentials, and delegation provenanc
 pass-through and over-broad scopes as HIGH.
 
 **Compliance readiness** `[KB:eu-ai-act]` `[KB:nist]` `[KB:compliance-properties]`:
-- EU AI Act: high-risk applicability provisionally delayed to **Dec 2 2027**, but **Article 50
-  transparency/agent-disclosure has bound since Aug 2 2026** — flag any EU-user-facing agent
-  lacking interaction disclosure as non-compliant now, not as a future risk. Don't let the
-  high-risk delay create false comfort. ≥6-month log retention + override mechanisms for
-  high-risk; penalties up to €15M / 3% turnover.
+- EU AI Act (enacted amendment): high-risk deferred to **Dec 2 2027** (embedded products **Aug 2
+  2028**), but **Article 50 agent-disclosure is in force since Aug 2 2026** — an EU-user-facing
+  agent without it is non-compliant NOW; flag HIGH, never as an upcoming deadline. ≥6-month log
+  retention + override mechanisms for high-risk; penalties up to €15M / 3% turnover.
 - US parallel: NIST AI Agent Standards Initiative (agent identity/auth, JIT access, action-level
   approvals). The five compliance properties (traceability, explainability, authorization,
   immutability, reproducibility) map directly to AI Act requirements.
@@ -212,7 +214,8 @@ complex), prompt caching (highest ROI — but cache the system prompt + stable t
 dynamic tool results; naive full-context caching can *increase* latency `[KB:cache-pitfall]`),
 semantic caching, batching (50% token discount), output-token optimization (output dominates
 agent spend). Watch for accuracy-only optimization producing far more expensive agents.
-`[KB:cost-accuracy]`
+`[KB:cost-accuracy]` **Effort dial** `[KB:effort-dial]`: tune the reasoning-effort knob (eval-gated)
+before a tier jump; don't default to max — optimum is task-dependent.
 
 **Observability** `[KB:otel]`: distributed tracing (OTel-compatible), semantic drift detection,
 circuit breakers for long-running operations.
@@ -224,9 +227,8 @@ switches (error-rate thresholds, freeze protocols).
 
 ### Step 3: Synthesize & Report
 
-Collect sub-agent findings into a structured report. Use severity CRITICAL / HIGH / MEDIUM / LOW
-per finding. The full report template lives in `references/audit-report-template.md` — load it
-when you reach synthesis.
+Collect sub-agent findings into a structured report, severity CRITICAL / HIGH / MEDIUM / LOW per
+finding. Template: `references/audit-report-template.md` — load it at synthesis.
 
 ---
 
@@ -252,7 +254,8 @@ Build phase by phase; explain what and why before writing code. Offer to write c
 explain — let the user drive.
 
 - **Phase A — Core Agent & Tools**: system prompt, tool definitions (action-verb specs, param
-  types, examples, semantic fields), orchestration loop, rationale-before-call. `[KB:tool-design]`
+  types, examples, semantic fields), orchestration loop, rationale-before-call; on capable models
+  prefer expressive typed interfaces over examples and single-source instructions. `[KB:tool-design]`
 - **Phase B — Context Engineering**: sub-agent isolation, compaction strategy, structured memory
   layers. `[KB:context-eng]`
 - **Phase C — Reliability**: structured output (prefer constrained decoding), actionable error
@@ -270,7 +273,7 @@ explain — let the user drive.
   frequency × cost, feed the top gaps into the backlog. `[KB:trace-loop]` `[KB:gap-signals]`
 
 ### Step 4: Production Readiness Checklist
-Before declaring "done", walk the checklist in `references/readiness-checklist.md`.
+Before declaring done, walk `references/readiness-checklist.md`.
 
 ---
 
@@ -308,12 +311,8 @@ add new tests, verify observability covers new paths.
 
 ## Knowledge Base
 
-Full supporting evidence — papers, benchmarks, industry data, framework/tool/cost reference
-tables, and the consolidated provenance trail per claim — lives in
-**`references/knowledge-base.md`**. Load the specific `[KB:claim-id]` entry on demand when you
-need to cite a source, justify a finding, or go deeper. Do not load it wholesale.
-
-This knowledge base is periodically refreshed by **`aio-update`**, a private maintenance skill
-the author keeps outside this repo — not shipped or invocable here. It consolidates new research
-into existing claims (updating headline citations, demoting superseded sources to a trail) rather
-than accreting new bullets, keeping this skill lean.
+Full evidence — papers, benchmarks, industry data, reference tables, and per-claim provenance
+trails — lives in **`references/knowledge-base.md`**. Load the specific `[KB:claim-id]` entry on
+demand; never wholesale. Refreshed by **`aio-update`** — a private maintenance skill kept outside
+this repo, not shipped or invocable here — which consolidates new research into existing claims
+rather than accreting bullets.

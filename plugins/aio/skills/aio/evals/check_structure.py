@@ -41,6 +41,7 @@ CORE = AIO_DIR / "SKILL.md"
 KB = AIO_DIR / "references" / "knowledge-base.md"
 AUDIT_TPL = AIO_DIR / "references" / "audit-report-template.md"
 CHECKLIST = AIO_DIR / "references" / "readiness-checklist.md"
+SCENARIOS = EVALS_DIR / "scenarios.md"
 UPDATE = SKILLS_DIR / "aio-update" / "SKILL.md"
 
 # Budgets — keep in sync with aio-update/SKILL.md "Size budgets".
@@ -179,9 +180,10 @@ def check_pointers():
     if not dupes:
         ok(f"no duplicate KB headings ({len(defs)} claims defined)")
 
-    # collect references from core skill + all reference files (exclude the
-    # illustrative 'claim-id' token used in prose/templates)
-    referers = [CORE, KB, AUDIT_TPL, CHECKLIST]
+    # collect references from core skill + all reference files + eval scenarios
+    # (exclude the illustrative 'claim-id' token used in prose/templates). The
+    # eval scenarios are included so a broken [KB:*] pointer there is caught too.
+    referers = [CORE, KB, AUDIT_TPL, CHECKLIST, SCENARIOS]
     refs: dict[str, set[str]] = {}
     for p in referers:
         if not p.is_file():
