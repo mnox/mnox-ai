@@ -20,7 +20,8 @@ Everything here — skills, the MCP utility, and the Bash hook — installs thro
 
 Swap `schema-review` for any plugin: `aio`, `curriculum`, `strangler-fig`,
 `compliance-review`, `util-review`, `debut`, `diagnose-queries`,
-`ontology-review`, `retrieval-review`, `create-skill`, `config-chunks`.
+`ontology-review`, `retrieval-review`, `create-skill`, `config-chunks`,
+`ai-setup`.
 (`foundry` is also installable but is **decommissioned for public use** — see
 [`plugins/foundry/README.md`](../../plugins/foundry/README.md) before installing it.)
 
@@ -40,7 +41,7 @@ claude plugin uninstall all-skills --prune
 > **Scope note.** `all-skills` bundles the 10 core agentic skills (`aio`,
 > `compliance-review`, `curriculum`, `debut`, `diagnose-queries`,
 > `ontology-review`, `retrieval-review`, `schema-review`, `strangler-fig`,
-> `util-review`). The tooling plugins — `config-chunks`, `create-skill`,
+> `util-review`). The tooling plugins — `config-chunks`, `ai-setup`, `create-skill`,
 > `session-tracker`, `bash-gate` — install individually, as does `foundry`
 > (decommissioned for public use — deliberately excluded from the bundle).
 

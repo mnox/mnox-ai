@@ -107,7 +107,7 @@ def check_host(host: str, skills: list[str], workdir: Path) -> Report:
     subpath = HOST_SKILL_SUBPATH[host]
     dest = workdir / host / subpath
     # config-chunks skills need their engine bundled off Claude.
-    engine_skills = {"ai-setup", "chunks", "chunk-review", "ideation", "permission-setup"}
+    engine_skills = {"chunks-setup", "chunks", "chunk-review", "ideation", "permission-setup"}
     with_engine = any(s in engine_skills for s in skills)
 
     proc = run_exporter(dest, skills, with_engine)

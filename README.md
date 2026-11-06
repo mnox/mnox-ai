@@ -21,7 +21,8 @@ a provider adapter.
 | `retrieval-review` | Data | Audit a retrieval / vector-index / RAG pipeline across seven layered axes (eval foundation, corpus & chunking, embedding geometry, index & ANN fidelity, retrieval composition, rank fusion, reranking) — flags the defects that silently return wrong or missing context. |
 | `apply` | Agentic AI | Browser-driven job application copilot — locate matching postings, score fit, tailor the resume / cover letter / screening answers to each individual job and optimize them for the evaluator engines big companies use (Workday HiredScore, Taleo Req Rank, iCIMS, Ashby, LinkedIn, LLM screeners) via tiered keyword mapping + a deterministic coverage check + parse-fidelity verification, drive the application form with a hard human confirmation gate before every submit, and track the pipeline locally. Truth-locked: emphasis adapts per job, facts never do. |
 | `foundry` | Agentic AI | **Decommissioned for public use.** Formerly an autonomous-fix loop driver; execution now routes into the maintainer's private Sven Unit runtime, not distributed in this repo. See [`plugins/foundry/README.md`](plugins/foundry/README.md) before installing. |
-| `config-chunks` | Tooling | Package manager for agent-instruction guidance — named, versioned "chunks" reconciled into your `CLAUDE.md` / `AGENTS.md` bundle, with guided onboarding (`/ai-setup`) and safe permission setup (`/permission-setup`). |
+| `config-chunks` | Tooling | Package manager for agent-instruction guidance — named, versioned "chunks" reconciled into your `CLAUDE.md` / `AGENTS.md` bundle, with guided onboarding (`/chunks-setup`) and safe permission setup (`/permission-setup`). |
+| `ai-setup` | Tooling | Role-based agent environment setup — give it your role and stack (e.g. "React frontend engineer"), answer a few questions, and it plans, applies, and verifies the whole setup: vetted existing skills, plugins, and MCP servers found by parallel subagents; stack best-practice skills researched from current primary sources for the versions in use; global and repo-level agent instructions; permissions, hooks, and a verification loop; plus a how-to-work playbook. Claude Code is the reference host; other hosts get the portable layers. |
 | `create-skill` | Tooling | Author a Claude Code or cross-host Agent Skill end-to-end — scaffold, write against a portable authoring contract, structurally validate, and design-score, in one guided lifecycle. Spec-pure by default; Claude-only features are opt-in. |
 | `bash-gate` | Tooling | **PreToolUse hook** (not a skill). A deterministic-first gate over Bash that auto-allows provably-safe commands (writes confined to your dev roots, `rm` of git-clean/ignored files, safe `chmod`) so you stop re-approving them — built for `bypassPermissions` mode. Ships safe-by-default (auto-allows nothing on install); optional LLM arbiter for the long tail. Claude-Code-specific. |
 | `all-skills` | Bundle | Meta-plugin that installs the 10 core agentic-review skills above at once (excludes the tooling plugins and the decommissioned `foundry`). |
@@ -57,7 +58,7 @@ co-located to work off Claude Code. Add `--with-engine` to bundle it under
 
 ```
 python3 scripts/export_skills.py --output-dir ./.cursor/skills \
-  --skill ai-setup --skill chunks --with-engine
+  --skill chunks-setup --skill chunks --with-engine
 ```
 
 For `config-chunks` specifically, the fastest non-Claude path is its own
@@ -138,6 +139,7 @@ mnox-ai/
     ├── apply/                     # skills/apply/{SKILL.md, scripts/, references/, templates/}
     ├── foundry/                   # decommissioned for public use — see plugins/foundry/README.md
     ├── config-chunks/             # utility: guidance-chunk package manager (scripts/, chunks/, groups/)
+    ├── ai-setup/                  # skills/ai-setup/{SKILL.md, scripts/, references/, agents/, templates/}
     ├── create-skill/              # skills/create-skill/{SKILL.md, scripts/, references/}
     ├── bash-gate/                 # utility: PreToolUse hook (hooks/, skills/bash-gate-add/) — not a skill
     ├── all-skills/

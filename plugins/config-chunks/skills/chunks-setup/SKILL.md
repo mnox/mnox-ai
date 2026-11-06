@@ -1,9 +1,9 @@
 ---
-name: ai-setup
-description: First-run guided onboarding that sets up an agent for a less-technical user — leads with a one-shot recommended set of guidance "chunks" (or 2–3 plain-language questions to tailor), confirms, applies them by driving the config-chunks engine into CLAUDE.md / AGENTS.md, then offers safe permission setup. Use when the user says "/ai-setup", "set up my agent", "set up my agent guidance", "onboard me to chunks", "configure my CLAUDE.md guidance", "first-run setup", "recommend chunks for me", "help me get started with config-chunks", "which chunks should I use", or otherwise wants a guided walkthrough to subscribe to guidance chunks. Re-runnable any time; for piecemeal management afterward use /chunks, for permissions use /permission-setup, and to author new chunks use /chunk-review.
+name: chunks-setup
+description: First-run guided onboarding for config-chunks that sets up an agent's working-style guidance for a less-technical user — leads with a one-shot recommended set of guidance "chunks" (or 2–3 plain-language questions to tailor), confirms, applies them by driving the config-chunks engine into CLAUDE.md / AGENTS.md, then offers safe permission setup. Use when the user says "/chunks-setup", "set up my agent guidance", "onboard me to chunks", "configure my CLAUDE.md guidance", "recommend chunks for me", "help me get started with config-chunks", "which chunks should I use", or otherwise wants a guided walkthrough to subscribe to guidance chunks. Re-runnable any time; for piecemeal management afterward use /chunks, for permissions use /permission-setup, to author new chunks use /chunk-review, and for a full role- and stack-based environment setup (skills, plugins, MCP, repo instructions) use /ai-setup.
 ---
 
-# ai-setup
+# chunks-setup
 
 ## Overview
 
@@ -24,8 +24,12 @@ Distinction from the companion skill:
 
 - **`/chunks`** — ongoing, single-action management ("add this chunk", "set my
   targets", "doctor"). Use it for piecemeal edits after setup.
-- **`/ai-setup`** (this skill) — the guided interview that produces a *whole
+- **`/chunks-setup`** (this skill) — the guided interview that produces a *whole
   recommended set at once* for someone starting fresh.
+- **`/ai-setup`** (separate `ai-setup` plugin) — role- and stack-based environment
+  setup for an engineer: skills, plugins, MCP servers, repo instructions, and a
+  verification loop. It treats this skill's chunk bundle as the working-style
+  baseline and never edits inside the config-chunks managed block.
 
 ## Resolving paths (do this first)
 
@@ -43,7 +47,7 @@ first one that actually exists:
 
 ```bash
 # Substitute <skill-dir> with the ABSOLUTE path of THIS skill directory,
-# e.g. /Users/you/.cursor/skills/ai-setup  (or .../.claude/plugins/.../skills/ai-setup).
+# e.g. /Users/you/.cursor/skills/chunks-setup  (or .../.claude/plugins/.../skills/chunks-setup).
 SKILL_DIR="<skill-dir>"
 
 ENGINE=""

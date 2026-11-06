@@ -17,7 +17,7 @@ _spec.loader.exec_module(smoke)
 class SmokeHostLoadTest(unittest.TestCase):
     def test_automated_checks_pass_for_every_host(self) -> None:
         # A plain skill plus an engine-backed one, to exercise engine bundling.
-        skills = ["schema-review", "ai-setup"]
+        skills = ["schema-review", "chunks-setup"]
         with tempfile.TemporaryDirectory() as tmp:
             reports = smoke.run_checks(list(smoke.HOST_SKILL_SUBPATH), skills, Path(tmp))
         self.assertEqual(len(reports), 3)

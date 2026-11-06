@@ -52,7 +52,7 @@ engine:
 
 ```bash
 python3 scripts/export_skills.py --output-dir ./.cursor/skills \
-  --skill ai-setup --skill chunks --with-engine
+  --skill chunks-setup --skill chunks --with-engine
 # → export CONFIG_CHUNKS_HOME=<output>/.engines/config-chunks
 ```
 

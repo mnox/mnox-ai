@@ -1,0 +1,64 @@
+{
+  "schema": "ai-setup.manifest.v1",
+  "created": "YYYY-MM-DD",
+  "updated": "YYYY-MM-DD",
+  "profile": {
+    "role": "the role statement, verbatim",
+    "slug": "kebab-case-role",
+    "family": "frontend | backend | fullstack | mobile | data | ml-ai | platform | qa | security | custom",
+    "stack": [
+      {
+        "facet": "framework",
+        "name": "name from stack.json",
+        "version": "pinned version",
+        "source": "manifest path it was read from"
+      }
+    ],
+    "work_types": ["most frequent first"],
+    "systems": { "category": "system name" },
+    "hosts": ["primary host first"],
+    "scope": "personal | repo | both",
+    "posture": "cautious | balanced | gated",
+    "repo": null,
+    "part": null
+  },
+  "slots": [
+    {
+      "id": "verification-loop",
+      "need": "what the role needs, in one line",
+      "priority": "core | useful | optional",
+      "filled_by": "item id, a list of item ids, or null",
+      "waived": "reason the engineer accepted, when a core slot is left empty"
+    }
+  ],
+  "items": [
+    {
+      "id": "unique-kebab-id",
+      "layer": "instructions | rule | skill | plugin | mcp | cli | hook | subagent | permissions",
+      "action": "install | author | write | merge | configure | reuse",
+      "scope": "user | repo | repo-local",
+      "target": "path written, or the identifier installed",
+      "source": "authored | canonical URL | plugin@catalog",
+      "tier": "T1 | T2 | n/a",
+      "slot": "slot id this fills",
+      "why": "one line",
+      "status": "planned | applied | verified | failed | skipped | needs-human",
+      "created": true,
+      "backup": "path under backups/ when an existing file was modified, else empty",
+      "checks": [
+        { "type": "exists", "path": "path" },
+        { "type": "json", "path": "path to a JSON file" },
+        { "type": "skill", "path": "path to a skill directory" },
+        { "type": "contains", "path": "path", "value": "ai-setup:start" },
+        { "type": "max_lines", "path": "path", "value": 150 },
+        { "type": "command", "value": "command the agent runs to prove it" }
+      ],
+      "probes": {
+        "should_load": ["prompt one", "prompt two"],
+        "should_not_load": ["near-miss prompt"]
+      },
+      "human_step": "exact step when status is needs-human",
+      "note": "what happened when status is failed or skipped"
+    }
+  ]
+}

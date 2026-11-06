@@ -35,8 +35,9 @@ python3 scripts/export_skills.py --output-dir ~/.codex/skills \
 
 Valid `--skill` names: `aio`, `compliance-review`, `curriculum`, `debut`,
 `diagnose-queries`, `foundry-run`, `ontology-review`, `retrieval-review`,
-`schema-review`, `strangler-fig`, `util-review`, `create-skill`, plus the
-`config-chunks` skills (`ai-setup`, `chunks`, `chunk-review`, `ideation`,
+`schema-review`, `strangler-fig`, `util-review`, `create-skill`, `ai-setup`,
+plus the
+`config-chunks` skills (`chunks-setup`, `chunks`, `chunk-review`, `ideation`,
 `permission-setup`) and `bash-gate-add`.
 
 > `foundry-run` exports but is **decommissioned for public use** — it now
@@ -64,7 +65,7 @@ env var it prints:
 
 ```bash
 python3 scripts/export_skills.py --output-dir ~/.codex/skills \
-  --skill ai-setup --skill chunks --with-engine
+  --skill chunks-setup --skill chunks --with-engine
 # → export CONFIG_CHUNKS_HOME=~/.codex/skills/.engines/config-chunks
 ```
 

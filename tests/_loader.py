@@ -29,6 +29,9 @@ SCRIPTS = {
     "init_workspace": _script("strangler-fig", "init_workspace.py"),
     "collect_signals": _script("debut", "collect_signals.py"),
     "keyword_coverage": _script("apply", "keyword_coverage.py"),
+    "detect_stack": _script("ai-setup", "detect_stack.py"),
+    "inventory_config": _script("ai-setup", "inventory_config.py"),
+    "verify_setup": _script("ai-setup", "verify_setup.py"),
 }
 
 

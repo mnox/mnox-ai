@@ -1,6 +1,6 @@
 ---
 name: permission-setup
-description: Recommend safe, conservative agent permission settings for a less-technical user, then delegate the write — never mutate security config directly. Detects the provider (Claude Code / Codex / Cursor / others) and surface (CLI / Desktop-IDE / Cloud), explains permissions in plain language, recommends the "Cautious" least-privilege posture as behavior then concrete config, names that provider's bypass footgun by name, and shows the exact config + location for the user (or a platform config skill) to apply. Use when the user says "/permission-setup", "set up permissions", "set up my agent permissions", "is my agent safe", "make my agent safe", "what permissions should I use", "lock down my agent", "are my settings secure", "review my agent permissions", or finishes /ai-setup. Re-runnable any time; reads references/permission-profiles.md live.
+description: Recommend safe, conservative agent permission settings for a less-technical user, then delegate the write — never mutate security config directly. Detects the provider (Claude Code / Codex / Cursor / others) and surface (CLI / Desktop-IDE / Cloud), explains permissions in plain language, recommends the "Cautious" least-privilege posture as behavior then concrete config, names that provider's bypass footgun by name, and shows the exact config + location for the user (or a platform config skill) to apply. Use when the user says "/permission-setup", "set up permissions", "set up my agent permissions", "is my agent safe", "make my agent safe", "what permissions should I use", "lock down my agent", "are my settings secure", "review my agent permissions", or finishes /chunks-setup or /ai-setup. Re-runnable any time; reads references/permission-profiles.md live.
 ---
 
 # permission-setup
@@ -22,7 +22,7 @@ safe platform skill exists, drives that). The human stays in the loop and owns
 the decision.
 
 **When to run it:** the user wants their agent set up safely, is unsure if their
-current settings are risky, or just finished `/ai-setup`. **When to skip it:** a
+current settings are risky, or just finished `/chunks-setup` or `/ai-setup`. **When to skip it:** a
 technical user who already manages their own permission rules and handed you a
 specific config — don't second-guess a deliberate setup. Recommend the *gap*, not
 a teardown of what they chose on purpose.

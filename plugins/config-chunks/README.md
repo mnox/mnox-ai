@@ -190,13 +190,13 @@ export CONFIG_CHUNKS_HOME=~/.mnox-ai/plugins/config-chunks
 bash "$CONFIG_CHUNKS_HOME/scripts/chunks-config.sh" list
 ```
 
-Want the **management skills** (`/chunks`, `/ai-setup`) on a non-Claude host too?
+Want the **management skills** (`/chunks`, `/chunks-setup`) on a non-Claude host too?
 Export them self-contained — the engine rides along under `.engines/config-chunks/`
 and the printed `CONFIG_CHUNKS_HOME` points the skills at it:
 
 ```bash
 python3 scripts/export_skills.py --output-dir ~/.cursor/skills \
-  --skill ai-setup --skill chunks --with-engine
+  --skill chunks-setup --skill chunks --with-engine
 ```
 
 **Auto-refresh is Claude-only** because `SessionStart` is a Claude Code hook event;
@@ -247,7 +247,7 @@ session restart). `set-targets` / `add-target` validate that each value is
 
 Or, inside your agent, just say *"subscribe me to <group>"* / *"what chunks am
 I on"* / *"set my targets to claude and agents"* — the `chunks` skill (and
-`/ai-setup`) drive the engine for you.
+`/chunks-setup`) drive the engine for you.
 
 **Block-list form is required.** The reconciler uses BSD-awk-compatible YAML
 parsing; inline list syntax (`groups: [a, b]`) is **not supported** and silently

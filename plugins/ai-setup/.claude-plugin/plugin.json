@@ -1,0 +1,8 @@
+{
+  "name": "ai-setup",
+  "version": "0.1.0",
+  "description": "Role-based agent environment setup — give it an engineer's role and stack (e.g. \"React frontend engineer\") and, after a few questions, it plans, applies, and verifies the whole setup: vetted existing skills, plugins, and MCP servers found by parallel subagents; stack best-practice skills researched from current primary sources for the versions in use; global and repo-level agent instructions; permissions, hooks, and a verification loop; plus a how-to-work playbook.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

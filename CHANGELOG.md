@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`ai-setup` plugin** (0.1.0) — role-based agent environment setup. Give it an
+  engineer's role and stack ("React frontend engineer") and, after one round of
+  at most four questions, it plans, applies, and verifies the whole setup. A
+  role profile becomes a table of capability slots; each slot gets exactly one
+  filler chosen by a placement test (enforce before instructing, instruct before
+  installing). Parallel scouts find and vet existing skills, plugins, and MCP
+  servers against a provenance-tiered rubric (unknown-provenance code is never
+  auto-installed); a repo surveyor establishes verified commands and
+  conventions; practice-author subagents research current primary sources for
+  the pinned versions and write stack best-practice skills limited to what a
+  capable model gets wrong by default. Writes global and repo-level instruction
+  files additively inside a managed block, proposes guards and permissions
+  (permissions behind their own confirmation), proves the result with a static
+  verifier, command proof, a demonstrated verification loop, and a
+  fresh-context verifier subagent, then hands over a playbook. Ships three
+  stdlib helpers — `detect_stack.py` (stack, versions, declared vs inferred
+  commands), `inventory_config.py` (existing agent config; names and counts
+  only, never values), `verify_setup.py` (manifest-driven checks and a core-slot
+  audit) — eight references, four subagent briefs, and five templates. Claude
+  Code is the reference host; other hosts get the portable layers with
+  documented fallbacks.
 - **`apply` plugin** (0.1.0) — browser-driven job application copilot. Locates
   matching postings (LinkedIn, aggregators, company careers pages), scores fit
   0–100, tailors the resume / cover letter / screening answers to each
@@ -34,6 +55,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   they actually land, rather than trusting the exporter's own unit tests.
 
 ### Changed
+- **`config-chunks` plugin** (0.1.1 → 0.2.0) — **breaking:** the guided chunk
+  onboarding skill is renamed from `ai-setup` to `chunks-setup` so the
+  `/ai-setup` name can belong to the new role-based setup plugin. No alias is
+  kept. The skill's behavior is unchanged; its description drops the generic
+  "set up my agent" triggers that would now collide. Install docs, the exporter
+  examples, `permission-setup`, and the host-load smoke test are updated to the
+  new name.
 - **`apply` plugin** (0.1.0 → 0.2.0) — resume tailoring now targets the
   evaluator engines big companies actually run, based on current (2025–2026)
   industry research. New `references/ats-engines.md` documents how Workday
