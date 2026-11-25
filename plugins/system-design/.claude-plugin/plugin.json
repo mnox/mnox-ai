@@ -1,0 +1,8 @@
+{
+  "name": "system-design",
+  "version": "0.1.0",
+  "description": "Turn a one-line system design exercise into a practice map instead of a finished answer: the few clarifying questions that change the architecture, the biggest hard-to-reverse forks ranked to the top with options and tipping signals, and a verdict on every element the design needs (onboarding, settings and per-customer configuration, tenancy, billing, queues, event streams, jobs, workflows, scale hot spots, security, operations, rollout). The learner works the design, with a hint ladder and a rubric review.",
+  "author": { "name": "Matt Noxon" },
+  "homepage": "https://github.com/mnox/mnox-ai",
+  "license": "MIT"
+}

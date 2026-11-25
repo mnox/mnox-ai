@@ -1,0 +1,1083 @@
+{
+  "title": "Venmo: design map at 10,000 ft",
+  "prompt": "build me venmo",
+  "columns": 6,
+  "rows": [
+    "People",
+    "Entry",
+    "Product services",
+    "Money core",
+    "Events",
+    "Async workers",
+    "Outside parties"
+  ],
+  "groups": [
+    {
+      "label": "Back office and control plane",
+      "col": 6,
+      "fromRow": 2,
+      "toRow": 5
+    }
+  ],
+  "categories": [
+    {
+      "key": "S",
+      "name": "Scope",
+      "blurb": "What the product is and is not"
+    },
+    {
+      "key": "M",
+      "name": "Money, licensing and regulation",
+      "blurb": "Who holds the money and what the law demands"
+    },
+    {
+      "key": "P",
+      "name": "Personas",
+      "blurb": "Who uses it and what each one expects"
+    },
+    {
+      "key": "C",
+      "name": "Correctness and trust",
+      "blurb": "What must never go wrong, and what happens when it does"
+    },
+    {
+      "key": "B",
+      "name": "Business and scale",
+      "blurb": "Size, peaks, exposure and cost of failure"
+    },
+    {
+      "key": "G",
+      "name": "Growth and PLG",
+      "blurb": "How users arrive, activate and generate revenue"
+    },
+    {
+      "key": "K",
+      "name": "Configurability",
+      "blurb": "What changes without a release, and who changes it"
+    },
+    {
+      "key": "T",
+      "name": "Stack and delivery",
+      "blurb": "What is already fixed before design starts"
+    },
+    {
+      "key": "U",
+      "name": "Sneaky unknowns",
+      "blurb": "Things that surface six months in"
+    }
+  ],
+  "questions": {
+    "S1": {
+      "q": "Is this person-to-person only, or do people also pay businesses?",
+      "decides": "Merchant onboarding, seller fees, refunds, chargebacks and tax reporting all appear or vanish."
+    },
+    "S2": {
+      "q": "Do users hold a balance inside the app, or does every payment go straight from bank to bank?",
+      "decides": "Whether a wallet and ledger are the system of record, what licences are needed, and whether cash-out exists."
+    },
+    "S3": {
+      "q": "Which ways in and out at launch: bank transfer, debit card, credit card, instant payout?",
+      "decides": "Which rails are integrated, how long settlement takes, and what each payment costs."
+    },
+    "S4": {
+      "q": "Is the social feed (who paid whom, comments, likes) part of the first version?",
+      "decides": "A whole feed subsystem and its privacy model."
+    },
+    "S5": {
+      "q": "Beyond \"send\": requests, bill splitting, recurring or scheduled payments?",
+      "decides": "A scheduler and multi-step payment state."
+    },
+    "S6": {
+      "q": "What is explicitly not in the first version: cards, crypto, credit, cross-border, accounts for minors?",
+      "decides": "The non-goals list, and several licences."
+    },
+    "M1": {
+      "q": "Who legally holds customer money: us under our own licences, or a partner bank on our behalf?",
+      "decides": "Whether our ledger or the partner's is the record of truth, how much the partner's API dictates, and the launch timeline."
+    },
+    "M2": {
+      "q": "Which countries, states and currencies at launch?",
+      "decides": "Licensing per jurisdiction, currency conversion, data residency and per-region rules."
+    },
+    "M3": {
+      "q": "What can an unverified user do, and what triggers identity verification?",
+      "decides": "Sign-up friction, limit tiers, and whether the identity vendor sits in the sign-up path or later."
+    },
+    "M4": {
+      "q": "Who absorbs fraud and unauthorised-payment losses: us, the partner, or the user?",
+      "decides": "How much risk decisioning sits in the payment path, how long funds are held, and how much dispute tooling is built."
+    },
+    "M5": {
+      "q": "Sanctions screening and transaction monitoring: bought or built, and does it block the payment or run after it?",
+      "decides": "A synchronous call in the payment path against an asynchronous pipeline with case management."
+    },
+    "M6": {
+      "q": "What reporting and record-keeping is required: tax forms for sellers, suspicious-activity reports, retention period, card-data security scope?",
+      "decides": "Compliance reporting, immutable history, and whether a vendor tokenises card data to keep it out of our systems."
+    },
+    "P1": {
+      "q": "Who is the launch customer: friends splitting costs, people getting paid for work or goods, or one specific community such as a campus or a marketplace?",
+      "decides": "Which flows are core and how network density is built."
+    },
+    "P2": {
+      "q": "Can you pay someone who has no account yet?",
+      "decides": "Pending payments, a claim flow, expiry and refund, and unclaimed money."
+    },
+    "P3": {
+      "q": "Is there a seller or business profile with different rules for fees, buyer protection and tax?",
+      "decides": "Account types, the fee model and refunds."
+    },
+    "P4": {
+      "q": "Which internal roles need tooling on day one: support, risk and compliance, finance?",
+      "decides": "How much back office is in the first build."
+    },
+    "P5": {
+      "q": "For each persona, when is a payment \"done\": when the sender sees success, or when the receiver can spend or withdraw it?",
+      "decides": "Instant availability, and with it how much money the company fronts."
+    },
+    "C1": {
+      "q": "Is a sent payment final, or can it be cancelled or reversed? By whom, and for how long?",
+      "decides": "The payment state machine, reversal entries and what support staff may do."
+    },
+    "C2": {
+      "q": "What happens when a bank pull fails after the receiver already has the money?",
+      "decides": "Negative balances, clawback, collections and hold periods."
+    },
+    "C3": {
+      "q": "What must happen on a double tap, a retry, or a timeout from the bank?",
+      "decides": "Idempotency keys, handling of unknown outcomes, and reconciliation."
+    },
+    "C4": {
+      "q": "What must be exactly right immediately (the balance), and what may lag (feed, notifications, analytics)?",
+      "decides": "Strong or eventual consistency, component by component."
+    },
+    "C5": {
+      "q": "How are disputes and \"I did not make this payment\" claims handled, and how fast?",
+      "decides": "Case management and provisional-credit entries in the ledger."
+    },
+    "C6": {
+      "q": "What is the default visibility of a payment: public, friends only, or private?",
+      "decides": "The feed's privacy model. Hard to change later without losing trust."
+    },
+    "B1": {
+      "q": "How many users, payments per day and dollars per day at launch and in three years?",
+      "decides": "One database or a partitioned ledger. One of the few places arithmetic picks the design."
+    },
+    "B2": {
+      "q": "What do peaks look like: rent day, weekends, holidays?",
+      "decides": "Queue buffering, capacity, and whether partner rate limits bind."
+    },
+    "B3": {
+      "q": "What are the typical and maximum payment sizes, and the weekly limits?",
+      "decides": "Loss exposure per account and the risk tiers."
+    },
+    "B4": {
+      "q": "How much money can the company front? If the receiver gets funds instantly but the bank pull settles days later, we are lending.",
+      "decides": "Instant against delayed availability, and hold rules."
+    },
+    "B5": {
+      "q": "What does an hour of downtime cost, and may payments queue when a rail or partner is down?",
+      "decides": "Redundancy, a second partner, and a degraded mode."
+    },
+    "G1": {
+      "q": "What is the growth loop: paying non-users, contact matching, QR codes, the public feed, referral bonuses?",
+      "decides": "An invites service, contact upload and its privacy handling, and the claim flow."
+    },
+    "G2": {
+      "q": "What is the activation moment, and how little can we ask for before it? Can someone send before linking a bank, or before identity checks?",
+      "decides": "Progressive verification and tiered limits."
+    },
+    "G3": {
+      "q": "Where does revenue come from: instant cash-out fee, card funding fee, seller fee, card interchange, interest on balances?",
+      "decides": "The fee model, revenue accounts in the ledger, and pricing configuration."
+    },
+    "G4": {
+      "q": "Are there sign-up or referral rewards?",
+      "decides": "Promotional balances in the ledger and detection of fake-account farming."
+    },
+    "G5": {
+      "q": "What must be testable as an experiment: fees, onboarding steps, limits?",
+      "decides": "Flags, experiment assignment and analytics."
+    },
+    "K1": {
+      "q": "Which rules must change without a release (limits, fees, hold periods, risk thresholds), and along which dimensions (verification tier, region, funding source, cohort)?",
+      "decides": "A policy engine against hard-coded rules."
+    },
+    "K2": {
+      "q": "Who may change those rules, and what approval and audit trail is required?",
+      "decides": "A configuration console with two-person approval and an audit log."
+    },
+    "K3": {
+      "q": "What can users set: privacy default, notification preferences, default funding source, automatic cash-out, app lock?",
+      "decides": "A settings store that is read on the payment path."
+    },
+    "K4": {
+      "q": "Will there be more than one bank partner or processor, with routing rules between them?",
+      "decides": "A rails abstraction, per-partner configuration and failover."
+    },
+    "K5": {
+      "q": "Is this one app, or a platform other companies embed under their own brand?",
+      "decides": "Multi-tenancy, a partner API and a full control plane."
+    },
+    "T1": {
+      "q": "Is anything mandated: cloud, languages, datastores, client platforms, or existing systems to integrate such as a current user base?",
+      "decides": "Removes options outright."
+    },
+    "T2": {
+      "q": "Which vendors are already contracted: bank partner, processor, identity verification, fraud?",
+      "decides": "Their APIs and limits shape the design more than our preferences do."
+    },
+    "T3": {
+      "q": "How large is the team, what must launch by what date, and what is the stance on building or buying the ledger, identity checks and fraud?",
+      "decides": "One deployable or several services, and which parts are vendor-backed."
+    },
+    "T4": {
+      "q": "What do auditors and partners require of the stack itself: card-data scope, encryption and key management, change control, data residency?",
+      "decides": "Network segmentation, vendor tokenisation and the deployment process."
+    },
+    "U1": {
+      "q": "Who reconciles our ledger against the bank's records every day, and what happens when they disagree?",
+      "decides": "A reconciliation job, a break queue and a finance console."
+    },
+    "U2": {
+      "q": "What are the cut-offs and return windows on each rail, including weekends, holidays and late returns?",
+      "decides": "Hold periods and when funds are truly final."
+    },
+    "U3": {
+      "q": "What happens to unclaimed payments, dormant balances, and the accounts of users who close, die, or are frozen by court order?",
+      "decides": "Account states, scheduled sweeps and legal processes."
+    },
+    "U4": {
+      "q": "What if the bank partner changes its limits, has an outage, or ends the relationship?",
+      "decides": "Whether accounts and the ledger can be moved to another partner."
+    },
+    "U5": {
+      "q": "Card-funded payments can be charged back months later. Who pays?",
+      "decides": "Reserves, seller holds and the dispute workflow."
+    },
+    "U6": {
+      "q": "Financial records must be kept for years, and privacy law lets users ask for deletion. Which wins where?",
+      "decides": "Separation of personal data from ledger records."
+    },
+    "U7": {
+      "q": "How is a wrong ledger entry corrected, and how are balances migrated or backfilled?",
+      "decides": "An append-only ledger with reversing entries, and migration tooling."
+    }
+  },
+  "first": [
+    "S2",
+    "M1",
+    "S1",
+    "B4",
+    "M3"
+  ],
+  "nodes": [
+    {
+      "id": "sender",
+      "row": 1,
+      "label": "Sender",
+      "sub": "pays a friend",
+      "kind": "open",
+      "what": "Someone paying another person.",
+      "expects": "Finds the right person fast, the payment feels instant, mistakes can be undone, and it is free.",
+      "qs": [
+        "P1",
+        "G2",
+        "C1"
+      ]
+    },
+    {
+      "id": "receiver",
+      "row": 1,
+      "label": "Receiver",
+      "sub": "gets paid",
+      "kind": "open",
+      "what": "Someone on the receiving end.",
+      "expects": "Money is usable straight away and can be moved to a bank quickly.",
+      "qs": [
+        "P5",
+        "B4"
+      ]
+    },
+    {
+      "id": "guest",
+      "row": 1,
+      "label": "Invited non-user",
+      "sub": "paid before signing up",
+      "kind": "open",
+      "tags": [
+        "plg"
+      ],
+      "what": "A person who is sent money or a request and has no account.",
+      "expects": "Claims the money in a minute or two without a long sign-up.",
+      "qs": [
+        "P2",
+        "G1",
+        "U3"
+      ]
+    },
+    {
+      "id": "seller",
+      "row": 1,
+      "label": "Seller or business",
+      "sub": "in scope?",
+      "kind": "fork",
+      "what": "Someone accepting payment for goods or work.",
+      "expects": "Proof of payment, clear fees, refunds, tax documents.",
+      "qs": [
+        "S1",
+        "P3"
+      ],
+      "fork": {
+        "q": "Person-to-person only, or commerce too?",
+        "options": [
+          {
+            "name": "Person-to-person only",
+            "when": "the launch customer is friends splitting costs"
+          },
+          {
+            "name": "Business profiles",
+            "when": "people are already using it to get paid and that is where revenue is"
+          }
+        ]
+      }
+    },
+    {
+      "id": "support",
+      "row": 1,
+      "label": "Support agent",
+      "sub": "internal",
+      "kind": "open",
+      "what": "Handles \"wrong person\", \"did not arrive\" and scam reports.",
+      "expects": "Sees a payment end to end and can act within clear limits.",
+      "qs": [
+        "P4",
+        "C5"
+      ]
+    },
+    {
+      "id": "analyst",
+      "row": 1,
+      "label": "Risk and compliance",
+      "sub": "internal",
+      "kind": "open",
+      "what": "Reviews flagged accounts and payments.",
+      "expects": "A queue of cases, the evidence for each, and the power to freeze.",
+      "qs": [
+        "P4",
+        "M5"
+      ]
+    },
+    {
+      "id": "finops",
+      "row": 1,
+      "label": "Finance operations",
+      "sub": "internal",
+      "kind": "open",
+      "what": "Makes sure our books match the bank's.",
+      "expects": "A daily view of what did not match and why.",
+      "qs": [
+        "P4",
+        "U1"
+      ]
+    },
+    {
+      "id": "apps",
+      "row": 2,
+      "col": 1,
+      "span": 2,
+      "label": "Mobile and web apps",
+      "sub": "iOS, Android, web",
+      "kind": "open",
+      "what": "Everything a customer touches.",
+      "qs": [
+        "T1",
+        "K3"
+      ]
+    },
+    {
+      "id": "gateway",
+      "row": 2,
+      "col": 3,
+      "span": 3,
+      "label": "API gateway",
+      "sub": "sign-in, rate limits, idempotency keys",
+      "kind": "fork",
+      "what": "The single way in for clients. Every money-moving call carries an idempotency key so a retry is recognised.",
+      "qs": [
+        "K5",
+        "C3",
+        "B2"
+      ],
+      "fork": {
+        "q": "Our own apps only, or a platform others embed?",
+        "options": [
+          {
+            "name": "First-party API",
+            "when": "one brand, one set of rules"
+          },
+          {
+            "name": "Partner platform",
+            "when": "other companies offer payments under their own brand, which makes the system multi-tenant"
+          }
+        ]
+      }
+    },
+    {
+      "id": "console",
+      "row": 2,
+      "col": 6,
+      "label": "Back-office console",
+      "sub": "staff tools",
+      "kind": "open",
+      "what": "One place for support, risk and finance staff. Access is bounded by role and every action is logged.",
+      "qs": [
+        "P4",
+        "K2"
+      ]
+    },
+    {
+      "id": "identity",
+      "row": 3,
+      "col": 1,
+      "label": "Identity and onboarding",
+      "sub": "sign-up, verification tiers, devices",
+      "kind": "fork",
+      "tags": [
+        "plg"
+      ],
+      "what": "Creates accounts, verifies who people are, binds devices.",
+      "qs": [
+        "M3",
+        "G2",
+        "T2"
+      ],
+      "fork": {
+        "q": "Verify identity up front, or progressively?",
+        "options": [
+          {
+            "name": "Up front",
+            "when": "the partner or regulator requires it before any money moves"
+          },
+          {
+            "name": "Progressive tiers",
+            "when": "activation matters most and small unverified limits are allowed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pay",
+      "row": 3,
+      "col": 2,
+      "label": "Payments orchestrator",
+      "sub": "send, cancel, reverse; state per payment",
+      "kind": "open",
+      "what": "Owns the life of a payment: checks, ledger posting, funding pull, completion or failure.",
+      "qs": [
+        "C1",
+        "C3",
+        "P5"
+      ]
+    },
+    {
+      "id": "requests",
+      "row": 3,
+      "col": 3,
+      "label": "Requests, splits, scheduled",
+      "sub": "in scope?",
+      "kind": "open",
+      "what": "Anything beyond a plain send. Each adds states and, for scheduled payments, a timer.",
+      "qs": [
+        "S5",
+        "S6"
+      ]
+    },
+    {
+      "id": "feed",
+      "row": 3,
+      "col": 4,
+      "label": "Social feed",
+      "sub": "in scope? default visibility?",
+      "kind": "fork",
+      "tags": [
+        "plg"
+      ],
+      "what": "A stream of who paid whom, with comments and likes. Built from payment events, never from the ledger directly.",
+      "qs": [
+        "S4",
+        "C6"
+      ],
+      "fork": {
+        "q": "Is the feed in the first version, and what is visible by default?",
+        "options": [
+          {
+            "name": "No feed",
+            "when": "the product is a utility"
+          },
+          {
+            "name": "Feed, private by default",
+            "when": "trust matters more than virality"
+          },
+          {
+            "name": "Feed, public by default",
+            "when": "the feed is the growth loop"
+          }
+        ]
+      }
+    },
+    {
+      "id": "growth",
+      "row": 3,
+      "col": 5,
+      "label": "Growth and invites",
+      "sub": "contacts, QR, referrals, claim flow",
+      "kind": "open",
+      "tags": [
+        "plg"
+      ],
+      "what": "Finds people you know, lets you pay people who have not joined, and pays out rewards.",
+      "qs": [
+        "G1",
+        "G4",
+        "P2"
+      ]
+    },
+    {
+      "id": "disputes",
+      "row": 3,
+      "col": 6,
+      "label": "Disputes and cases",
+      "sub": "claims, freezes, chargebacks",
+      "kind": "constraint",
+      "what": "Tracks every claim to an outcome within a deadline.",
+      "note": "Consumer-protection rules and card-network rules set the deadlines and who is out of pocket meanwhile.",
+      "qs": [
+        "C5",
+        "M4",
+        "U5"
+      ]
+    },
+    {
+      "id": "wallet",
+      "row": 4,
+      "col": 1,
+      "label": "Wallet and balances",
+      "sub": "stored balance, or pass-through?",
+      "kind": "fork",
+      "what": "What each user has available to spend or withdraw. A view over the ledger.",
+      "qs": [
+        "S2",
+        "P5",
+        "B4"
+      ],
+      "fork": {
+        "q": "Do users hold a balance?",
+        "options": [
+          {
+            "name": "Stored balance",
+            "when": "receivers should be able to re-spend at once and cash out later"
+          },
+          {
+            "name": "Pass-through",
+            "when": "holding customer money is to be avoided and every payment settles bank to bank"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ledger",
+      "row": 4,
+      "col": 2,
+      "label": "Double-entry ledger",
+      "sub": "append-only record of every movement",
+      "kind": "fork",
+      "what": "The record of truth for money. Entries are never edited; corrections are new entries.",
+      "qs": [
+        "M1",
+        "C4",
+        "B1",
+        "U7",
+        "T3"
+      ],
+      "fork": {
+        "q": "Is our ledger the record of truth, or the partner's?",
+        "options": [
+          {
+            "name": "Own ledger",
+            "when": "we hold licences, or want to be able to change partner"
+          },
+          {
+            "name": "Partner's ledger with a local mirror",
+            "when": "speed to launch matters most and the partner already provides accounts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rails",
+      "row": 4,
+      "col": 3,
+      "label": "Funding and payout rails",
+      "sub": "which rails? one partner or several?",
+      "kind": "fork",
+      "what": "Pulls money in and pushes it out through banks and card networks.",
+      "qs": [
+        "S3",
+        "K4",
+        "B5",
+        "U2"
+      ],
+      "fork": {
+        "q": "Which rails, and how many providers?",
+        "options": [
+          {
+            "name": "Bank transfer only, one provider",
+            "when": "cost per payment must be near zero and days of delay are acceptable"
+          },
+          {
+            "name": "Cards and instant payout too",
+            "when": "instant is the product, and fees or revenue cover the cost"
+          },
+          {
+            "name": "Several providers with routing",
+            "when": "an outage or a lost partner would be fatal"
+          }
+        ]
+      }
+    },
+    {
+      "id": "risk",
+      "row": 4,
+      "col": 4,
+      "label": "Risk decision",
+      "sub": "in the payment path, or after it?",
+      "kind": "fork",
+      "what": "Approve, hold or decline each payment and each sign-up.",
+      "qs": [
+        "M4",
+        "M5",
+        "B3",
+        "T3"
+      ],
+      "fork": {
+        "q": "Block in the payment path, or review afterwards?",
+        "options": [
+          {
+            "name": "Synchronous decision",
+            "when": "we carry the loss and money leaves instantly"
+          },
+          {
+            "name": "Asynchronous review",
+            "when": "funds are held before release anyway, or the partner carries the loss"
+          }
+        ]
+      }
+    },
+    {
+      "id": "limits",
+      "row": 4,
+      "col": 5,
+      "label": "Limits and fees",
+      "sub": "evaluated on every payment",
+      "kind": "open",
+      "what": "Applies sending limits and works out any fee before the ledger is touched.",
+      "qs": [
+        "G3",
+        "K1",
+        "M3"
+      ]
+    },
+    {
+      "id": "policy",
+      "row": 4,
+      "col": 6,
+      "label": "Policy and configuration",
+      "sub": "rules as data, or in code?",
+      "kind": "fork",
+      "what": "Holds limits, fees, hold periods, risk thresholds and flags. Changes are approved and written to an audit log.",
+      "qs": [
+        "K1",
+        "K2",
+        "G5",
+        "M2"
+      ],
+      "fork": {
+        "q": "Hard-coded rules, or a rules store staff can change?",
+        "options": [
+          {
+            "name": "In code",
+            "when": "one region, one tier, rules rarely change"
+          },
+          {
+            "name": "Configurable",
+            "when": "rules vary by region, tier and funding source, or will be tested as experiments"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stream",
+      "row": 5,
+      "col": 1,
+      "span": 5,
+      "label": "Event stream",
+      "sub": "every ledger change is published once, in order, and can be replayed",
+      "kind": "plain",
+      "what": "Several independent consumers need each payment event, and some need to rebuild from history. An outbox guarantees an event follows every ledger write.",
+      "qs": [
+        "C4"
+      ]
+    },
+    {
+      "id": "recon",
+      "row": 5,
+      "col": 6,
+      "label": "Settlement and reconciliation",
+      "sub": "our books against the bank's",
+      "kind": "constraint",
+      "what": "Matches ledger entries to bank and processor files every day and queues what does not match.",
+      "note": "Cut-off times, return windows and file formats are set by the rails and the partner.",
+      "qs": [
+        "U1",
+        "U2",
+        "C2"
+      ]
+    },
+    {
+      "id": "scheduler",
+      "row": 6,
+      "col": 1,
+      "label": "Scheduler and jobs",
+      "sub": "timers, expiry, sweeps, exports",
+      "kind": "open",
+      "what": "Work driven by time: scheduled payments, expiry of unclaimed money, hold releases, statements.",
+      "qs": [
+        "S5",
+        "P2",
+        "U3"
+      ]
+    },
+    {
+      "id": "notify",
+      "row": 6,
+      "col": 2,
+      "label": "Notifications",
+      "sub": "push, text, email",
+      "kind": "plain",
+      "tags": [
+        "plg"
+      ],
+      "what": "Tells people about money in, money out and requests. Also the channel that brings invited people in.",
+      "qs": [
+        "K3",
+        "G1"
+      ]
+    },
+    {
+      "id": "reporting",
+      "row": 6,
+      "col": 3,
+      "label": "Compliance and tax reporting",
+      "sub": "filings, statements, retention",
+      "kind": "constraint",
+      "what": "Produces what regulators and tax authorities require from the ledger history.",
+      "note": "Retention periods and report formats are fixed by law and differ by jurisdiction.",
+      "qs": [
+        "M6",
+        "U6",
+        "M2"
+      ]
+    },
+    {
+      "id": "monitor",
+      "row": 6,
+      "col": 4,
+      "label": "Transaction monitoring",
+      "sub": "patterns over time",
+      "kind": "constraint",
+      "what": "Looks for suspicious patterns across payments and raises cases.",
+      "note": "Anti-money-laundering obligations apply whoever holds the licence.",
+      "qs": [
+        "M5"
+      ]
+    },
+    {
+      "id": "analytics",
+      "row": 6,
+      "col": 5,
+      "label": "Analytics and experiments",
+      "sub": "funnels, cohorts, tests",
+      "kind": "plain",
+      "tags": [
+        "plg"
+      ],
+      "what": "Measures activation and the growth loop, and assigns users to experiments.",
+      "qs": [
+        "G5",
+        "B1"
+      ]
+    },
+    {
+      "id": "kyc",
+      "row": 7,
+      "col": 1,
+      "label": "Identity verification vendor",
+      "kind": "plain",
+      "what": "Checks documents and identity data. Its response time sits inside sign-up.",
+      "qs": [
+        "M3",
+        "T2"
+      ]
+    },
+    {
+      "id": "push",
+      "row": 7,
+      "col": 2,
+      "label": "Push, text and email providers",
+      "kind": "plain",
+      "what": "Third-party delivery. Slow or down at times, so it sits behind a queue.",
+      "qs": [
+        "K3"
+      ]
+    },
+    {
+      "id": "regulators",
+      "row": 7,
+      "col": 3,
+      "label": "Regulators and tax authority",
+      "kind": "constraint",
+      "what": "Receive filings and can demand records.",
+      "note": "Which ones apply depends on where we launch and who holds the licence.",
+      "qs": [
+        "M2",
+        "M6"
+      ]
+    },
+    {
+      "id": "sanctions",
+      "row": 7,
+      "col": 4,
+      "label": "Sanctions and watchlist data",
+      "kind": "constraint",
+      "what": "Lists every customer and counterparty is screened against.",
+      "note": "Screening is mandatory; only how and when is ours to decide.",
+      "qs": [
+        "M5"
+      ]
+    },
+    {
+      "id": "processor",
+      "row": 7,
+      "col": 5,
+      "label": "Card and bank-transfer rails",
+      "sub": "processor, networks, instant rails",
+      "kind": "constraint",
+      "what": "The systems that move money between banks.",
+      "note": "Each rail has its own speed, cost, cut-offs, return rules and security requirements.",
+      "qs": [
+        "S3",
+        "U2",
+        "U5",
+        "T4"
+      ]
+    },
+    {
+      "id": "bank",
+      "row": 7,
+      "col": 6,
+      "label": "Bank partner",
+      "sub": "own licences, or a sponsor?",
+      "kind": "fork",
+      "what": "Holds customer funds, or holds our operating accounts if we are licensed ourselves.",
+      "note": "A sponsor can change limits or end the programme.",
+      "qs": [
+        "M1",
+        "U4",
+        "T2"
+      ],
+      "fork": {
+        "q": "Our own licences, or a sponsor bank?",
+        "options": [
+          {
+            "name": "Sponsor bank",
+            "when": "launch speed matters and we accept its rules, limits and oversight"
+          },
+          {
+            "name": "Own licences",
+            "when": "control and margin justify a much longer path to launch"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "sender",
+      "to": "apps",
+      "route": "elbow"
+    },
+    {
+      "from": "receiver",
+      "to": "apps",
+      "route": "elbow"
+    },
+    {
+      "from": "guest",
+      "to": "apps",
+      "route": "elbow"
+    },
+    {
+      "from": "seller",
+      "to": "apps",
+      "route": "elbow"
+    },
+    {
+      "from": "support",
+      "to": "console",
+      "route": "elbow"
+    },
+    {
+      "from": "analyst",
+      "to": "console",
+      "route": "elbow"
+    },
+    {
+      "from": "finops",
+      "to": "console",
+      "route": "elbow"
+    },
+    {
+      "from": "apps",
+      "to": "gateway",
+      "route": "h"
+    },
+    {
+      "from": "gateway",
+      "to": "identity",
+      "route": "elbow"
+    },
+    {
+      "from": "gateway",
+      "to": "pay",
+      "route": "elbow"
+    },
+    {
+      "from": "gateway",
+      "to": "requests",
+      "route": "elbow"
+    },
+    {
+      "from": "gateway",
+      "to": "feed",
+      "route": "elbow"
+    },
+    {
+      "from": "gateway",
+      "to": "growth",
+      "route": "elbow"
+    },
+    {
+      "from": "console",
+      "to": "disputes",
+      "route": "elbow"
+    },
+    {
+      "from": "disputes",
+      "to": "policy",
+      "route": "elbow"
+    },
+    {
+      "from": "policy",
+      "to": "limits",
+      "route": "h"
+    },
+    {
+      "from": "pay",
+      "to": "ledger",
+      "route": "elbow"
+    },
+    {
+      "from": "pay",
+      "to": "rails",
+      "route": "elbow"
+    },
+    {
+      "from": "pay",
+      "to": "risk",
+      "route": "elbow"
+    },
+    {
+      "from": "pay",
+      "to": "limits",
+      "route": "elbow"
+    },
+    {
+      "from": "wallet",
+      "to": "ledger",
+      "route": "h"
+    },
+    {
+      "from": "ledger",
+      "to": "stream",
+      "route": "down"
+    },
+    {
+      "from": "stream",
+      "to": "notify",
+      "route": "drop"
+    },
+    {
+      "from": "stream",
+      "to": "reporting",
+      "route": "drop"
+    },
+    {
+      "from": "stream",
+      "to": "monitor",
+      "route": "drop"
+    },
+    {
+      "from": "stream",
+      "to": "analytics",
+      "route": "drop"
+    },
+    {
+      "from": "notify",
+      "to": "push",
+      "route": "elbow"
+    },
+    {
+      "from": "reporting",
+      "to": "regulators",
+      "route": "elbow"
+    },
+    {
+      "from": "monitor",
+      "to": "sanctions",
+      "route": "elbow"
+    },
+    {
+      "from": "identity",
+      "to": "kyc",
+      "route": "margin"
+    },
+    {
+      "from": "rails",
+      "to": "processor",
+      "route": "riser",
+      "via": "limits"
+    },
+    {
+      "from": "rails",
+      "to": "bank",
+      "route": "riser",
+      "via": "limits"
+    },
+    {
+      "from": "recon",
+      "to": "bank",
+      "route": "down"
+    }
+  ]
+}

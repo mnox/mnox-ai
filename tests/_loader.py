@@ -32,6 +32,7 @@ SCRIPTS = {
     "detect_stack": _script("ai-setup", "detect_stack.py"),
     "inventory_config": _script("ai-setup", "inventory_config.py"),
     "verify_setup": _script("ai-setup", "verify_setup.py"),
+    "render_map": _script("system-design", "render_map.py"),
 }
 
 

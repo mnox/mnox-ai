@@ -35,7 +35,7 @@ python3 scripts/export_skills.py --output-dir ~/.codex/skills \
 
 Valid `--skill` names: `aio`, `compliance-review`, `curriculum`, `debut`,
 `diagnose-queries`, `foundry-run`, `ontology-review`, `retrieval-review`,
-`schema-review`, `strangler-fig`, `util-review`, `create-skill`, `ai-setup`,
+`schema-review`, `strangler-fig`, `util-review`, `create-skill`, `ai-setup`, `system-design`,
 plus the
 `config-chunks` skills (`chunks-setup`, `chunks`, `chunk-review`, `ideation`,
 `permission-setup`) and `bash-gate-add`.

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root{
+  --bg:#f6f5f1;--panel:#ffffff;--ink:#1b1d21;--muted:#666b75;--line:#c9ccd3;--edge:#9aa0ab;
+  --fork:#b45309;--fork-bg:#fff4dc;--con:#b4235a;--con-bg:#fde9f0;--open:#1d5fd1;--open-bg:#eaf1fe;
+  --plg:#14804a;--plg-bg:#e3f6ea;--shadow:0 8px 28px rgba(20,22,30,.18);--accent:#1b1d21;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#131519;--panel:#1d2026;--ink:#eceef2;--muted:#9aa1ad;--line:#3a3f4a;--edge:#6b7280;
+    --fork:#f5b54a;--fork-bg:#3a2c10;--con:#f27aa6;--con-bg:#3b1626;--open:#7fb0ff;--open-bg:#162844;
+    --plg:#5fd08f;--plg-bg:#12321f;--shadow:0 8px 28px rgba(0,0,0,.55);--accent:#ffffff;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:28px 32px 8px;max-width:1500px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-size:16px;margin:0 0 12px}
+.lede{color:var(--muted);margin:0 0 16px;max-width:900px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:10px;font-size:12.5px;color:var(--muted)}
+.key{display:inline-flex;align-items:center;gap:6px}
+.swatch{width:22px;height:14px;border-radius:4px;border:2px solid var(--line);background:var(--panel)}
+.swatch.fork{border-color:var(--fork);background:var(--fork-bg)}
+.swatch.constraint{border-color:var(--con);background:var(--con-bg)}
+.swatch.open{border-color:var(--open);border-style:dashed;background:var(--open-bg)}
+.first{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:var(--muted)}
+.first:empty{display:none}
+.chip{font:600 12px/1 ui-monospace,Consolas,monospace;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:default}
+.chip:hover,.chip:focus{outline:2px solid var(--accent);outline-offset:1px}
+.scroll{overflow-x:auto;padding:8px 32px 24px}
+.canvas{position:relative;max-width:1436px;margin:0 auto;display:grid;column-gap:26px;row-gap:46px;padding:14px 40px 14px 0}
+.rowlabel{grid-column:1;align-self:center;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.3}
+.strip{grid-column:2 / -1;display:flex;gap:18px}
+.strip .node{flex:1}
+.backdrop{margin:-14px -13px;border:1.5px dashed var(--line);border-radius:14px;position:relative;z-index:0}
+.backdrop.last{margin-right:-32px}
+.backdrop span{position:absolute;right:1px;top:14px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.backdrop.last span{right:5px}
+svg.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible}
+svg.edges path{fill:none;stroke:var(--edge);stroke-width:1.4;transition:stroke .12s,stroke-width .12s,opacity .12s}
+svg.edges path.on{stroke:var(--accent);stroke-width:2.2}
+.node{position:relative;z-index:2;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1.5px solid var(--line);
+  border-radius:10px;padding:9px 11px 10px;min-height:66px;cursor:pointer;transition:opacity .12s,box-shadow .12s,transform .12s}
+.node:hover,.node:focus-visible,.node.pinned{box-shadow:var(--shadow);transform:translateY(-1px);outline:none}
+.node.pinned{outline:2px solid var(--accent);outline-offset:2px}
+.node b{display:block;font-size:13px;line-height:1.25}
+.node small{display:block;font-size:11.5px;color:var(--muted);line-height:1.3;margin-top:3px}
+.node.fork{border:2px solid var(--fork);background:var(--fork-bg)}
+.node.constraint{border:2px solid var(--con);background:var(--con-bg)}
+.node.open{border:1.5px dashed var(--open);background:var(--open-bg)}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.tag{font:700 9.5px/1 system-ui,sans-serif;letter-spacing:.07em;padding:3px 5px;border-radius:4px;text-transform:uppercase}
+.tag.fork{background:var(--fork);color:var(--fork-bg)}
+.tag.constraint{background:var(--con);color:var(--con-bg)}
+.tag.open{background:var(--open);color:var(--open-bg)}
+.tag.plg{background:var(--plg);color:var(--plg-bg)}
+.canvas.dim .node:not(.lit){opacity:.28}
+.canvas.dim svg.edges{opacity:.25}
+.node.lit{box-shadow:0 0 0 3px var(--accent)}
+#tip{position:fixed;z-index:20;width:390px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;display:none;font-size:13px}
+#tip.show{display:block}
+#tip h3{margin:6px 0 6px;font-size:15px}
+#tip p{margin:0 0 8px}
+#tip .sec{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:10px 0 4px}
+#tip ul{margin:0;padding:0;list-style:none}
+#tip li{margin:0 0 7px;padding-left:38px;position:relative}
+#tip li code{position:absolute;left:0;top:1px;font:700 11px/1.3 ui-monospace,Consolas,monospace;color:var(--muted)}
+#tip li em{display:block;font-style:normal;color:var(--muted);font-size:12px}
+#tip .opt{padding-left:0}
+#tip .opt b{font-weight:600}
+#tip .forkbox{border-left:3px solid var(--fork);padding:2px 0 2px 10px;margin:8px 0}
+#tip .conbox{border-left:3px solid var(--con);padding:2px 0 2px 10px;margin:8px 0}
+#tip .hint{color:var(--muted);font-size:11px;margin-top:8px}
+main{max-width:1500px;margin:0 auto;padding:8px 32px 60px}
+.cats{columns:3 360px;column-gap:22px}
+.cat{break-inside:avoid;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 22px}
+.cat h3{margin:0 0 2px;font-size:14px}
+.cat p{margin:0 0 8px;color:var(--muted);font-size:12px}
+.cat ol{margin:0;padding:0;list-style:none}
+.cat li{padding:6px 6px 6px 40px;position:relative;border-radius:6px;cursor:default}
+.cat li code{position:absolute;left:6px;top:8px;font:700 11px/1.3 ui-monospace,Consolas,monospace;color:var(--muted)}
+.cat li em{display:block;font-style:normal;color:var(--muted);font-size:12px}
+.cat li:hover,.cat li.lit{background:var(--open-bg)}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <p class="lede" id="lede"></p>
+  <div class="legend">
+    <span class="key"><span class="swatch fork"></span>Fork: the design splits on the answer</span>
+    <span class="key"><span class="swatch constraint"></span>Constraint: imposed from outside</span>
+    <span class="key"><span class="swatch open"></span>Open question: shape unknown until answered</span>
+    <span class="key"><span class="tag plg">PLG</span>Growth loop runs through here</span>
+    <span class="key"><span class="swatch"></span>Needed either way</span>
+  </div>
+  <div class="first" id="first"></div>
+</header>
+<div class="scroll"><div class="canvas" id="canvas"><svg class="edges" id="edges"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke" stroke="none"/></marker></defs></svg></div></div>
+<main>
+  <h2>Questions, by category and then by importance</h2>
+  <div class="cats" id="cats"></div>
+</main>
+<div id="tip" role="tooltip"></div>
+<script>
+const DATA = __DATA__;
+const {nodes: NODES, edges: EDGES = [], questions: Q, categories: CATS, rows: ROWS, groups: GROUPS = [], first: FIRST = [], columns: COLUMNS = 6} = DATA;
+const TAGNAME = {fork:'Fork', constraint:'Constraint', open:'Open', plg:'PLG'};
+const GUTTER = 23;
+const RISER = 13;
+const ESCAPES = {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'};
+const esc = text => String(text ?? '').replace(/[&<>"']/g, ch => ESCAPES[ch]);
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('edges');
+const tip = document.getElementById('tip');
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+const categoryOf = id => id.replace(/\d+$/, '');
+const tagsOf = n => [...(n.kind === 'plain' ? [] : [n.kind]), ...(n.tags ?? [])];
+const tagHtml = n => tagsOf(n).map(t => `<span class="tag ${esc(t)}">${esc(TAGNAME[t] ?? t)}</span>`).join('');
+const nodeHtml = n => `${tagsOf(n).length ? `<span class="tags">${tagHtml(n)}</span>` : ''}<b>${esc(n.label)}</b>${n.sub ? `<small>${esc(n.sub)}</small>` : ''}`;
+const makeNode = n => {
+  const b = Object.assign(document.createElement('button'), {type:'button', id:`n-${n.id}`, className:`node ${n.kind}`, innerHTML:nodeHtml(n)});
+  if (n.col) Object.assign(b.style, {gridRow:String(n.row), gridColumn:`${n.col + 1} / span ${n.span ?? 1}`});
+  return b;
+};
+const makeStrip = row => {
+  const d = Object.assign(document.createElement('div'), {className:'strip'});
+  d.style.gridRow = String(row);
+  d.append(...NODES.filter(n => n.row === row && !n.col).map(makeNode));
+  return d;
+};
+const makeLabel = (text, i) => {
+  const d = Object.assign(document.createElement('div'), {className:'rowlabel', textContent:text});
+  d.style.gridRow = String(i + 1);
+  return d;
+};
+const makeBackdrop = g => {
+  const d = Object.assign(document.createElement('div'), {className:`backdrop${g.col === COLUMNS ? ' last' : ''}`, innerHTML:`<span>${esc(g.label)}</span>`});
+  Object.assign(d.style, {gridColumn:String(g.col + 1), gridRow:`${g.fromRow} / ${g.toRow + 1}`});
+  return d;
+};
+const stripRows = [...new Set(NODES.filter(n => !n.col).map(n => n.row))];
+Object.assign(canvas.style, {gridTemplateColumns:`92px repeat(${COLUMNS}, minmax(0, 1fr))`, minWidth:`${100 + COLUMNS * 190}px`});
+canvas.append(...ROWS.map(makeLabel), ...GROUPS.map(makeBackdrop), ...stripRows.map(makeStrip), ...NODES.filter(n => n.col).map(makeNode));
+document.getElementById('title').textContent = DATA.title;
+document.getElementById('lede').textContent = `${DATA.prompt ? `From the prompt "${DATA.prompt}". ` : ''}Nothing here is decided. Coloured boxes are where a question, a constraint or a fork attaches to the system. Hover a box for the detail, click to pin it, or hover a question below to see which boxes it touches.`;
+const nodeEl = id => document.getElementById(`n-${id}`);
+const box = id => {
+  const c = canvas.getBoundingClientRect();
+  const r = nodeEl(id).getBoundingClientRect();
+  return {l:r.left - c.left, r:r.right - c.left, t:r.top - c.top, b:r.bottom - c.top, cx:(r.left + r.right) / 2 - c.left, cy:(r.top + r.bottom) / 2 - c.top};
+};
+const riserX = e => e.side === 'left' ? box(e.via).l - RISER : box(e.via).r + RISER;
+const ROUTES = {
+  elbow:(a, b) => `M${a.cx},${a.b}V${(a.b + b.t) / 2}H${b.cx}V${b.t}`,
+  down:(a, b) => `M${a.cx},${a.b}V${b.t}`,
+  drop:(a, b) => `M${b.cx},${a.b}V${b.t}`,
+  h:(a, b) => a.cx < b.cx ? `M${a.r},${a.cy}H${b.l}` : `M${a.l},${a.cy}H${b.r}`,
+  margin:(a, b) => `M${a.l},${a.cy}H${a.l - RISER}V${b.t - GUTTER}H${b.cx}V${b.t}`,
+  riser:(a, b, e) => `M${a.cx},${a.b}V${a.b + GUTTER}H${riserX(e)}V${b.t - GUTTER}H${b.cx}V${b.t}`
+};
+const draw = () => {
+  svg.querySelectorAll('path.edge').forEach(p => p.remove());
+  svg.insertAdjacentHTML('beforeend', EDGES.map(e => `<path class="edge" data-a="${esc(e.from)}" data-b="${esc(e.to)}" marker-end="url(#arr)" d="${ROUTES[e.route](box(e.from), box(e.to), e)}"/>`).join(''));
+};
+const qLine = id => `<li><code>${esc(id)}</code>${esc(Q[id].q)}<em>Decides: ${esc(Q[id].decides)}</em></li>`;
+const tipHtml = n => [
+  `<div class="tags">${tagHtml(n)}</div><h3>${esc(n.label)}</h3><p>${esc(n.what)}</p>`,
+  n.expects ? `<p><b>Expects:</b> ${esc(n.expects)}</p>` : '',
+  n.fork ? `<div class="forkbox"><div class="sec">Fork</div><p><b>${esc(n.fork.q)}</b></p><ul>${n.fork.options.map(o => `<li class="opt"><b>${esc(o.name)}</b><em>Tips this way when ${esc(o.when)}.</em></li>`).join('')}</ul></div>` : '',
+  n.note ? `<div class="conbox"><div class="sec">Constraint</div><p>${esc(n.note)}</p></div>` : '',
+  (n.qs ?? []).length ? `<div class="sec">Questions that land here</div><ul>${n.qs.map(qLine).join('')}</ul>` : '',
+  `<div class="hint">Click the box to pin. Esc to release.</div>`
+].join('');
+const state = {pinned:null};
+const place = el => {
+  const r = el.getBoundingClientRect();
+  const w = tip.offsetWidth;
+  const h = tip.offsetHeight;
+  const left = r.right + 12 + w < innerWidth ? r.right + 12 : Math.max(8, r.left - w - 12);
+  const top = Math.max(8, Math.min(r.top, innerHeight - h - 8));
+  Object.assign(tip.style, {left:`${left}px`, top:`${top}px`});
+};
+const markEdges = id => svg.querySelectorAll('path.edge').forEach(p => p.classList.toggle('on', id !== null && (p.dataset.a === id || p.dataset.b === id)));
+const markQuestions = ids => document.querySelectorAll('[data-q]').forEach(li => li.classList.toggle('lit', ids.includes(li.dataset.q)));
+const light = ids => {
+  canvas.classList.toggle('dim', ids.length > 0);
+  NODES.forEach(n => nodeEl(n.id).classList.toggle('lit', ids.includes(n.id)));
+};
+const show = id => {
+  const n = byId[id];
+  tip.innerHTML = tipHtml(n);
+  tip.classList.add('show');
+  place(nodeEl(id));
+  markEdges(id);
+  markQuestions(n.qs ?? []);
+};
+const hide = () => {
+  tip.classList.remove('show');
+  markEdges(null);
+  markQuestions([]);
+};
+const restore = () => state.pinned ? show(state.pinned) : hide();
+const pin = id => {
+  NODES.forEach(n => nodeEl(n.id).classList.toggle('pinned', n.id === id));
+  state.pinned = id;
+  restore();
+};
+NODES.forEach(n => {
+  const el = nodeEl(n.id);
+  el.addEventListener('mouseenter', () => show(n.id));
+  el.addEventListener('focus', () => show(n.id));
+  el.addEventListener('mouseleave', restore);
+  el.addEventListener('blur', restore);
+  el.addEventListener('click', e => { e.stopPropagation(); pin(state.pinned === n.id ? null : n.id); });
+});
+document.addEventListener('click', e => { if (!tip.contains(e.target)) pin(null); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') pin(null); });
+const nodesFor = qid => NODES.filter(n => (n.qs ?? []).includes(qid)).map(n => n.id);
+const wireQuestion = el => {
+  el.addEventListener('mouseenter', () => light(nodesFor(el.dataset.q)));
+  el.addEventListener('focus', () => light(nodesFor(el.dataset.q)));
+  el.addEventListener('mouseleave', () => light([]));
+  el.addEventListener('blur', () => light([]));
+};
+const questionItem = id => `<li data-q="${esc(id)}" tabindex="0"><code>${esc(id)}</code>${esc(Q[id].q)}<em>Decides: ${esc(Q[id].decides)}</em></li>`;
+document.getElementById('cats').innerHTML = CATS.map(c => `<section class="cat"><h3>${esc(c.name)}</h3><p>${esc(c.blurb)}</p><ol>${Object.keys(Q).filter(id => categoryOf(id) === c.key).map(questionItem).join('')}</ol></section>`).join('');
+document.getElementById('first').innerHTML = FIRST.length ? `Ask these first:${FIRST.map(id => `<span class="chip" data-q="${esc(id)}" tabindex="0" title="${esc(Q[id].q)}">${esc(id)}</span>`).join('')}` : '';
+document.querySelectorAll('[data-q]').forEach(wireQuestion);
+new ResizeObserver(draw).observe(canvas);
+window.addEventListener('scroll', () => { if (state.pinned) place(nodeEl(state.pinned)); }, {passive:true});
+draw();
+</script>
+</body>
+</html>

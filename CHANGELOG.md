@@ -8,6 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`system-design` plugin** (0.1.0) — turns a one-line system design exercise
+  into a practice map instead of a finished answer. Asks at most four
+  clarifying questions, each of which must pass a flip test (its plausible
+  answers lead to different diagrams), and writes every other unknown into an
+  assumptions ledger. Ranks the live forks in the road by reversibility, blast
+  radius and uncertainty, and puts the top three to five first with options,
+  tipping signals and the cost of choosing wrong. Gives every area of the
+  design a verdict (core, likely, or skipped with a reason), including the
+  control plane that interview frameworks omit: onboarding, per-customer
+  configuration, tiers, tenant lifecycle, operator tooling, billing state.
+  States which async mechanisms (queue, event stream, background jobs,
+  scheduler, workflow engine) and scale concerns are triggered and on what
+  signal. Practice mode withholds every decision; learn mode adds which way the
+  problem leans and what would flip it. Supports the attempt with a customer
+  role that answers in numbers, a three-level hint ladder, and a
+  seven-dimension rubric review. A Clarify workflow lifts the four-question
+  cap and produces the full requirements question set in nine categories
+  (scope, domain rules and regulation, personas, correctness and trust,
+  business and scale, growth and PLG, configurability, stack and delivery,
+  sneaky unknowns), each question with an ID and what it decides. A Diagram
+  workflow renders a single-file, hoverable 10,000-foot HTML page in which
+  boxes are marked as forks, outside constraints or open questions and carry
+  the question IDs that land on them; hovering a question lights up every box
+  it touches. Ships one stdlib helper, `render_map.py`, that validates the
+  diagram data (one box per cell, every edge routed through a gutter, every
+  reference resolvable) before filling the page template, five references
+  (questions, forks, elements, practice, diagram), a sources file recording how
+  each piece of prior art was verified, and a worked example data file. Only
+  the diagram needs a filesystem and `python3`.
 - **`ai-setup` plugin** (0.1.0) — role-based agent environment setup. Give it an
   engineer's role and stack ("React frontend engineer") and, after one round of
   at most four questions, it plans, applies, and verifies the whole setup. A
