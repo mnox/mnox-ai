@@ -1,7 +1,7 @@
 {
   "name": "all-skills",
   "version": "0.5.0",
-  "description": "Meta-plugin that installs every mnox-ai agentic-review skill at once via plugin dependencies. Standalone utility plugins (session-tracker, config-chunks, create-skill, bash-gate) are installed separately. Excludes foundry, which is decommissioned for public use.",
+  "description": "Meta-plugin that installs every mnox-ai agentic-review skill at once via plugin dependencies. Standalone utility plugins (session-tracker, config-chunks, create-skill, bash-gate) are installed separately.",
   "author": { "name": "Matt Noxon" },
   "homepage": "https://github.com/mnox/mnox-ai",
   "license": "MIT",

@@ -25,10 +25,6 @@ node_modules/
 *.db-shm
 *.db-wal
 
-# Foundry — user-created live registry (may hold private repo paths) + run-state.
-# The committed template is repos.example.json; the live copy stays local.
-plugins/foundry/skills/foundry-run/scripts/repos.json
-.foundry/
 
 # Skill customization — local/private render profiles. profiles/public.toml is
 # the tracked default; any non-public profile carries personal/org binding and

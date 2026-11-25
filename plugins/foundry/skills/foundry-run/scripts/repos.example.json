@@ -1,6 +1,0 @@
-{
-  "decommissioned": true,
-  "replacement": "/Users/matt.noxon/dev/personal/sven/src-tauri/target/debug/sven_unit_workflow",
-  "predecessor_foundry_profiles_allowed": false,
-  "note": "Foundry/Peggy execution is Sven-native; predecessor repo profiles are historical only."
-}

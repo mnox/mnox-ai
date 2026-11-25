@@ -30,7 +30,6 @@ class ExportSkillsTest(unittest.TestCase):
         skills = {skill.name for skill in exporter.discover_skills()}
         self.assertIn("schema-review", skills)
         self.assertIn("curriculum", skills)
-        self.assertIn("foundry-run", skills)
 
     def test_copy_subset_writes_manifest(self) -> None:
         with TemporaryDirectory() as d:

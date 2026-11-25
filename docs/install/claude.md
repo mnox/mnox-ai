@@ -22,8 +22,6 @@ Swap `schema-review` for any plugin: `aio`, `curriculum`, `strangler-fig`,
 `compliance-review`, `util-review`, `debut`, `diagnose-queries`,
 `ontology-review`, `retrieval-review`, `create-skill`, `config-chunks`,
 `ai-setup`, `system-design`.
-(`foundry` is also installable but is **decommissioned for public use** — see
-[`plugins/foundry/README.md`](../../plugins/foundry/README.md) before installing it.)
 
 ### The whole set — one shot
 
@@ -42,8 +40,7 @@ claude plugin uninstall all-skills --prune
 > `compliance-review`, `curriculum`, `debut`, `diagnose-queries`,
 > `ontology-review`, `retrieval-review`, `schema-review`, `strangler-fig`,
 > `util-review`). The tooling plugins — `config-chunks`, `ai-setup`, `system-design`, `create-skill`,
-> `session-tracker`, `bash-gate` — install individually, as does `foundry`
-> (decommissioned for public use — deliberately excluded from the bundle).
+> `session-tracker`, `bash-gate` — install individually.
 
 ## 3. Wire the MCP utility (`session-tracker`)
 

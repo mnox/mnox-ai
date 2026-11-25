@@ -102,14 +102,6 @@
       "tags": ["jobs", "browser", "automation", "resume", "career"]
     },
     {
-      "name": "foundry",
-      "source": "./plugins/foundry",
-      "description": "DECOMMISSIONED for public use — the original autonomous-fix loop has been retired in favor of the maintainer's private Sven Unit runtime, which isn't distributed in this repo. Not functional for other marketplace installs; see plugins/foundry/README.md.",
-      "version": "0.1.0",
-      "category": "agentic",
-      "tags": ["agents", "automation", "loop", "worktree", "review", "autonomous", "decommissioned"]
-    },
-    {
       "name": "all-skills",
       "source": "./plugins/all-skills",
       "description": "Meta-plugin that installs every mnox-ai agentic-review skill at once. Standalone utility plugins (session-tracker, config-chunks, create-skill, bash-gate) are installed separately.",

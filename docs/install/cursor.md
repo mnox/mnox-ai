@@ -37,15 +37,11 @@ python3 scripts/export_skills.py --output-dir ~/.cursor/skills \
 ```
 
 Valid `--skill` names: `aio`, `compliance-review`, `curriculum`, `debut`,
-`diagnose-queries`, `foundry-run`, `ontology-review`, `retrieval-review`,
+`diagnose-queries`, `ontology-review`, `retrieval-review`,
 `schema-review`, `strangler-fig`, `util-review`, `create-skill`, `ai-setup`, `system-design`,
 plus the
 `config-chunks` skills (`chunks-setup`, `chunks`, `chunk-review`, `ideation`,
 `permission-setup`) and `bash-gate-add`.
-
-> `foundry-run` exports but is **decommissioned for public use** — it now
-> routes into the maintainer's private Sven Unit runtime, not distributed
-> here. See [`plugins/foundry/README.md`](../../plugins/foundry/README.md).
 
 ### Engine-backed skills (`config-chunks`)
 

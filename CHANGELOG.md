@@ -128,13 +128,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   fail-closed gate to the plugin cache.
 - **`aio` plugin** — synced the knowledge base with the latest research
   refresh (judge-validity claim, 13 evidence updates).
-- **`foundry` plugin** — **decommissioned for public use.** The V0
-  autonomous-fix loop (deterministic bash engine driving a Worker/Integrator
-  pair over isolated git worktrees) has been retired; `/foundry-run` is now a
-  compatibility shim that routes into the maintainer's private Sven Unit
-  runtime, which is not distributed in this repo. The plugin is no longer
-  functional for other marketplace installs and has been removed from the
-  `all-skills` bundle. See `plugins/foundry/README.md`.
+
+### Removed
+- **`foundry` plugin** — deleted from the repo and the marketplace. It had been
+  decommissioned for public use and was no longer functional outside the
+  maintainer's private runtime.
 
 ## [0.5.0] - 2026-06-22
 
